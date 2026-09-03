@@ -1,0 +1,286 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Case Study 00: This is a template},
+  pdfauthor={Author 1 and Author 2},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Case Study 00: This is a template}
+\author{Author 1 and Author 2}
+\date{March 00, 2015}
+
+\begin{document}
+\maketitle
+
+\begin{verbatim}
+## Installing package into '/home/personal/R/x86_64-pc-linux-gnu-library/4.5'
+## (as 'lib' is unspecified)
+\end{verbatim}
+
+\begin{verbatim}
+## also installing the dependencies 'credentials', 'systemfonts', 'textshaping', 'curl', 'gert', 'gh', 'httr2', 'ragg', 'xml2', 'usethis', 'pak', 'pkgdown', 'rcmdcheck', 'roxygen2', 'rversions', 'urlchecker'
+\end{verbatim}
+
+\subsection{Summary}\label{summary}
+
+This document provides a template for the Case Study reports. Reports
+should always start a short executive summary (call it an
+\emph{Abstract} if you want) to give the reader a general idea of the
+topic under investigation, the kind of analysis performed, the results
+obtained, and the general recommendations of the authors.
+
+There are (at least) two ways to render this document to \textbf{pdf} in
+R: one easy and one\ldots{} well, less easy.
+
+\subsubsection{1. The easy way}\label{the-easy-way}
+
+Use \href{http://rstudio.com/}{RStudio} as your editor, open the
+\textbf{.Rmd} file and click the \emph{Knit PDF} button at the top of
+the editor.
+
+\subsubsection{2. The slightly-less-easy
+way}\label{the-slightly-less-easy-way}
+
+If you're using any other R editor (such as the basic
+\href{http://cran.r-project.org}{R} editor), you have to use the
+\emph{render()} function from the \textbf{rmarkdown} package:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{install.packages}\NormalTok{(}\StringTok{"devtools"}\NormalTok{)                    }\CommentTok{\# you only have to install it once}
+\FunctionTok{library}\NormalTok{(devtools)}
+\FunctionTok{install\_github}\NormalTok{(}\StringTok{"rstudio/rmarkdown"}\NormalTok{)             }\CommentTok{\# you only have to install it once}
+\FunctionTok{library}\NormalTok{(rmarkdown)}
+\FunctionTok{render}\NormalTok{(}\StringTok{"report\_template.Rmd"}\NormalTok{,}\StringTok{"pdf\_document"}\NormalTok{)    }\CommentTok{\# this renders the pdf}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Experimental design}\label{experimental-design}
+
+A section detailing the experimental setup. This is the place where you
+will define your test hypotheses, e.g.:
+\[\begin{cases} H_0: \mu = 10&\\H_1: \mu<10\end{cases}\]
+
+including the reasons behind your choices of the value for \(H_0\) and
+the directionality (or not) of \(H_1\).
+
+This is also the place where you should discuss (whenever necessary)
+your definitions of minimally relevant effects (\(\delta^*\)), sample
+size calculations, choice of power and significance levels, and any
+other relevant information about specificities in your data collection
+procedures.
+
+\subsubsection{Description of the data
+collection}\label{description-of-the-data-collection}
+
+Whenever needed, you can also include an (optional) subsection
+describing the actual data collection, how it was performed, any
+adaptations or unexpected events that may have occurred, etc.
+Subsections like this can also be used for the sample size calculations
+or any other aspect that requires a longer discussion.
+
+\subsection{Exploratory Data Analysis}\label{exploratory-data-analysis}
+
+The first step is to load and preprocess the data. For instance,
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{data}\NormalTok{(mtcars)}
+\NormalTok{fc}\OtherTok{\textless{}{-}}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{8}\SpecialCharTok{:}\DecValTok{11}\NormalTok{)}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(fc))\{mtcars[,fc[i]]}\OtherTok{\textless{}{-}}\FunctionTok{as.factor}\NormalTok{(mtcars[,fc[i]])\}}
+\FunctionTok{levels}\NormalTok{(mtcars}\SpecialCharTok{$}\NormalTok{am) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Automatic"}\NormalTok{,}\StringTok{"Manual"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+To get an initial feel for the relationships between the relevant
+variables of your experiment it is frequently interesting to perform
+some preliminary (exploratory) analysis. This is frequently referred to
+as \emph{getting a feel} of your data, and can suggest procedures (such
+as outlier investigation or data transformations) to experienced
+experimenters.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(GGally,}\AttributeTok{quietly =}\NormalTok{ T, }\AttributeTok{warn.conflicts =}\NormalTok{ F) }\CommentTok{\# This is just me getting fancy.}
+                                                \CommentTok{\# There are much simpler ways ;{-})}
+\FunctionTok{ggpairs}\NormalTok{(}\AttributeTok{data=}\NormalTok{mtcars,}\AttributeTok{columns=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{9}\NormalTok{),}\AttributeTok{title=}\StringTok{"MPG by transmission type"}\NormalTok{,}
+        \AttributeTok{upper=}\FunctionTok{list}\NormalTok{(}\AttributeTok{combo=}\StringTok{"box"}\NormalTok{),}\AttributeTok{lower=}\FunctionTok{list}\NormalTok{(}\AttributeTok{combo=}\StringTok{"facethist"}\NormalTok{),}
+        \AttributeTok{diag=}\FunctionTok{list}\NormalTok{(}\AttributeTok{continuous=}\StringTok{"densityDiag"}\NormalTok{,}\AttributeTok{discrete=}\StringTok{"barDiag"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio,alt={Exploring the effect of car transmission on mpg values}]{report_template_files/figure-latex/pairs-1.pdf}}
+\caption{Exploring the effect of car transmission on mpg values}
+\end{figure}
+
+Your preliminary analysis should be described together with the plots.
+In this example, two facts are immediately clear from the plots: first,
+\textbf{mpg} tends to correlate well with many of the other variables,
+most intensely with \textbf{drat} (positively) and \textbf{wt}
+(negatively). It is also clear that many of the variables are highly
+correlated (e.g., \textbf{wt} and \textbf{disp}). Second, it seems like
+manual transmission models present larger values of \textbf{mpg} than
+the automatic ones. In the next section a linear model will be fit to
+the data in order to investigate the significance and magnitude of this
+possible effect.
+
+\subsection{Statistical Analysis}\label{statistical-analysis}
+
+Your statistical analysis should come here. This is the place where you
+should fit your statistical model, get the results of your significance
+test, your effect size estimates and confidence intervals.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model}\OtherTok{\textless{}{-}}\FunctionTok{aov}\NormalTok{(mpg}\SpecialCharTok{\textasciitilde{}}\NormalTok{am}\SpecialCharTok{*}\NormalTok{disp,}\AttributeTok{data=}\NormalTok{mtcars)}
+\FunctionTok{summary}\NormalTok{(model)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##             Df Sum Sq Mean Sq F value   Pr(>F)    
+## am           1  405.2   405.2  47.948 1.58e-07 ***
+## disp         1  420.6   420.6  49.778 1.13e-07 ***
+## am:disp      1   63.7    63.7   7.537   0.0104 *  
+## Residuals   28  236.6     8.4                     
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+\subsubsection{Checking Model
+Assumptions}\label{checking-model-assumptions}
+
+The assumptions of your test should also be validated, and possible
+effects of violations should also be explored.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow=}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{), }\AttributeTok{mai=}\NormalTok{.}\DecValTok{3}\SpecialCharTok{*}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{))}
+\FunctionTok{plot}\NormalTok{(model,}\AttributeTok{pch=}\DecValTok{16}\NormalTok{,}\AttributeTok{lty=}\DecValTok{1}\NormalTok{,}\AttributeTok{lwd=}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio,alt={Residual plots for the anova model}]{report_template_files/figure-latex/resplots-1.pdf}}
+\caption{Residual plots for the anova model}
+\end{figure}
+
+\subsubsection{Conclusions and
+Recommendations}\label{conclusions-and-recommendations}
+
+The discussion of your results, and the scientific/technical meaning of
+the effects detected, should be placed here. Always be sure to tie your
+results back to the original question of interest!
+
+\subsubsection{Declaration of generative AI and AI-assisted technologies
+in the report preparation
+process.}\label{declaration-of-generative-ai-and-ai-assisted-technologies-in-the-report-preparation-process.}
+
+During the preparation of this work the author(s) used {[}NAME OF TOOL /
+SERVICE{]} in order to {[}REASON{]}. After using this tool/service, the
+author(s) reviewed and edited the content as needed and take(s) full
+responsibility for the content of the published article.
+
+\end{document}
