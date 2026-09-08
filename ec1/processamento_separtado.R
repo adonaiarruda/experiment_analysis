@@ -39,6 +39,28 @@ masc_2016 <-subset(dados_2016, Gender == "M")
 masc_2017 <-subset(dados_2017, Gender == "M")
 
 
+fem <- rbind(
+  data.frame(BMI = fem_2016["BMI"], Semestre = "2016-2" ), 
+  data.frame(BMI = fem_2017["BMI"], Semestre = "2017-2" )  
+)
+
+masc <- rbind(
+  data.frame(BMI = masc_2016["BMI"], Semestre = "2016-2" ), 
+  data.frame(BMI = masc_2017["BMI"], Semestre = "2017-2" )  
+)
 
 # Caso 1 ------------------------------
 #---------------------------------------
+
+t.test(fem_2016["BMI"],fem_2017["BMI"])
+
+fligner.test(BMI~ Semestre, data = fem)
+
+
+t.test(masc_2016["BMI"],masc_2017["BMI"])
+
+fligner.test(BMI~ Semestre, data = masc)
+
+
+
+
