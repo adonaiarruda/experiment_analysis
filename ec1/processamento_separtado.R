@@ -75,10 +75,16 @@ shapiro.test(fem_2016$BMI)
 shapiro.test(fem_2017$BMI)
 
 #Como o p-valor do teste shapiro deu abaixo de 5% verificamos graficamente
+
 library(car)
 qqPlot(fem_2017$BMI)
 
-#mesmo com o p_valor que como são valores de calda assuminos normalidade
+#mesmo com o p_valor abaxo de 5%. como se trata de valores de calda, podemos assumir normalidade
+
+
+shapiro.test(masc_2016$BMI)
+shapiro.test(masc_2017$BMI)
+
 
 
 fligner.test(BMI~ Semestre, data = fem)
@@ -89,20 +95,6 @@ fligner.test(BMI~ Semestre, data = masc)
 t.test(masc_2016$BMI, masc_2017$BMI)
 
 
-#Verificamos normalidade dos dados
-
-
-
-library(car)
-qqPlot(fem_2017$BMI)
-
-shapiro.test(masc_2016$BMI)
-shapiro.test(masc_2017$BMI)
-
-#o p-valor do masc_2016 deu 2%
-qqPlot(masc_2016$BMI)
-
-#mesmo com  os p_valore que como são valores de calda assuminos normalidade
 
 
 
