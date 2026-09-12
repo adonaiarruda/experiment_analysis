@@ -1,0 +1,464 @@
+---
+title: "Estudo de Caso 01: Comparação do IMC médio de alunos do PPGEE-UFMG ao longo de dois semestres"
+subtitle: "EEE933 - Planejamento e Análise de Experimentos"
+author: "[Nome dos alunos]"
+date: "11 de setembro de 2026"
+output:
+  pdf_document:
+    fig_caption: yes
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
+                      fig.align = "center")
+
+if (!require(car, quietly = TRUE)){
+  install.packages("car")
+}
+library(car)
+
+set.seed(1234)
+```
+
+## Resumo
+
+Este relatório compara o Índice de Massa Corporal (IMC) médio de alunos de pós-graduação
+do PPGEE-UFMG entre os semestres 2016-2 e 2017-2. A comparação foi conduzida em três
+recortes independentes: a população feminina, a população masculina e a população agregada
+(masculina + feminina). Em cada caso foram verificadas as premissas do teste t de Student
+para duas amostras independentes (normalidade, homogeneidade de variâncias e independência
+das observações) e, em seguida, aplicado o teste bilateral com nível de confiança de 95%.
+Nos três casos o teste falhou em rejeitar a hipótese nula (p-valores de 0,2612; 0,7732 e
+0,7370, respectivamente).
+
+## Projeto experimental
+
+### Efeito minimamente relevante ($\delta^*$)
+
+O valor do menor efeito de interesse prático foi fixado *a priori*, antes do exame dos dados,
+em $\delta^* = 1\ \mathrm{kg/m^2}$, e o mesmo valor foi adotado nos três casos analisados,
+por ser a relevância prática uma propriedade da grandeza medida e não da dispersão de cada
+subamostra.
+
+A justificativa registrada para esse valor é a seguinte: o IMC é uma medida usada para avaliar
+a saúde dos alunos, e $\delta^*$ deve expressar a menor diferença prática entre os IMC médios
+das turmas capaz de sinalizar uma mudança de hábitos. As faixas de classificação do IMC
+(subpeso, normal, sobrepeso, obesidade I e obesidade II) têm cerca de $5\ \mathrm{kg/m^2}$.
+Adotou-se, portanto, $\delta^* = 1\ \mathrm{kg/m^2}$ — cerca de um quinto de faixa, ou
+2,9 kg para um aluno de 1,70 m.
+
+```{r delta}
+delta_star <- 1
+```
+
+### Hipóteses de teste
+
+Para cada um dos três casos, as hipóteses de teste são bilaterais, comparando o IMC médio
+da população de 2016-2 com o da população de 2017-2:
+
+$$\begin{cases} H_0: \mu_{2016} - \mu_{2017} = 0&\\H_1: \mu_{2016} - \mu_{2017} \neq 0\end{cases}$$
+
+As chamadas de `t.test()` foram executadas com o argumento `mu = delta_star`, isto é, com
+valor de referência igual a $1\ \mathrm{kg/m^2}$; isso é refletido na linha
+`alternative hypothesis: true difference in means is not equal to 1` das saídas obtidas.
+
+**[PLACEHOLDER — conciliar a formulação das hipóteses acima com o valor de referência
+efetivamente utilizado nas chamadas do teste, e justificar a opção pela alternativa
+bilateral.]**
+
+### Nível de significância e tamanho amostral
+
+Os testes foram executados com `conf.level = 0.95`, o que corresponde a um nível de
+significância $\alpha = 0{,}05$.
+
+### Descrição da coleta e consolidação dos dados
+
+Os dados de 2016-2 estão tabulados em `data/imc_20162.csv` e os de 2017-2 em
+`data/CS01_20172.csv`. Conforme o enunciado, o arquivo de 2016-2 contém também dados de uma
+turma de graduação, e os dois arquivos estão em formatos ligeiramente diferentes. A
+consolidação exigiu, portanto:
+
+1. isolar a turma de pós-graduação no arquivo de 2016-2 (`Course == "PPGEE"`);
+2. renomear as colunas do arquivo de 2017-2 (`height.m` $\rightarrow$ `Height.m` e
+   `Sex` $\rightarrow$ `Gender`), de modo a alinhá-lo ao formato de 2016-2;
+3. calcular o IMC, $\mathrm{IMC} = \mathrm{peso}/\mathrm{altura}^2$, como coluna `BMI` em
+   ambas as tabelas;
+4. separar as observações por sexo e por semestre, e montar os conjuntos agregados usados
+   em cada um dos três casos.
+
+## Análise exploratória dos dados
+
+O bloco abaixo realiza a leitura e todo o pré-processamento descrito na seção anterior.
+
+```{r loaddata}
+dados_2016 <- read.csv("data/imc_20162.csv", header = TRUE)
+dados_2017 <- read.csv("data/CS01_20172.csv", header = TRUE, sep = ";")
+
+dados_2016 <- subset(dados_2016, Course == "PPGEE")
+
+names(dados_2017)[2] <- "Height.m"
+names(dados_2017)[3] <- "Gender"
+
+calcular_imc_tabela <- function(tabela) {
+  imc <- tabela$Weight.kg / (tabela$Height.m^2)
+  tabela$BMI <- imc
+
+  return(tabela)
+}
+
+dados_2016 <- calcular_imc_tabela(dados_2016)
+dados_2016$BMI <- as.numeric(gsub(",", ".", dados_2016$BMI))
+
+dados_2017 <- calcular_imc_tabela(dados_2017)
+dados_2017$BMI <- as.numeric(gsub(",", ".", dados_2017$BMI))
+
+fem_2016 <- subset(dados_2016, Gender == "F")
+fem_2017 <- subset(dados_2017, Gender == "F")
+
+masc_2016 <- subset(dados_2016, Gender == "M")
+masc_2017 <- subset(dados_2017, Gender == "M")
+
+fem <- rbind(
+  data.frame(BMI = fem_2016[["BMI"]], Semestre = "2016-2"),
+  data.frame(BMI = fem_2017[["BMI"]], Semestre = "2017-2")
+)
+
+masc <- rbind(
+  data.frame(BMI = masc_2016[["BMI"]], Semestre = "2016-2"),
+  data.frame(BMI = masc_2017[["BMI"]], Semestre = "2017-2")
+)
+
+pop_2016 <- rbind(
+  data.frame(BMI = masc_2016[["BMI"]], Gender = "M"),
+  data.frame(BMI = fem_2016[["BMI"]], Gender = "F")
+)
+
+pop_2017 <- rbind(
+  data.frame(BMI = masc_2017[["BMI"]], Gender = "M"),
+  data.frame(BMI = fem_2017[["BMI"]], Gender = "F")
+)
+
+pop_total <- rbind(
+  data.frame(BMI = pop_2016[["BMI"]], Semestre = "2016-2"),
+  data.frame(BMI = pop_2017[["BMI"]], Semestre = "2017-2")
+)
+```
+
+**[PLACEHOLDER — colocar aqui estatísticas descritivas por grupo, gráficos de
+dispersão/boxplots, análise de outlier e comentários sobre o que os dados sugerem
+antes da inferência formal.]**
+
+## Análise estatística
+
+Em cada caso, as premissas do teste foram verificadas na ordem
+normalidade $\rightarrow$ igualdade de variâncias $\rightarrow$ independência. Os p-valores
+do teste de Durbin-Watson são obtidos por reamostragem; por isso a semente aleatória foi
+fixada em `set.seed(1234)`, garantindo a reprodutibilidade dos valores reportados.
+
+### Caso 1 — População feminina
+
+#### Verificação das premissas
+
+**Normalidade.**
+
+```{r norm-fem}
+shapiro.test(fem_2016$BMI)
+shapiro.test(fem_2017$BMI)
+```
+
+O teste de Shapiro-Wilk resultou em $W = 0{,}91974$ ($p = 0{,}4674$) para 2016-2 e
+$W = 0{,}7475$ ($p = 0{,}03659$) para 2017-2.
+
+```{r qq-fem, fig.width=7, fig.height=7, fig.cap="Gráficos quantil-quantil do IMC da população feminina, por semestre."}
+qqPlot(fem$BMI,
+       groups = fem$Semestre,
+       glab   = "IMC feminino",
+       cex    = 1.5,
+       pch    = 16,
+       layout = c(2, 1),
+       las    = 1)
+```
+
+Apesar de o teste de Shapiro-Wilk indicar não normalidade para o semestre 2017-2, o gráfico
+quantil-quantil mostra que isso se deve a apenas uma observação, de modo que se assumiu
+normalidade aproximada, condição do teste.
+
+**Igualdade de variâncias.**
+
+```{r var-fem}
+fligner.test(BMI ~ Semestre, data = fem)
+```
+
+O teste de Fligner-Killeen resultou em $\chi^2 = 0{,}70861$ e
+$p = 0{,}3999$, falhando em rejeitar a igualdade de variâncias, o que permite o uso do teste t
+de Student com `var.equal = TRUE`.
+
+**Independência.**
+
+```{r indep-fem, fig.width=7, fig.height=7, fig.cap="Resíduos do IMC da população feminina em função da ordem de observação."}
+resid_fem <- tapply(X     = fem$BMI,
+                    INDEX = fem$Semestre,
+                    FUN   = function(x){x - mean(x)})
+
+par(mfrow = c(2, 1), oma = c(0, 0, 2, 0))
+plot(resid_fem[["2016-2"]],
+     pch  = 16,
+     cex  = 1.5,
+     type = "b",
+     las  = 1,
+     xlab = "ordem da observacao",
+     ylab = "resíduos",
+     main = "Resíduos do IMC - Feminino 2016-2")
+grid(NA, NULL, lwd = 2)
+plot(resid_fem[["2017-2"]],
+     pch  = 16,
+     cex  = 1.5,
+     type = "b",
+     las  = 1,
+     xlab = "ordem da observacao",
+     ylab = "resíduos",
+     main = "Resíduos do IMC - Feminino 2017-2")
+grid(NA, NULL, lwd = 2)
+mtext("Resíduos do IMC - Feminino", outer = TRUE, cex = 1.2)
+par(mfrow = c(1, 1), oma = c(0, 0, 0, 0))
+```
+
+```{r dw-fem}
+car::durbinWatsonTest(lm(resid_fem[["2016-2"]] ~ 1))
+car::durbinWatsonTest(lm(resid_fem[["2017-2"]] ~ 1))
+```
+
+O teste de Durbin-Watson resultou em autocorrelação de $0{,}03474$, estatística D-W de
+$1{,}6052$ e $p = 0{,}586$ para 2016-2; e autocorrelação de $-0{,}46640$, estatística D-W de
+$2{,}7167$ e p-valor `NA` para 2017-2. Verificou-se a independência das amostras.
+
+#### Teste de hipóteses
+
+```{r ttest-fem}
+t.test(fem_2016$BMI, fem_2017$BMI,
+       alternative = "two.sided",
+       mu          = delta_star,
+       var.equal   = TRUE,
+       conf.level  = 0.95)
+```
+
+O teste resultou em $t = 1{,}1988$ e $p = 0{,}2612$. O intervalo de
+confiança de 95% para a diferença entre as médias é $[-0{,}4527;\ 5{,}7284]\ \mathrm{kg/m^2}$,
+com médias amostrais de $21{,}0844\ \mathrm{kg/m^2}$ (2016-2) e $18{,}4466\ \mathrm{kg/m^2}$
+(2017-2). Falhou-se em rejeitar a hipótese nula.
+
+**[PLACEHOLDER: discussão do Caso 1]**
+**[ Explicar significado prático do intervalo de confiança e do resultado do teste com
+$\delta^*$, ]**
+
+### Caso 2 — População masculina
+
+#### Verificação das premissas
+
+**Normalidade.**
+
+```{r norm-masc}
+shapiro.test(masc_2016$BMI)
+shapiro.test(masc_2017$BMI)
+```
+
+```{r qq-masc, fig.width=7, fig.height=7, fig.cap="Gráficos quantil-quantil do IMC da população masculina, por semestre."}
+qqPlot(masc$BMI,
+       groups = masc$Semestre,
+       glab   = "IMC masculino",
+       cex    = 1.5,
+       pch    = 16,
+       layout = c(2, 1),
+       las    = 1)
+```
+
+O teste de Shapiro-Wilk resultou em $W = 0{,}92833$ ($p = 0{,}1275$) para 2016-2 e
+$W = 0{,}96494$ ($p = 0{,}6206$) para 2017-2, indicando normalidade dos dados.
+
+**Igualdade de variâncias.**
+
+```{r var-masc}
+fligner.test(BMI ~ Semestre, data = masc)
+```
+
+O teste de Fligner-Killeen resultou em $\chi^2 = 0{,}082824$ com 1 grau de liberdade e
+$p = 0{,}7735$, indicando igualdade de variâncias, o que permite o uso do teste t de Student
+com `var.equal = TRUE`.
+
+**Independência.**
+
+```{r indep-masc, fig.width=7, fig.height=7, fig.cap="Resíduos do IMC da população masculina em função da ordem de observação."}
+resid_masc <- tapply(X     = masc$BMI,
+                     INDEX = masc$Semestre,
+                     FUN   = function(x){x - mean(x)})
+
+par(mfrow = c(2, 1), oma = c(0, 0, 2, 0))
+plot(resid_masc[["2016-2"]],
+     pch  = 16,
+     cex  = 1.5,
+     type = "b",
+     las  = 1,
+     xlab = "ordem da observacao",
+     ylab = "resíduos",
+     main = "Resíduos do IMC - Masculino 2016-2")
+grid(NA, NULL, lwd = 2)
+plot(resid_masc[["2017-2"]],
+     pch  = 16,
+     cex  = 1.5,
+     type = "b",
+     las  = 1,
+     xlab = "ordem da observacao",
+     ylab = "resíduos",
+     main = "Resíduos do IMC - Masculino 2017-2")
+grid(NA, NULL, lwd = 2)
+mtext("Resíduos do IMC - Masculino", outer = TRUE, cex = 1.2)
+par(mfrow = c(1, 1), oma = c(0, 0, 0, 0))
+```
+
+```{r dw-masc}
+car::durbinWatsonTest(lm(resid_masc[["2016-2"]] ~ 1))
+car::durbinWatsonTest(lm(resid_masc[["2017-2"]] ~ 1))
+```
+
+O teste de Durbin-Watson resultou em autocorrelação de $-0{,}10063$, estatística D-W de
+$2{,}1881$ e $p = 0{,}682$ para 2016-2; e autocorrelação de $0{,}29423$, estatística D-W de
+$1{,}2853$ e $p = 0{,}104$ para 2017-2, indicando independência das observações.
+
+#### Teste de hipóteses
+
+```{r ttest-masc}
+t.test(masc_2016$BMI, masc_2017$BMI,
+       alternative = "two.sided",
+       mu          = delta_star,
+       var.equal   = TRUE,
+       conf.level  = 0.95)
+```
+
+O teste resultou em $t = -0{,}29009$ com 40 graus de liberdade e $p = 0{,}7732$. O intervalo
+de confiança de 95% para a diferença entre as médias é
+$[-1{,}7849;\ 3{,}0858]\ \mathrm{kg/m^2}$, com médias amostrais de
+$24{,}9360\ \mathrm{kg/m^2}$ (2016-2) e $24{,}2855\ \mathrm{kg/m^2}$ (2017-2). Falhou-se em
+rejeitar a hipótese nula.
+
+**[PLACEHOLDER: discussão do Caso 2.]**
+
+### Caso 3 — População agregada (masculina + feminina)
+
+Neste caso compara-se a população inteira de 2016-2 contra a população inteira de 2017-2.
+
+#### Verificação das premissas
+
+**Normalidade.**
+
+```{r norm-pop}
+shapiro.test(pop_2016$BMI)
+shapiro.test(pop_2017$BMI)
+```
+
+```{r qq-pop, fig.width=7, fig.height=7, fig.cap="Gráficos quantil-quantil do IMC da população total, por semestre."}
+qqPlot(pop_total$BMI,
+       groups = pop_total$Semestre,
+       glab   = "IMC população total",
+       cex    = 1.5,
+       pch    = 16,
+       layout = c(2, 1),
+       las    = 1)
+```
+
+O teste de Shapiro-Wilk resultou em $W = 0{,}92185$ ($p = 0{,}03854$) para 2016-2 e
+$W = 0{,}95381$ ($p = 0{,}3049$) para 2017-2.
+
+**[PLACEHOLDER — avaliar a premissa de normalidade da população agregada de 2016-2 à luz do
+p-valor obtido e dos gráficos quantil-quantil.]**
+
+**Igualdade de variâncias.**
+
+```{r var-pop}
+fligner.test(BMI ~ Semestre, data = pop_total)
+var(pop_2016$BMI)
+var(pop_2017$BMI)
+```
+
+O teste de Fligner-Killeen resultou em $\chi^2 = 0{,}025355$ com 1 grau de liberdade e
+$p = 0{,}8735$; as variâncias amostrais são $18{,}0276$ (2016-2) e $14{,}9289$ (2017-2), em
+$\mathrm{kg^2/m^4}$. Consideraram-se as variâncias iguais para a realização do teste t de
+Student.
+
+**Independência.**
+
+```{r indep-pop, fig.width=7, fig.height=7, fig.cap="Resíduos do IMC da população total em função da ordem de observação."}
+resid_pop <- tapply(X     = pop_total$BMI,
+                    INDEX = pop_total$Semestre,
+                    FUN   = function(x){x - mean(x)})
+
+par(mfrow = c(2, 1), oma = c(0, 0, 2, 0))
+plot(resid_pop[["2016-2"]],
+     pch  = 16,
+     cex  = 1.5,
+     type = "b",
+     las  = 1,
+     xlab = "ordem da observacao",
+     ylab = "resíduos",
+     main = "Resíduos do IMC - População total 2016-2")
+plot(resid_pop[["2017-2"]],
+     pch  = 16,
+     cex  = 1.5,
+     type = "b",
+     las  = 1,
+     xlab = "ordem da observacao",
+     ylab = "resíduos",
+     main = "Resíduos do IMC - População total 2017-2")
+par(mfrow = c(1, 1), oma = c(0, 0, 0, 0))
+```
+
+```{r dw-pop}
+car::durbinWatsonTest(lm(resid_pop[["2016-2"]] ~ 1))
+car::durbinWatsonTest(lm(resid_pop[["2017-2"]] ~ 1))
+```
+
+O teste de Durbin-Watson resultou em autocorrelação de $0{,}05650$, estatística D-W de
+$1{,}8334$ e $p = 0{,}658$ para 2016-2; e autocorrelação de $0{,}37418$, estatística D-W de
+$1{,}0501$ e $p = 0{,}010$ para 2017-2.
+
+**[PLACEHOLDER — avaliar a premissa de independência da população agregada de 2017-2 à luz do
+p-valor obtido.]**
+
+#### Teste de hipóteses
+
+```{r ttest-pop}
+t.test(pop_2016$BMI, pop_2017$BMI,
+       alternative = "two.sided",
+       mu          = delta_star,
+       var.equal   = TRUE,
+       conf.level  = 0.95)
+```
+
+O teste resultou em $t = -0{,}33767$ com 51 graus de liberdade e $p = 0{,}7370$. O intervalo
+de confiança de 95% para a diferença entre as médias é
+$[-1{,}6268;\ 2{,}8704]\ \mathrm{kg/m^2}$, com médias amostrais de
+$23{,}9731\ \mathrm{kg/m^2}$ (2016-2) e $23{,}5128\ \mathrm{kg/m^2}$ (2017-2). Falhou-se em
+rejeitar a hipótese nula, com p-valor superior ao nível de significância adotado.
+
+**[PLACEHOLDER: discussão do Caso 3.]**
+
+### Conclusões e recomendações
+
+**[PLACEHOLDER — discussão dos resultados e do significado técnico/científico dos efeitos
+detectados, retomando a questão original: houve mudança no IMC médio dos alunos do PPGEE
+entre 2016-2 e 2017-2? As conclusões devem ser amarradas ao $\delta^*$ definido e aos
+intervalos de confiança obtidos.]**
+
+### Sugestões de melhoria do experimento
+
+Os testes que falharam em rejeitar $H_0$ apresentam alguma diferença nas médias, mas não o
+suficiente para confirmá-la estatisticamente. Sugere-se que sejam medidas populações com
+maior quantidade de amostras, de forma a aumentar o poder do teste.
+
+**[PLACEHOLDER. Desenvolver as sugestões de melhoria: cálculo do tamanho amostral necessário
+para a potência desejada, controle de fatores de ruído e melhorias no procedimento de coleta.]**
+
+## Declaração sobre o uso de IA generativa e tecnologias assistidas por IA no processo de elaboração do relatório
+
+Durante a preparação deste trabalho, os autores utilizaram o Claude (Anthropic) para redigir a versão inicial das seções descritivas deste relatório a partir dos resultados registrados como comentários no script de análise processamento_separtado.R. Após utilizar esta ferramenta, os autores revisaram e editaram o conteúdo conforme necessário e assumem total responsabilidade pelo conteúdo da publicação.
