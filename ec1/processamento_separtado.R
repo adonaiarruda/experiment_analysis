@@ -68,6 +68,9 @@ pop_total <- rbind(
   data.frame(BMI = pop_2017[["BMI"]], Semestre = "2017-2")
 )
 
+
+
+
 # Caso 1: Comparar se o BMI medio do mesmo genero é igual nos dois semestre
 # -------------------------------------------------------------------------
 
