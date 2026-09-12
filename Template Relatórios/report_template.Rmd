@@ -1,12 +1,13 @@
 ---
-title: 'Case Study 00: This is a template'
-author: "Author 1 and Author 2"
-date: "March 00, 2015"
-output:
-  pdf_document:
-    fig_caption: yes
-  html_document:
-    df_print: paged
+title: 'Estudo de Caso 01: Comparação do IMC médio de alunos do PPGEE-UFMG ao longo de dois
+semestres'
+author: "Alexandra M.Soto A., Jose A. Arruda dos Santos Junior e Yasmim C. Machado R.   "
+date: "12 de Setembro, 2026"
+output: 
+  #pdf_document:
+    #fig_caption: yes
+  #html_document:
+    #df_print: paged
 ---
 
 ```{r setup,results='hide',warning=FALSE,echo=FALSE}
