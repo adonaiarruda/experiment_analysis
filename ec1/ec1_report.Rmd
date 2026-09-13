@@ -3,12 +3,16 @@ title: "Estudo de Caso 01: Comparação do IMC médio de alunos do PPGEE-UFMG ao
 subtitle: "EEE933 - Planejamento e Análise de Experimentos"
 author: "[Nome dos alunos]"
 date: "11 de setembro de 2026"
+header-includes:
+  - \usepackage{float}
+  - \restylefloat{figure}
+  - \restylefloat{table}
 output:
-  bookdown::pdf_document2:
-    fig_caption: yes
-    toc: false
-  bookdown::html_document2:
-    df_print: paged
+  #bookdown::pdf_document2:
+    #fig_caption: yes
+    #toc: false
+  #bookdown::html_document2:
+    #df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -18,10 +22,21 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
 if (!require(car, quietly = TRUE)){
   install.packages("car")
 }
+if (!require(kableExtra, quietly = TRUE)){
+  install.packages("kableExtra")
+}
+# Adiciona a verificação e instalação do pacote pwr:
+if (!require(pwr, quietly = TRUE)){
+  install.packages("pwr")
+}
+
 library(car)
-delta_star <-1
+library(kableExtra)
+library(pwr)
+
+delta_star <- 1
 set.seed(1234)
-```
+``` 
 
 # Resumo
 
@@ -163,23 +178,22 @@ todos <- rbind(
 
 A fim de compreender o comportamento dos dados, foi realizada uma exploração inicial por meio de um gráfico de *boxplot* para comparar a distribuição do IMC entre as subpopulações de cada semestre.
 
-```{r grafico-explo-dados,echo = FALSE, fig.height=7, fig.width= 7, fig.cap="Distribuição do IMC por Gênero e Semestre"}
+```{r grafico-explo-dados, echo = FALSE, fig.pos= "H", out.width = "70%", fig.align = "center", fig.cap = "Distribuição do IMC por Sexo e Semestre"}
 
 # Explorar os dados
-
 boxplot(BMI ~ Gender + Semestre, data = todos,
         col = c("pink", "lightblue"),
         outline = TRUE,
         outcol = "red",
-        main = "Distribuição do BMI por Gênero e Semestre",
-        xlab = "Grupo (Gênero.Semestre)",
-        ylab = "BMI")
+        main = "Distribuição do IMC por Sexo e Semestre",
+        xlab = "Grupo (Sexo.Semestre)",
+        ylab = "IMC (kg/m²)")
 
 ```
 
-Em seguida, os principais parâmetros estatísticos (tamanho amostral $n$, média e desvio-padrão) de cada subpopulação foram calculados e resumidos na Tabela abaixo.
+Em seguida, os principais parâmetros estatísticos (tamanho amostral $n$, média e desvio-padrão) de cada subpopulação foram calculados e resumidos na Tabela  \@ref(tab:tabela-resumo).
 
-```{r tabela-resumo, echo = FALSE}
+```{r tabela-resumo, echo = FALSE, fig.pos="H"}
 # 1. Função para calcular as estatísticas
 calcular_estatisticas <- function(amostra) {
   n_val  <- length(amostra$BMI)
@@ -209,7 +223,8 @@ knitr::kable(
   digits = 2, 
   caption = "Tabela 1: Estatísticas descritivas do IMC por subamostra",
   col.names = c("Grupo", "n", "Média", "Desvio Padrão")
-)
+) %>%
+  kableExtra::kable_styling(latex_options = "HOLD_position")
 ```
 
 # Análise Estatística 
@@ -261,7 +276,7 @@ Os resultados indicam que as subpopulações masculinas (2016-2 e 2017-2) e a su
 Por outro lado, a subpopulação feminina do semestre 2017-2 (fem_2017) apresentou um $p\text{-valor}$ de $0{,}036$, ficando abaixo do nível de significância adotado ($\alpha = 0{,}05$). Isso indica que não há evidências estatísticas suficientes para assumir a normalidade desse subgrupo. No entanto, por se tratar de um $p\text{-valor}$ marginalmente próximo ao limiar de $0{,}05$, é plausível supor que a presença de algum ponto discrepante (outlier) ou a assimetria da amostra esteja afetando o teste.Ao analisar o boxplot da Figura \@ref(fig:grafico-explo-dados), não se observa um outlier extremo para este subgrupo, contudo nota-se que o valor máximo está relativamente afastado da média. Por esse motivo, fez-se necessária uma investigação complementar por meio do gráfico quantil-quantil (Q-Q plot).
 
 
-```{r qq-fem2017, fig.width=7, fig.height=7, fig.cap="Gráficos quantil-quantil do IMC do sub grupo feminino 2017", echo=FALSE}
+```{r qq-fem2017, out.width = "70%", fig.cap="Gráficos quantil-quantil do IMC do sub grupo feminino 2017", echo=FALSE}
 car::qqPlot(fem_2017$BMI,
             id = FALSE,,
             ylab = "IMC observado",
@@ -295,12 +310,14 @@ knitr::kable(
   digits = 3, 
   caption = "Resultado do teste de Fligner-Killeen para igualdade de variâncias entre semestres",
   col.names = c("Grupo de Comparação", "Estatística (Chi²)", "p-valor")
-)
+) %>%
+  kable_styling(latex_options = "HOLD_position")
 ```
 
 
 De acordo com os resultados do teste de Fligner-Killeen apresentados na Tabela \@ref(tab:tabela-var), tanto a subpopulação feminina ($p\text{-valor} > 0{,}05$) quanto a masculina ($p\text{-valor} > 0{,}05$) mantiveram a premissa de homocedasticidade. Com a confirmação da igualdade de variâncias e da normalidade, o **teste $t$ de Student para amostras independentes com variâncias iguais** é o procedimento adequado para a comparação das médias do IMC entre os semestres 2016-2 e 2017-2.
 
+<!--
 ### Independência.
 #### fem
 **verificar se é necessario em caso de amostras nãp paredas**
@@ -382,16 +399,108 @@ car::durbinWatsonTest(lm(resid_masc[["2017-2"]] ~ 1))
 O teste de Durbin-Watson resultou em autocorrelação de $-0{,}10063$, estatística D-W de
 $2{,}1881$ e $p = 0{,}682$ para 2016-2; e autocorrelação de $0{,}29423$, estatística D-W de
 $1{,}2853$ e $p = 0{,}104$ para 2017-2, indicando independência das observações.
+-->
+### Tamanho de Efeito
+
+Definiu-se como objetivo atingir um poder estatístico de 85% ($\pi = 0{,}85$). Contudo, por se tratar de um estudo retrospectivo, em que os dados já haviam sido previamente coletados, não houve controle sobre o tamanho amostral para garantir essa potência *a priori*.
+
+Dessa forma, esta seção apresenta o cálculo da menor diferença de médias ($\delta^*$) estatisticamente detectável a partir dos tamanhos amostrais disponíveis, fixando-se o poder desejado em $\pi = 0{,}85$ e o nível de significância em $\alpha = 0{,}05$.
+
+Como a variância populacional $\sigma^2$ é desconhecida, é necessário estimá-la a partir dos dados amostrais. Assumindo a premissa de igualdade de variância entre as subpopulações ($\sigma_1^2 \approx \sigma_2^2$), confirmada pelo teste de Fligner-Killeen, utiliza-se o estimador ponderado da variância agrupada ($S_p^2$):
+
+\begin{equation}
+S_p^2 = \frac{(n_1 - 1)S_1^2 + (n_2 - 1)S_2^2}{n_1 + n_2 - 2}
+\label{eq:var-agrupada}
+\end{equation}
+
+em que $S_1^2$ e $S_2^2$ são as variâncias amostrais das subpopulações de 2016-2 e 2017-2, e $n_1$, $n_2$ os respectivos tamanhos amostrais.
+
+O desvio-padrão agrupado ($S_p = \sqrt{S_p^2}$) é então utilizado como parâmetro de dispersão no cálculo do poder do teste. A função empregada para esse cálculo, porém, depende do balanceamento amostral de cada subpopulação: para a subpopulação masculina, balanceada ($n_{2016} = n_{2017} = 21$), utiliza-se `power.t.test()`; para a feminina, desbalanceada ($n_{2016} \neq n_{2017}$), utiliza-se `pwr.t2n.test()` do pacote `pwr`, que admite tamanhos amostrais distintos entre os dois grupos.
+
+**Subpopulação Masculina**
+
+```{r power-teste-masculino, echo = FALSE}
+# Parâmetros da amostragem masculina
+n1_masc   <- length(masc_2016$BMI)
+n2_masc <- length(masc_2017$BMI)
+sd_m16   <- sd(masc_2016$BMI)
+sd_m17   <- sd(masc_2017$BMI)
+
+# Estimador da variância agrupada segundo a fórmula do slide 7  - comparação simples
+sp_squared_masc <- ((n1_masc - 1) * sd_m16^2 + (n2_masc - 1) * sd_m17^2) / (n1_masc + n2_masc - 2)
+
+# Desvio-padrão agrupado
+sd_pooled_masc <- sqrt(sp_squared_masc)
+
+# Cálculo do menor delta detectável usando power.t.test()
+power_masc <- power.t.test(
+  n = n1_masc,
+  sd = sd_pooled_masc,
+  sig.level = 0.05,
+  power = 0.85,
+  type = "two.sample",
+  alternative = "two.sided"
+)
+
+# Extração da menor diferença detectável 
+delta_detectavel_masc <- power_masc$delta
+
+# Exibição formatada dos resultados no console/relatório
+cat("Menor diferença detectável - masculina:", round(delta_detectavel_masc, 2),"kg/m²")
+
+```
+
+Para a subpopulação masculina, utilizou-se a função `power.t.test()`, aproveitando o fato de a amostragem ser balanceada ($n_{2016} = n_{2017} = 21$). Os resultados obtidos foram:
+
+ 
+* Menor diferença detectável ($\delta^*$): $3{,}7 \mathrm{kg/m^2}$: 
+
+
+**Subpopulação Feminina**
+
+```{r power-teste-feminino, echo = FALSE}
+# Parâmetros da amostragem feminina
+n1_fem <- length(fem_2016$BMI)
+n2_fem <- length(fem_2017$BMI)
+sd_f16 <- sd(fem_2016$BMI)
+sd_f17 <- sd(fem_2017$BMI)
+
+# Estimador da variância agrupada (Sp^2)
+sp_squared_fem <- ((n1_fem - 1) * sd_f16^2 + (n2_fem - 1) * sd_f17^2) / (n1_fem + n2_fem - 2)
+
+# Desvio-padrão agrupado (Sp)
+sd_pooled_fem <- sqrt(sp_squared_fem)
+
+# Cálculo do menor tamanho de efeito d de Cohen detectável via pwr.t2n.test()
+power_fem <- pwr.t2n.test(
+  n1 = n1_fem,
+  n2 = n2_fem,
+  sig.level = 0.05,
+  power = 0.85,
+  alternative = "two.sided"
+)
+
+# Converte o d de Cohen para a menor diferença detectável (delta = d * Sp)
+delta_detectavel_fem <- power_fem$d * sd_pooled_fem
+
+# Exibição formatada dos resultados
+cat("Menor diferença detectável - feminina:", round(delta_detectavel_fem, 2), "kg/m²")
+
+```
+
+Por outro lado, para a subpopulação feminina, caracterizada por um arranjo desbalanceado) ($n_{2016} \neq n_{2017}$, o cálculo da diferença mínima detectável foi realizado empregando a função `pwr.t2n.test()` do pacote `pwr`, adequada para comparações de duas amostras de tamanhos desiguais.
+
+ 
+* Menor diferença detectável ($\delta^*$): $4{,}6 \mathrm{kg/m^2}$:
 
 
 
 
-##Teste de hipóteses
+## Teste de hipóteses
 
 ```{r ttest-fem}
 t.test(fem_2016$BMI, fem_2017$BMI,
        alternative = "two.sided",
-       mu          = delta_star,
        var.equal   = TRUE,
        conf.level  = 0.95)
 ```
