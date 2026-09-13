@@ -29,22 +29,16 @@ delta_star    <- 1
 # 1. Leitura dos dados
 
 dados_2016 <- read.csv("data/imc_20162.csv", header = TRUE)
-
-
 dados_2017 <- read.csv("data/CS01_20172.csv", header = TRUE, sep = ";")
 
 
-# Isolando os dados de interesse.
-# O enunciado diz: "Note que o arquivo relativo a 2016-2 contém tam-
-#bém dados de uma turma de graduação, e que os dois
-#arquivos (2016-2 e 2017-2) estão em formatos ligeira-
-#mente diferentes"
-# Por isso, foi isolada a turma de pós gradução
+# Isolando os dados de interes pois, o arquivo de 2016 contem também dados de 
+# alunos da gradução, logo filtramos os aluno do PPG
 
 dados_2016 <- subset(dados_2016, Course == "PPGEE")
 
 
-# Consolidadnod os dados - modificar os dados 2017 para ficar como 2016
+# Consolidando os dados: modificando os dados 2017 para ficar como os de 2016
 
 names(dados_2017)[2] = "Height.m"
 names(dados_2017)[3] = "Gender"
@@ -84,7 +78,6 @@ masc <- rbind(
 )
 
 
-
 todos <- rbind(
   data.frame(BMI = fem_2016$BMI, Semestre = "2016-2", Gender = "F"),
   data.frame(BMI = fem_2017$BMI, Semestre = "2017-2", Gender = "F"),
@@ -116,6 +109,11 @@ calcular_estatisticas <- function(amostra) {
   
   return(tabela)
 }
+
+
+
+aggregate(BMI ~ Gender + Semestre, data = todos, FUN = function(x) shapiro.test(x)$p.value)
+
 
 
 fem_2016_estatisitca <- calcular_estatisticas(fem_2016)
@@ -534,3 +532,111 @@ t.test(pop_2016$BMI, pop_2017$BMI,
 # Os teste que falharam em rejeitar H0 tem alguma diferença nas médias mas não o suficiente
 # para confirmar estatísticamente. 
 # Sugere-se que sejam medidas populações com maior quantidade de amostras, para aumentar o poder do teste.
+
+
+
+
+
+
+### Caso 3 — População agregada (masculina + feminina)
+
+Neste caso compara-se a população inteira de 2016-2 contra a população inteira de 2017-2.
+
+#### Verificação das premissas
+
+**Normalidade.**
+  
+  ```{r norm-pop}
+shapiro.test(pop_2016$BMI)
+shapiro.test(pop_2017$BMI)
+```
+
+```{r qq-pop, fig.width=7, fig.height=7, fig.cap="Gráficos quantil-quantil do IMC da população total, por semestre."}
+qqPlot(pop_total$BMI,
+       groups = pop_total$Semestre,
+       glab   = "IMC população total",
+       cex    = 1.5,
+       pch    = 16,
+       layout = c(2, 1),
+       las    = 1)
+```
+
+O teste de Shapiro-Wilk resultou em $W = 0{,}92185$ ($p = 0{,}03854$) para 2016-2 e
+$W = 0{,}95381$ ($p = 0{,}3049$) para 2017-2.
+
+**[PLACEHOLDER — avaliar a premissa de normalidade da população agregada de 2016-2 à luz do
+   p-valor obtido e dos gráficos quantil-quantil.]**
+  
+  **Igualdade de variâncias.**
+  
+  ```{r var-pop}
+fligner.test(BMI ~ Semestre, data = pop_total)
+var(pop_2016$BMI)
+var(pop_2017$BMI)
+```
+
+O teste de Fligner-Killeen resultou em $\chi^2 = 0{,}025355$ com 1 grau de liberdade e
+$p = 0{,}8735$; as variâncias amostrais são $18{,}0276$ (2016-2) e $14{,}9289$ (2017-2), em
+$\mathrm{kg^2/m^4}$. Consideraram-se as variâncias iguais para a realização do teste t de
+Student.
+
+**Independência.**
+  
+  ```{r indep-pop, fig.width=7, fig.height=7, fig.cap="Resíduos do IMC da população total em função da ordem de observação."}
+resid_pop <- tapply(X     = pop_total$BMI,
+                    INDEX = pop_total$Semestre,
+                    FUN   = function(x){x - mean(x)})
+
+par(mfrow = c(2, 1), oma = c(0, 0, 2, 0))
+plot(resid_pop[["2016-2"]],
+     pch  = 16,
+     cex  = 1.5,
+     type = "b",
+     las  = 1,
+     xlab = "ordem da observacao",
+     ylab = "resíduos",
+     main = "Resíduos do IMC - População total 2016-2")
+plot(resid_pop[["2017-2"]],
+     pch  = 16,
+     cex  = 1.5,
+     type = "b",
+     las  = 1,
+     xlab = "ordem da observacao",
+     ylab = "resíduos",
+     main = "Resíduos do IMC - População total 2017-2")
+par(mfrow = c(1, 1), oma = c(0, 0, 0, 0))
+```
+
+```{r dw-pop}
+car::durbinWatsonTest(lm(resid_pop[["2016-2"]] ~ 1))
+car::durbinWatsonTest(lm(resid_pop[["2017-2"]] ~ 1))
+```
+
+O teste de Durbin-Watson resultou em autocorrelação de $0{,}05650$, estatística D-W de
+$1{,}8334$ e $p = 0{,}658$ para 2016-2; e autocorrelação de $0{,}37418$, estatística D-W de
+$1{,}0501$ e $p = 0{,}010$ para 2017-2.
+
+**[PLACEHOLDER — avaliar a premissa de independência da população agregada de 2017-2 à luz do
+   p-valor obtido.]**
+  
+  #### Teste de hipóteses
+  
+  ```{r ttest-pop}
+t.test(pop_2016$BMI, pop_2017$BMI,
+       alternative = "two.sided",
+       mu          = delta_star,
+       var.equal   = TRUE,
+       conf.level  = 0.95)
+```
+
+O teste resultou em $t = -0{,}33767$ com 51 graus de liberdade e $p = 0{,}7370$. O intervalo
+de confiança de 95% para a diferença entre as médias é
+$[-1{,}6268;\ 2{,}8704]\ \mathrm{kg/m^2}$, com médias amostrais de
+$23{,}9731\ \mathrm{kg/m^2}$ (2016-2) e $23{,}5128\ \mathrm{kg/m^2}$ (2017-2). Falhou-se em
+rejeitar a hipótese nula, com p-valor superior ao nível de significância adotado.
+
+**[PLACEHOLDER: discussão do Caso 3.]**
+  
+  
+  
+  
