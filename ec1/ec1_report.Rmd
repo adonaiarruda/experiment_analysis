@@ -8,11 +8,11 @@ header-includes:
   - \restylefloat{figure}
   - \restylefloat{table}
 output:
-  #bookdown::pdf_document2:
-    #fig_caption: yes
-    #toc: false
-  #bookdown::html_document2:
-    #df_print: paged
+  bookdown::pdf_document2:
+    fig_caption: yes
+    toc: false
+  bookdown::html_document2:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -25,18 +25,21 @@ if (!require(car, quietly = TRUE)){
 if (!require(kableExtra, quietly = TRUE)){
   install.packages("kableExtra")
 }
-# Adiciona a verificação e instalação do pacote pwr:
 if (!require(pwr, quietly = TRUE)){
   install.packages("pwr")
+}
+if (!require(dplyr, quietly = TRUE)){
+  install.packages("dplyr")
 }
 
 library(car)
 library(kableExtra)
 library(pwr)
+library(dplyr)
 
 delta_star <- 1
 set.seed(1234)
-``` 
+```
 
 # Resumo
 
@@ -53,38 +56,40 @@ Nos três casos o teste falhou em rejeitar a hipótese nula (p-valores de 0,2612
 
 ## Objetivo do Experimento e Hipóteses a serem Testadas
 
-O objetivo principal deste experimento é verificar se existe diferença estatisticamente significativa no IMC médio dos alunos de pós-graduação do PPGEE-UFMG entre os semestres 2016-2 e 2017-2.Para tanto, a foi estratificada em subpopulações de análise separadas por sexo e semestre:
+O objetivo principal deste experimento é verificar se existe diferença estatisticamente significativa no IMC médio dos alunos de pós-graduação do PPGEE-UFMG entre os semestres 2016-2 e 2017-2. Para tanto, as amostras foram separadas em subcategorias de análise classificadas por sexo e semestre:
 
 * Homens em 2016-2 vs. Homens em 2017-2
-
 * Mulheres em 2016-2 vs. Mulheres em 2017-2
 
+Para cada subpopulação (separada por sexo), definem-se as seguintes hipóteses bilaterais, por não haver razão teórica prévia para supor a direção de uma eventual diferença do IMC médio da população de 2016-2 em relação à população de 2017-2:
 
-Para cada subpopulação (separada por sexo), definem-se as seguintes hipóteses bilaterais, comparando o IMC médio
-da população de 2016-2 com o da população de 2017-2::
+* **Hipótese Nula ($H_0$):** Não há diferença na média do IMC entre os alunos de 2016-2 e 2017-2.
+* **Hipótese Alternativa ($H_1$):** Há diferença significativa na média do IMC entre os semestres 2016-2 e 2017-2.
 
-
-* Hipótese Nula ($H_0$): Não há diferença na média do IMC entre os alunos de 2016-2 e 2017-2 para o dado sexo.
-
-* Hipótese Alternativa ($H_1$): Há diferença significativa na média do IMC entre os semestres 2016-2 e 2017-2.
-
-
-
-$$\begin{cases} H_0: \mu_{2016} - \mu_{2017} = 0&\\H_1: \mu_{2016} - \mu_{2017} \neq 0\end{cases}$$.
-
-## Tipos de teste utilizados
+$$
+\begin{cases}
+H_0: \mu_{2016} - \mu_{2017} = 0 \\
+H_1: \mu_{2016} - \mu_{2017} \neq 0
+\end{cases}
+$$
 
 
-Para comparação simples entre duas populações independentes, é necessário verificar previamente duas premissas essenciais:
-1. Normalidade
-2. Igualdade de variâncias
 
-A premissa de normalidade será avaliada por meio do teste de Shapiro-Wilk. A igualdade de variâncias será verificada utilizando o teste de Fligner-Killeen. A validação dessas premissas determinará a escolha do teste de hipótese para a comparação das médias do IMC entre os semestres:
+
+## Tipos de Teste Utilizados
+
+Para a comparação simples entre duas populações independentes, é necessário verificar previamente duas premissas essenciais:
+
+1. Normalidade;
+2. Igualdade de variâncias.
+
+A premissa de normalidade será avaliada por meio do teste de Shapiro-Wilk. Enquanto a igualdade de variâncias será verificada utilizando o teste de Fligner-Killeen. A validação dessas premissas determinará a escolha do teste de hipótese para a comparação das médias do IMC entre os semestres:
 
 1. Teste $t$ de Student tradicional: aplicado caso as variâncias sejam homogêneas.
-2. Teste $t$ de Welch: aplicado caso seja identificada variâncias distintas.
+2. Teste $t$ de Welch: aplicado caso sejam identificadas variâncias distintas.
 
-Neste contexto, o teste  $t$ de Student tradicional apresenta a vantagem de proporcionar maior poder de teste
+É comum, na prática, optar-se diretamente pelo teste de Welch, uma vez que essa escolha dispensa a etapa de verificação da igualdade de variâncias (Fligner-Killeen), simplificando o fluxo de análise. Essa conveniência, no entanto, em caso de igualdade de variâncias, significa uma perda de poder de teste que pode ser especialmente relevante em amostras com poucas observações, como é o caso deste estudo. Por esse motivo, optou-se por verificar explicitamente a igualdade de variâncias e aplicar o teste mais adequado a cada caso, em vez de adotar Welch de forma indiscriminada.
+
 
 **[PLACEHOLDER — conciliar a formulação das hipóteses acima com o valor de referência
 efetivamente utilizado nas chamadas do teste, e justificar a opção pela alternativa
@@ -94,23 +99,24 @@ As chamadas de `t.test()` foram executadas com o argumento `mu = delta_star`, is
 valor de referência igual a $1\ \mathrm{kg/m^2}$; isso é refletido na linha
 `alternative hypothesis: true difference in means is not equal to 1` das saídas obtidas.
 
-## Descrição da coleta e consolidação dos dados
+## Descrição da Coleta e Consolidação dos Dados
 
-Por se tratar de um estudo retrospectivo, isto é: uma análise baseada em dados previamente coletados, a definição teórica do tamanho amostral e a estimação prévia do tamanho do efeito não puderam ser planejadas ativamente antes da coleta. Dessa forma, essas métricas serão reportadas e discutidas durante a apresentação dos resultados dos testes de hipótese. Esta subseção é dedicada exclusivamente ao procedimento de filtragem, tratamento e consolidação das bases de dados.
+Por se tratar de um estudo retrospectivo, isto é, uma análise baseada em dados previamente coletados, a definição teórica do tamanho amostral e a estimação prévia do tamanho do efeito não puderam ser planejadas ativamente antes da coleta. Dessa forma, essas métricas serão reportadas e discutidas durante a apresentação dos resultados dos testes de hipótese. Esta subseção é dedicada exclusivamente ao procedimento de filtragem, tratamento e consolidação das bases de dados.
 
-Os dados do semestre 2016-2 foram recuperados do arquivo `data/imc_20162.csv`, enquanto os do semestre 2017-2 correspontem ao arquivo em `data/CS01_20172.csv`. 
-Conforme especificado no enunciado, a base de 2016-2 inclui registros de turmas de graduação, e ambas as tabelas possuem divergências na estrutura das colunas. A consolidação dos dados exigiu as seguintes etapas de pré-processamento:
+Os dados do semestre 2016-2 foram recuperados do arquivo `data/imc_20162.csv`, enquanto os do semestre 2017-2 correspondem ao arquivo `data/CS01_20172.csv`. Conforme especificado no enunciado, a base de 2016-2 inclui registros de turmas de graduação, e ambas as tabelas possuem divergências na estrutura das colunas. A consolidação dos dados exigiu as seguintes etapas de pré-processamento:
 
-1. **Filtragem dos dados de 2016-2:** Isolamento dos alunos pertencentes à pós-graduação (`Course == "PPGEE"`).
-2. **Padronização dos nomes das colunas:** Renomeação dos campos no arquivo de 2017-2 (`height.m` $\rightarrow$ `Height.m` e `Sex` $\rightarrow$ `Gender`) para alinhar com o esquema do arquivo de 2016-2.
-3. **Cálculo do IMC:** Criação da variável `BMI` em ambas as tabelas, aplicando a fórmula:
-   $$\mathrm{BMI} = \frac{\mathrm{Peso}}{\mathrm{Altura}^2}$$  
-4. **Estruturação por subpopulações:** Separação das observações por sexo e semestre para a criação dos conjuntos agregados que compõem os grupos de análise e alocados nas variaveis:
+1. **Filtragem dos dados de 2016-2:** isolamento dos alunos pertencentes à pós-graduação (`Course == "PPGEE"`).
+2. **Padronização dos nomes das colunas:** renomeação dos campos no arquivo de 2017-2 (`height.m` $\rightarrow$ `Height.m` e `Sex` $\rightarrow$ `Gender`) para alinhar com o esquema do arquivo de 2016-2.
+3. **Conversão para tipo numerico** 
+4. **Cálculo do IMC:** criação da variável `BMI` em ambas as tabelas, aplicando a fórmula:
+   $$\mathrm{BMI} = \frac{\mathrm{Peso}}{\mathrm{Altura}^2}$$
+5. **Estruturação por subpopulações:** separação das observações por sexo e semestre para a criação dos conjuntos agregados que compõem os grupos de análise, alocados nas seguintes variáveis:
 
-* `fem_2016`, `fem_2017` : subpopulações femininas dos semestres 2016-2 e 2017-2, respectivamente.
-* `masc_2016`, `masc_2017` : subpopulações masculinas dos semestres 2016-2 e 2017-2, respectivamente.
-* `fem`, `masc` : agregados das subpopulações femininas e masculinas, englobando ambos os semestres.
-* `todos`: tabela consolidada com a totalidade dos dados, classificados por sexo e semestre.
+   * `fem_2016`, `fem_2017`: subpopulações femininas dos semestres 2016-2 e 2017-2, respectivamente.
+   * `masc_2016`, `masc_2017`: subpopulações masculinas dos semestres 2016-2 e 2017-2, respectivamente.
+   * `fem`, `masc`: agregados das subpopulações femininas e masculinas, englobando ambos os semestres.
+   * `todos`: tabela consolidada com a totalidade dos dados, classificados por sexo e semestre.
+   
 
 ```{r consolidacao-dados, echo = FALSE}
 # 1. Leitura dos dados
@@ -178,22 +184,20 @@ todos <- rbind(
 
 A fim de compreender o comportamento dos dados, foi realizada uma exploração inicial por meio de um gráfico de *boxplot* para comparar a distribuição do IMC entre as subpopulações de cada semestre.
 
-```{r grafico-explo-dados, echo = FALSE, fig.pos= "H", out.width = "70%", fig.align = "center", fig.cap = "Distribuição do IMC por Sexo e Semestre"}
+```{r grafico-explo-dados, echo = FALSE, fig.pos = "H", out.width = "70%", fig.align = "center", fig.cap = "Distribuição do IMC por Sexo e Semestre"}
 
-# Explorar os dados
 boxplot(BMI ~ Gender + Semestre, data = todos,
         col = c("pink", "lightblue"),
         outline = TRUE,
         outcol = "red",
-        main = "Distribuição do IMC por Sexo e Semestre",
         xlab = "Grupo (Sexo.Semestre)",
         ylab = "IMC (kg/m²)")
 
 ```
 
-Em seguida, os principais parâmetros estatísticos (tamanho amostral $n$, média e desvio-padrão) de cada subpopulação foram calculados e resumidos na Tabela  \@ref(tab:tabela-resumo).
+Em seguida, os principais parâmetros estatísticos (tamanho amostral $n$, média e desvio-padrão) de cada subcategoria foram calculados e resumidos na Tabela \@ref(tab:tabela-resumo).
 
-```{r tabela-resumo, echo = FALSE, fig.pos="H"}
+```{r tabela-resumo, echo = FALSE}
 # 1. Função para calcular as estatísticas
 calcular_estatisticas <- function(amostra) {
   n_val  <- length(amostra$BMI)
@@ -221,7 +225,7 @@ tabela_resumo <- rbind(
 knitr::kable(
   tabela_resumo, 
   digits = 2, 
-  caption = "Tabela 1: Estatísticas descritivas do IMC por subamostra",
+  caption = "Estatísticas descritivas do IMC por subamostra",
   col.names = c("Grupo", "n", "Média", "Desvio Padrão")
 ) %>%
   kableExtra::kable_styling(latex_options = "HOLD_position")
@@ -229,6 +233,8 @@ knitr::kable(
 
 # Análise Estatística 
 ## Validação das premissas do modelo
+
+
 
 Em cada caso, as premissas do teste foram verificadas na ordem
 normalidade $\rightarrow$ igualdade de variâncias $\rightarrow$ independência. Os p-valores
@@ -240,7 +246,7 @@ fixada em `set.seed(1234)`, garantindo a reprodutibilidade dos valores reportado
 
 ### Normalidade 
 
-O teste de Shapiro-Wilk foi realizado para cada uma das subamostra em analise. Os resultados seguem na tabela abaixo: 
+O teste de Shapiro-Wilk foi realizado para cada uma das subamostras em análise. Os resultados seguem na Tabela \@ref(tab:st-table).
 
 ```{r normalidade, echo=FALSE, results='hide'}
 
@@ -271,9 +277,9 @@ knitr::kable(
 )
 
 ```
-Os resultados indicam que as subpopulações masculinas (2016-2 e 2017-2) e a subpopulação feminina de 2016-2 apresentam comportamento compatível com a distribuição normal ($p\text{-valor} > 0{,}05$), não permitindo a rejeição da hipótese nula de normalidade.
+Os resultados indicam que as amostras masculinas (2016-2 e 2017-2) e a amostra feminina de 2016-2 apresentam comportamento compatível com a distribuição normal ($p\text{-valor} > 0{,}05$), não permitindo a rejeição da hipótese nula de normalidade.
 
-Por outro lado, a subpopulação feminina do semestre 2017-2 (fem_2017) apresentou um $p\text{-valor}$ de $0{,}036$, ficando abaixo do nível de significância adotado ($\alpha = 0{,}05$). Isso indica que não há evidências estatísticas suficientes para assumir a normalidade desse subgrupo. No entanto, por se tratar de um $p\text{-valor}$ marginalmente próximo ao limiar de $0{,}05$, é plausível supor que a presença de algum ponto discrepante (outlier) ou a assimetria da amostra esteja afetando o teste.Ao analisar o boxplot da Figura \@ref(fig:grafico-explo-dados), não se observa um outlier extremo para este subgrupo, contudo nota-se que o valor máximo está relativamente afastado da média. Por esse motivo, fez-se necessária uma investigação complementar por meio do gráfico quantil-quantil (Q-Q plot).
+Por outro lado, a amostra feminina do semestre 2017-2 (fem_2017) apresentou um $p\text{-valor}$ de $0{,}036$, ficando abaixo do nível de significância adotado ($\alpha = 0{,}05$). Isso indica não há evidências estatísticas suficientes para assumir a normalidade desse subgrupo. No entanto, por se tratar de um $p\text{-valor}$ marginalmente próximo ao limiar de $0{,}05$, é plausível supor que a presença de algum ponto discrepante (outlier) ou a assimetria da amostra esteja afetando o teste. Ao analisar o boxplot da Figura \@ref(fig:grafico-explo-dados), não se observa um outlier extremo para este subgrupo, contudo nota-se que o valor máximo está relativamente afastado da média. Por esse motivo, fez-se necessária uma investigação complementar por meio do gráfico quantil-quantil (Q-Q plot).
 
 
 ```{r qq-fem2017, out.width = "70%", fig.cap="Gráficos quantil-quantil do IMC do sub grupo feminino 2017", echo=FALSE}
@@ -286,12 +292,12 @@ car::qqPlot(fem_2017$BMI,
             las = 1)
 ```
 
+O gráfico quantil-quantil (Q-Q plot) indica que a violação da premissa de normalidade para a amostra feminina 2017-2 é provocada por apenas um único valor discrepante. Dessa forma, é razoável assumir a premissa de normalidade para as análises subsequentes, uma vez que o teste $t$ de Student é robusto a pequenas desviações da distribuição normal.
 
-O gráfico quantil-quantil (Q-Q plot) indica que a violação da premissa de normalidade é provocada por apenas um único valor discrepante. Dessa forma, é razoável assumir a premissa de normalidade para as análises subsequentes, uma vez que,o teste $t$ de Student é  robusto a pequenas desviações da distribuição normal.
+Tal assunção é interessante, uma vez que o teste $t$ de Student tradicional apresenta a vantagem de proporcionar maior poder de teste em relação ao teste de Welch, quando a premissa de homogeneidade de variâncias é de fato satisfeita.
 
-`
 
-### Igualdade de variância
+### Igualdade de Variância
 
 ```{r tabela-var, echo=FALSE}
 fk_fem  <- fligner.test(BMI ~ Semestre, data = fem)
@@ -311,11 +317,10 @@ knitr::kable(
   caption = "Resultado do teste de Fligner-Killeen para igualdade de variâncias entre semestres",
   col.names = c("Grupo de Comparação", "Estatística (Chi²)", "p-valor")
 ) %>%
-  kable_styling(latex_options = "HOLD_position")
+  kableExtra::kable_styling(latex_options = "HOLD_position")
 ```
 
-
-De acordo com os resultados do teste de Fligner-Killeen apresentados na Tabela \@ref(tab:tabela-var), tanto a subpopulação feminina ($p\text{-valor} > 0{,}05$) quanto a masculina ($p\text{-valor} > 0{,}05$) mantiveram a premissa de homocedasticidade. Com a confirmação da igualdade de variâncias e da normalidade, o **teste $t$ de Student para amostras independentes com variâncias iguais** é o procedimento adequado para a comparação das médias do IMC entre os semestres 2016-2 e 2017-2.
+De acordo com os resultados do teste de Fligner-Killeen apresentados na Tabela \@ref(tab:tabela-var), tanto a subpopulação feminina ($p\text{-valor} > 0{,}05$) quanto a masculina ($p\text{-valor} > 0{,}05$) mantiveram a premissa de homocedasticidade. Com a confirmação da igualdade de variâncias e da normalidade, o teste $t$ de Student para amostras independentes com variâncias iguais é o procedimento adequado para a comparação das médias do IMC entre os semestres 2016-2 e 2017-2.
 
 <!--
 ### Independência.
@@ -400,7 +405,59 @@ O teste de Durbin-Watson resultou em autocorrelação de $-0{,}10063$, estatíst
 $2{,}1881$ e $p = 0{,}682$ para 2016-2; e autocorrelação de $0{,}29423$, estatística D-W de
 $1{,}2853$ e $p = 0{,}104$ para 2017-2, indicando independência das observações.
 -->
-### Tamanho de Efeito
+
+### Efeito minimamente relevante ($\delta^*$)
+
+O valor do menor efeito de interesse prático foi fixado *a priori*, antes do exame dos dados,
+em $\delta^* = 1\ \mathrm{kg/m^2}$, tal valor foi adotado nos 2 casos analisados,
+por ser a relevância prática uma propriedade da grandeza medida e não da dispersão de cada
+subamostra. Essa escolha não pretende representar um limiar de relevância clínica ou prática específico, mas sim estabelecer uma referência comum e consistente, que permite comparar a sensibilidade do teste entre os dois grupos em igualdade de condições, evitando que diferenças nos resultados da discussão de potência decorram da escolha de valores de referência distintos para cada subpopulação, e não de diferenças reais em seus tamanhos amostrais ou variabilidades.
+
+
+
+<!--
+A justificativa registrada para esse valor é a seguinte: o IMC é uma medida usada para avaliar
+a saúde dos alunos, e $\delta^*$ deve expressar a menor diferença prática entre os IMC médios
+das turmas capaz de sinalizar uma mudança de hábitos. As faixas de classificação do IMC
+(subpeso, normal, sobrepeso, obesidade I e obesidade II) têm cerca de $5\ \mathrm{kg/m^2}$.
+Adotou-se, portanto, $\delta^* = 1\ \mathrm{kg/m^2}$ — cerca de um quinto de faixa, ou
+2,9 kg para um aluno de 1,70 m.
+-->
+
+
+## Teste de Hipóteses
+
+Os testes de hipótese foram realizados seguindo as hipóteses definidas na seção de Objetivo do Experimento e Hipóteses a serem Testadas. Os testes foram realizados para obter informações sobre a inferência da diferença da média do IMC para as subpopulações femininas 2016-2 vs. 2017-2, e repetidos para as subpopulações masculinas 2016-2 vs. 2017-2. Portanto, esta seção se divide em dois casos: subpopulação masculina e subpopulação feminina
+
+
+### Caso 1: Subpopulação Masculina
+
+```{r ttest-masc, }
+t.test(masc_2016$BMI, masc_2017$BMI,
+       alternative = "two.sided",
+       mu          = 0,
+       var.equal   = TRUE,
+       conf.level  = 0.95)
+```
+
+O teste resultou em $p = 0{,}5923$, sendo o intervalo de confiança de 95% para a diferença entre as médias: $[-1{,}7849;\ 3{,}0858]\ \mathrm{kg/m^2}$, e médias amostrais de $24{,}9360\ \mathrm{kg/m^2}$ (2016-2) e $24{,}2855\ \mathrm{kg/m^2}$ (2017-2). Como o intervalo de confiança contém o valor zero e, o $p$-valor obtido é  maior que $\alpha = 0{,}05$, falhou-se em rejeitar a hipótese nula, não havendo evidências estatísticas suficientes para afirmar que o IMC médio da subpopulação masculina difere entre os semestres 2016-2 e 2017-2.
+
+
+
+### Caso 2: População Feminina
+
+```{r ttest-fem}
+t.test(fem_2016$BMI, fem_2017$BMI,
+       alternative = "two.sided",
+       mu          = 0,
+       var.equal   = TRUE,
+       conf.level  = 0.95)
+```
+
+O teste resultou em $t = 1{,}7593$, com 39 graus de liberdade e $p = 0{,}08556$. O intervalo de confiança de 95% para a diferença entre as médias é $[-0{,}4527;\ 5{,}7284]\ \mathrm{kg/m^2}$, com médias amostrais de $21{,}0844\ \mathrm{kg/m^2}$ (2016-2) e $18{,}4466\ \mathrm{kg/m^2}$ (2017-2). Como o intervalo de confiança contém o valor zero, e o $p$-valor obtido, embora relativamente próximo de $\alpha = 0{,}05$, ainda é maior que esse limiar, falhou-se em rejeitar a hipótese nula, não havendo evidências estatísticas suficientes para afirmar que o IMC médio da subpopulação feminina difere entre os semestres 2016-2 e 2017-2.
+
+### Menor diferença detectável
+
 
 Definiu-se como objetivo atingir um poder estatístico de 85% ($\pi = 0{,}85$). Contudo, por se tratar de um estudo retrospectivo, em que os dados já haviam sido previamente coletados, não houve controle sobre o tamanho amostral para garantir essa potência *a priori*.
 
@@ -495,61 +552,6 @@ Por outro lado, para a subpopulação feminina, caracterizada por um arranjo des
 
 
 
-
-## Teste de hipóteses
-
-```{r ttest-fem}
-t.test(fem_2016$BMI, fem_2017$BMI,
-       alternative = "two.sided",
-       var.equal   = TRUE,
-       conf.level  = 0.95)
-```
-
-O teste resultou em $t = 1{,}1988$ e $p = 0{,}2612$. O intervalo de
-confiança de 95% para a diferença entre as médias é $[-0{,}4527;\ 5{,}7284]\ \mathrm{kg/m^2}$,
-com médias amostrais de $21{,}0844\ \mathrm{kg/m^2}$ (2016-2) e $18{,}4466\ \mathrm{kg/m^2}$
-(2017-2). Falhou-se em rejeitar a hipótese nula.
-
-**[PLACEHOLDER: discussão do Caso 1]**
-**[ Explicar significado prático do intervalo de confiança e do resultado do teste com
-$\delta^*$, ]**
-
-
-#### Teste de hipóteses
-
-```{r ttest-masc}
-t.test(masc_2016$BMI, masc_2017$BMI,
-       alternative = "two.sided",
-       mu          = delta_star,
-       var.equal   = TRUE,
-       conf.level  = 0.95)
-```
-
-O teste resultou em $t = -0{,}29009$ com 40 graus de liberdade e $p = 0{,}7732$. O intervalo
-de confiança de 95% para a diferença entre as médias é
-$[-1{,}7849;\ 3{,}0858]\ \mathrm{kg/m^2}$, com médias amostrais de
-$24{,}9360\ \mathrm{kg/m^2}$ (2016-2) e $24{,}2855\ \mathrm{kg/m^2}$ (2017-2). Falhou-se em
-rejeitar a hipótese nula.
-
-**[PLACEHOLDER: discussão do Caso 2.]**
-
-### Efeito minimamente relevante ($\delta^*$)
-
-O valor do menor efeito de interesse prático foi fixado *a priori*, antes do exame dos dados,
-em $\delta^* = 1\ \mathrm{kg/m^2}$, e o mesmo valor foi adotado nos três casos analisados,
-por ser a relevância prática uma propriedade da grandeza medida e não da dispersão de cada
-subamostra.
-
-A justificativa registrada para esse valor é a seguinte: o IMC é uma medida usada para avaliar
-a saúde dos alunos, e $\delta^*$ deve expressar a menor diferença prática entre os IMC médios
-das turmas capaz de sinalizar uma mudança de hábitos. As faixas de classificação do IMC
-(subpeso, normal, sobrepeso, obesidade I e obesidade II) têm cerca de $5\ \mathrm{kg/m^2}$.
-Adotou-se, portanto, $\delta^* = 1\ \mathrm{kg/m^2}$ — cerca de um quinto de faixa, ou
-2,9 kg para um aluno de 1,70 m.
-
-```{r delta}
-delta_star <- 1
-```
 
 
 ### Nível de significância e tamanho amostral
