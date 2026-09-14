@@ -1,7 +1,7 @@
 ---
 title: "Estudo de Caso 01: Comparação do IMC médio de alunos do PPGEE-UFMG ao longo de dois semestres"
 subtitle: "EEE933 - Planejamento e Análise de Experimentos"
-author: "[Nome dos alunos]"
+author: "Alexandra Milaya Soto Aponte, "
 date: "11 de setembro de 2026"
 header-includes:
   - \usepackage{float}
@@ -198,7 +198,7 @@ boxplot(BMI ~ Gender + Semestre, data = todos,
 Em seguida, os principais parâmetros estatísticos (tamanho amostral $n$, média e desvio-padrão) de cada subcategoria foram calculados e resumidos na Tabela \@ref(tab:tabela-resumo).
 
 ```{r tabela-resumo, echo = FALSE}
-# 1. Função para calcular as estatísticas
+# Função para calcular as estatísticas
 calcular_estatisticas <- function(amostra) {
   n_val  <- length(amostra$BMI)
   media  <- mean(amostra$BMI)
@@ -207,13 +207,13 @@ calcular_estatisticas <- function(amostra) {
   return(data.frame(n = n_val, media = media, sd = desvio))
 }
 
-# 2. Cálculo das subpopulações
+# Cálculo das subpopulações
 fem_2016_estatistica  <- calcular_estatisticas(fem_2016)
 fem_2017_estatistica  <- calcular_estatisticas(fem_2017)
 masc_2016_estatistica <- calcular_estatisticas(masc_2016)
 masc_2017_estatistica <- calcular_estatisticas(masc_2017)
 
-# 3. Criação do objeto tabela_resumo
+# Criação do objeto tabela_resumo
 tabela_resumo <- rbind(
   cbind(Grupo = "Feminino 2016-2", fem_2016_estatistica),
   cbind(Grupo = "Feminino 2017-2", fem_2017_estatistica),
@@ -221,7 +221,7 @@ tabela_resumo <- rbind(
   cbind(Grupo = "Masculino 2017-2", masc_2017_estatistica)
 )
 
-# 4. Exibição da tabela no relatório final
+# Exibição da tabela no relatório final
 knitr::kable(
   tabela_resumo, 
   digits = 2, 
@@ -437,7 +437,7 @@ Os testes de hipótese foram realizados seguindo as hipóteses definidas na seç
 
 ### Caso 1: Subpopulação Masculina
 
-```{r ttest-masc, }
+```{r ttest-masc, echo=FALSE }
 t.test(masc_2016$BMI, masc_2017$BMI,
        alternative = "two.sided",
        mu          = 0,
@@ -451,7 +451,7 @@ O teste resultou em $p = 0{,}5923$, sendo o intervalo de confiança de 95% para 
 
 ### Caso 2: População Feminina
 
-```{r ttest-fem}
+```{r ttest-fem, echo=FALSE}
 t.test(fem_2016$BMI, fem_2017$BMI,
        alternative = "two.sided",
        mu          = 0,
@@ -488,18 +488,18 @@ em que $S_1^2$ e $S_2^2$ são as variâncias amostrais das subpopulações de 20
 
 ```{r var-masculino, echo = FALSE}
 # Parâmetros da amostragem masculina
-n1_masc   <- length(masc_2016$BMI)
+n1_masc <- length(masc_2016$BMI)
 n2_masc <- length(masc_2017$BMI)
-sd_m16   <- sd(masc_2016$BMI)
-sd_m17   <- sd(masc_2017$BMI)
+sd_m16 <- sd(masc_2016$BMI)
+sd_m17 <- sd(masc_2017$BMI)
 
 # Estimador da variância agrupada segundo a fórmula do slide 7  - comparação simples
 sp_squared_masc <- ((n1_masc - 1) * sd_m16^2 + (n2_masc - 1) * sd_m17^2) / (n1_masc + n2_masc - 2)
 
-# Desvio-padrão agrupado
+# Desvio padrão agrupado
 sd_pooled_masc <- sqrt(sp_squared_masc)
 
-cat("Desvio Padrão - masculino- :", round(sd_pooled_masc, 3), "\n")
+cat("Desvio Padrão - masculino - :", round(sd_pooled_masc, 3), "\n")
 ```
 
 
@@ -510,13 +510,13 @@ n2_fem <- length(fem_2017$BMI)
 sd_f16 <- sd(fem_2016$BMI)
 sd_f17 <- sd(fem_2017$BMI)
 
-# Estimador da variância agrupada (Sp^2)
+# Estimador da variância agrupada
 sp_squared_fem <- ((n1_fem - 1) * sd_f16^2 + (n2_fem - 1) * sd_f17^2) / (n1_fem + n2_fem - 2)
 
-# Desvio-padrão agrupado (Sp)
+# Desvio padrão agrupado 
 sd_pooled_fem <- sqrt(sp_squared_fem)
 
-cat("Desvio Padrão - femenino- :", round(sd_pooled_fem, 3), "\n")
+cat("Desvio Padrão - femenino - :", round(sd_pooled_fem, 3), "\n")
 ```
 
 ```{r power-delta }
@@ -531,8 +531,9 @@ poder_masc <- power.t.test(
   alternative = "two.sided"
 )$power
 
+#Usamos como caso balanceado por simplicidade
 poder_fem <- power.t.test(
-  n = n1_fem,   # ajustar para o n usado no caso feminino (desbalanceado -> ver pwr.t2n.test)
+  n = n1_fem,  
   delta = 1,
   sd = sd_pooled_fem,
   sig.level = 0.05,
@@ -593,7 +594,7 @@ delta_detectavel_masc <- power_masc$delta
 n_masc_valor <- n_masc$n
 
 # Exibição formatada dos resultados no console/relatório
-cat("Número de observações necessário (delta* = 1) - masculina:", round(n_masc_valor, 1))
+cat("Número de observações necessário (delta* = 1) - feminino:", round(n_masc_valor, 1))
 cat("Menor diferença detectável - masculina:", round(delta_detectavel_masc, 2),"kg/m²")
 
 ```
