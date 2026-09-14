@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="pt-BR" xml:lang="pt-BR">
 
 <head>
 
@@ -823,8 +823,7 @@ verificar a necessidade do teste de independecia ]</strong></p>
 <p>O teste de Shapiro-Wilk foi realizado para cada uma das subamostras
 em análise. Os resultados seguem na Tabela @ref(tab:st-table).</p>
 <table>
-<caption>Tabela 2 : Resultado do p-valor para o teste de
-Shapiro-Wilk</caption>
+<caption>Resultado do p-valor para o teste de Shapiro-Wilk</caption>
 <thead>
 <tr class="header">
 <th align="left">Genero</th>
@@ -1203,8 +1202,8 @@ subpopulações de 2016-2 e 2017-2, e <span class="math inline">\(n_1\)</span>, 
 desvio-padrão agrupado (<span class="math inline">\(S_p =
 \sqrt{S_p^2}\)</span>) é então utilizado como parâmetro de dispersão no
 cálculo do poder do teste.</p>
-<pre><code>## Desvio Padrão - masculino- : 3.905</code></pre>
-<pre><code>## Desvio Padrão - femenino- : 2.18</code></pre>
+<pre><code>## Desvio Padrão - masculino - : 3.905</code></pre>
+<pre><code>## Desvio Padrão - femenino - : 2.18</code></pre>
 <pre class="r"><code># Poder do teste para detectar delta* = 1, dado o n e Sp já calculados
 poder_masc &lt;- power.t.test(
   n = n1_masc,
@@ -1215,8 +1214,9 @@ poder_masc &lt;- power.t.test(
   alternative = &quot;two.sided&quot;
 )$power
 
+#Usamos como caso balanceado por simplicidade
 poder_fem &lt;- power.t.test(
-  n = n1_fem,   # ajustar para o n usado no caso feminino (desbalanceado -&gt; ver pwr.t2n.test)
+  n = n1_fem,  
   delta = 1,
   sd = sd_pooled_fem,
   sig.level = 0.05,
@@ -1269,7 +1269,7 @@ utiliza-se <code>power.t.test()</code>; para a feminina, desbalanceada
 utiliza-se <code>pwr.t2n.test()</code> do pacote <code>pwr</code>, que
 admite tamanhos amostrais distintos entre os dois grupos.</p>
 <p><strong>Subpopulação Masculina</strong></p>
-<pre><code>## Número de observações necessário (delta* = 1) - masculina: 240.3</code></pre>
+<pre><code>## Número de observações necessário (delta* = 1) - feminino: 240.3</code></pre>
 <pre><code>## Menor diferença detectável - masculina: 3.46 kg/m²</code></pre>
 <p><strong>Subpopulação Feminina</strong></p>
 <pre><code>## Número de observações necessário (delta* = 1) - feminino: 75.6</code></pre>
@@ -1288,15 +1288,15 @@ IA no Processo de Elaboração do Relatório</h2>
 (Anthropic) para redigir a versão inicial das seções descritivas deste
 relatório, a partir dos resultados registrados como comentários no
 script de análise <code>processamento_separado.R</code>. Após utilizar
-essa ferramenta, os autores revisaram e editaram o conteúdo conforme
-necessário e assumem total responsabilidade pelo conteúdo da
+essa ferramenta, os autores revisaram, editaram e finalizaram o conteúdo
+conforme necessário e assumem total responsabilidade pelo conteúdo da
 publicação.</p>
 <p>Também foi utilizada IA para auxiliar na formatação do texto,
 incluindo a inclusão de bibliotecas que ajudam na visualização de
 gráficos e tabelas apresentados no relatório. Da mesma forma, foi
-solicitado apoio para revisar o <em>chunk</em> de <em>setup</em> do R
-Markdown, de modo a garantir a instalação das bibliotecas necessárias
-para que o arquivo compilasse sem erros.</p>
+solicitado apoio para revisar o chunk de setup do R Markdown, de modo a
+garantir a instalação das bibliotecas necessárias para que o arquivo
+compilasse sem erros.</p>
 <p>Por fim, na seção sobre Menor Diferença Detectável, foi questionado
 qual função poderia ser utilizada para realizar o teste de poder no caso
 de populações não balanceadas, uma vez que esse caso não foi discutido

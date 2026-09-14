@@ -1,8 +1,9 @@
 ---
 title: "Estudo de Caso 01: Comparação do IMC médio de alunos do PPGEE-UFMG ao longo de dois semestres"
 subtitle: "EEE933 - Planejamento e Análise de Experimentos"
-author: "Alexandra Milaya Soto Aponte, "
+author: "Alexandra Milaya Soto Aponte,"
 date: "11 de setembro de 2026"
+lang: pt-BR
 header-includes:
   - \usepackage{float}
   - \restylefloat{figure}
@@ -268,11 +269,11 @@ shapiro.test(fem_2017$BMI)
 
 st <- aggregate(BMI ~ Gender + Semestre, data = todos, FUN = function(x) shapiro.test(x)$p.value)
 
-# 4. Exibição da tabela no relatório final
+# Exibição da tabela no relatório final
 knitr::kable(
   st, 
   digits = 3, 
-  caption = "Tabela 2 : Resultado do p-valor para o teste de Shapiro-Wilk ",
+  caption = "Resultado do p-valor para o teste de Shapiro-Wilk ",
   col.names = c("Genero", "Semestre", "p-valor")
 )
 
@@ -581,7 +582,7 @@ power_masc <- power.t.test(
 )
 
 n_masc <- power.t.test(
-  delta = 1,
+  delta = delta_star,
   sd = sd_pooled_masc,
   sig.level = 0.05,
   power = 0.80,
@@ -616,7 +617,7 @@ power_fem <- pwr.t2n.test(
 
 
 n_fem <- power.t.test(
-  delta = 1,
+  delta = delta_star,
   sd = sd_pooled_fem,
   sig.level = 0.05,
   power = 0.80,
@@ -646,8 +647,8 @@ Essa limitação reforça a recomendação de que estudos futuros sobre o tema c
 
 ## Declaração sobre o Uso de IA Generativa e Tecnologias Assistidas por IA no Processo de Elaboração do Relatório
 
-Durante a preparação deste trabalho, os autores utilizaram o Claude (Anthropic) para redigir a versão inicial das seções descritivas deste relatório, a partir dos resultados registrados como comentários no script de análise `processamento_separado.R`. Após utilizar essa ferramenta, os autores revisaram e editaram o conteúdo conforme necessário e assumem total responsabilidade pelo conteúdo da publicação.
+Durante a preparação deste trabalho, os autores utilizaram o Claude (Anthropic) para redigir a versão inicial das seções descritivas deste relatório, a partir dos resultados registrados como comentários no script de análise `processamento_separado.R`. Após utilizar essa ferramenta, os autores revisaram, editaram e finalizaram o conteúdo conforme necessário e assumem total responsabilidade pelo conteúdo da publicação.
 
-Também foi utilizada IA para auxiliar na formatação do texto, incluindo a inclusão de bibliotecas que ajudam na visualização de gráficos e tabelas apresentados no relatório. Da mesma forma, foi solicitado apoio para revisar o *chunk* de *setup* do R Markdown, de modo a garantir a instalação das bibliotecas necessárias para que o arquivo compilasse sem erros.
+Também foi utilizada IA para auxiliar na formatação do texto, incluindo a inclusão de bibliotecas que ajudam na visualização de gráficos e tabelas apresentados no relatório. Da mesma forma, foi solicitado apoio para revisar o chunk de setup do R Markdown, de modo a garantir a instalação das bibliotecas necessárias para que o arquivo compilasse sem erros.
 
 Por fim, na seção sobre Menor Diferença Detectável, foi questionado qual função poderia ser utilizada para realizar o teste de poder no caso de populações não balanceadas, uma vez que esse caso não foi discutido (em R) durante as aulas.
