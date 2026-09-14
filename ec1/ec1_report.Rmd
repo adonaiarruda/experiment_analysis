@@ -520,7 +520,7 @@ sd_pooled_fem <- sqrt(sp_squared_fem)
 cat("Desvio Padrão - femenino - :", round(sd_pooled_fem, 3), "\n")
 ```
 
-```{r power-delta }
+```{r power-delta, echo=FALSE}
 
 # Poder do teste para detectar delta* = 1, dado o n e Sp já calculados
 poder_masc <- power.t.test(
