@@ -947,7 +947,7 @@ médias do IMC entre os semestres 2016-2 e 2017-2.</p>
 <!--
 ### Independência.
 #### fem
-**verificar se é necessario em caso de amostras nãp paredas**
+
 
 
 ``` r
@@ -1100,6 +1100,11 @@ Adotou-se, portanto, $\delta^* = 1\ \mathrm{kg/m^2}$ — cerca de um quinto de f
 2,9 kg para um aluno de 1,70 m.
 -->
 </div>
+<div id="nível-de-significância-e-tamanho-amostral" class="section level3">
+<h3>Nível de significância e tamanho amostral</h3>
+<p>Os testes foram executados com <code>conf.level = 0.95</code>, o que
+corresponde a um nível de significância <span class="math inline">\(\alpha = 0{,}05\)</span>.</p>
+</div>
 </div>
 <div id="teste-de-hipóteses" class="section level2">
 <h2>Teste de Hipóteses</h2>
@@ -1156,105 +1161,156 @@ semestres 2016-2 e 2017-2.</p>
 ## sample estimates:
 ## mean of x mean of y 
 ##  21.08443  18.44660</code></pre>
-<p>O teste resultou em <span class="math inline">\(t =
-1{,}7593\)</span>, com 39 graus de liberdade e <span class="math inline">\(p = 0{,}08556\)</span>. O intervalo de confiança
-de 95% para a diferença entre as médias é <span class="math inline">\([-0{,}4527;\ 5{,}7284]\ \mathrm{kg/m^2}\)</span>,
-com médias amostrais de <span class="math inline">\(21{,}0844\
-\mathrm{kg/m^2}\)</span> (2016-2) e <span class="math inline">\(18{,}4466\ \mathrm{kg/m^2}\)</span> (2017-2). Como
-o intervalo de confiança contém o valor zero, e o <span class="math inline">\(p\)</span>-valor obtido, embora relativamente
+<p>O teste resultou em <span class="math inline">\(p =
+0{,}08556\)</span>, sendo o intervalo de confiança de 95% para a
+diferença entre as médias: <span class="math inline">\([-0{,}4527;\
+5{,}7284]\ \mathrm{kg/m^2}\)</span>, com médias amostrais de <span class="math inline">\(21{,}0844\ \mathrm{kg/m^2}\)</span> (2016-2) e
+<span class="math inline">\(18{,}4466\ \mathrm{kg/m^2}\)</span>
+(2017-2). Como o intervalo de confiança contém o valor zero, e o <span class="math inline">\(p\)</span>-valor obtido, embora relativamente
 próximo de <span class="math inline">\(\alpha = 0{,}05\)</span>, ainda é
 maior que esse limiar, falhou-se em rejeitar a hipótese nula, não
 havendo evidências estatísticas suficientes para afirmar que o IMC médio
 da subpopulação feminina difere entre os semestres 2016-2 e 2017-2.</p>
 </div>
-<div id="menor-diferença-detectável" class="section level3">
-<h3>Menor diferença detectável</h3>
-<p>Definiu-se como objetivo atingir um poder estatístico de 85% (<span class="math inline">\(\pi = 0{,}85\)</span>). Contudo, por se tratar de
-um estudo retrospectivo, em que os dados já haviam sido previamente
-coletados, não houve controle sobre o tamanho amostral para garantir
-essa potência <em>a priori</em>.</p>
-<p>Dessa forma, esta seção apresenta o cálculo da menor diferença de
-médias (<span class="math inline">\(\delta^*\)</span>) estatisticamente
-detectável a partir dos tamanhos amostrais disponíveis, fixando-se o
-poder desejado em <span class="math inline">\(\pi = 0{,}85\)</span> e o
-nível de significância em <span class="math inline">\(\alpha =
-0{,}05\)</span>.</p>
-<p>Como a variância populacional <span class="math inline">\(\sigma^2\)</span> é desconhecida, é necessário
-estimá-la a partir dos dados amostrais. Assumindo a premissa de
-igualdade de variância entre as subpopulações (<span class="math inline">\(\sigma_1^2 \approx \sigma_2^2\)</span>),
-confirmada pelo teste de Fligner-Killeen, utiliza-se o estimador
-ponderado da variância agrupada (<span class="math inline">\(S_p^2\)</span>):</p>
+</div>
+<div id="resultados-e-discussões" class="section level2">
+<h2>Resultados e Discussões</h2>
+<div id="discussão-sobre-o-teste-de-hipóteses" class="section level3">
+<h3>Discussão sobre o Teste de Hipóteses</h3>
+<p>O objetivo deste experimento era verificar se existia diferença
+significativa no IMC médio entre duas populações de estudantes: alunos
+de pós-graduação do PPGEE-UFMG nos semestres 2016-2 e 2017-2.</p>
+<p>Os testes foram realizados sobre essas populações, separadas por
+gênero. Em ambos os casos, falhou-se em rejeitar a hipótese nula, não
+havendo evidências estatísticas suficientes para afirmar que o IMC médio
+difere entre os semestres, tanto para a subpopulação masculina quanto
+para a feminina. No entanto, devido ao tamanho reduzido de cada
+subamostra, é interessante realizar uma análise de poder do teste, que
+pode ajudar a avaliar a possibilidade de um Erro Tipo II, isto é, a
+hipótese de que se falhou em rejeitar <span class="math inline">\(H_0\)</span> mesmo havendo, de fato, uma diferença
+real entre as populações.Por esse motivo, a seção a seguir traz essa
+discussão à tona.</p>
+</div>
+<div id="discussão-sobre-o-poder-do-teste" class="section level3">
+<h3>Discussão sobre o Poder do Teste</h3>
+<p>É convecioanl definir o poder estatístico em 80% (<span class="math inline">\(1 - \beta = 0{,}80\)</span>). Contudo, por se
+tratar de um estudo retrospectivo, em que os dados já haviam sido
+previamente coletados, não houve controle sobre o tamanho amostral para
+garantir essa potência <em>a priori</em>.</p>
+<p>Para poder levar a cabo o calculo de poder de teste devemos conhecer
+a variância populacional <span class="math inline">\(\sigma^2\)</span>,
+como a mesma é desconhecida, é necessário estimá-la a partir dos dados
+amostrais. Assumindo a premissa de igualdade de variância entre as
+subpopulações (<span class="math inline">\(\sigma_1^2 \approx
+\sigma_2^2\)</span>), confirmada pelo teste de Fligner-Killeen,
+utiliza-se o estimador ponderado da variância agrupada (<span class="math inline">\(S_p^2\)</span>):</p>
 <p><span class="math display">\[\begin{equation}
 S_p^2 = \frac{(n_1 - 1)S_1^2 + (n_2 - 1)S_2^2}{n_1 + n_2 - 2}
 \label{eq:var-agrupada}
 \end{equation}\]</span></p>
 <p>em que <span class="math inline">\(S_1^2\)</span> e <span class="math inline">\(S_2^2\)</span> são as variâncias amostrais das
-subpopulações de 2016-2 e 2017-2, e <span class="math inline">\(n_1\)</span>, <span class="math inline">\(n_2\)</span> os respectivos tamanhos
-amostrais.</p>
-<p>O desvio-padrão agrupado (<span class="math inline">\(S_p =
+subpopulações de 2016-2 e 2017-2, e <span class="math inline">\(n_1\)</span>, <span class="math inline">\(n_2\)</span> os respectivos tamanhos amostrais. O
+desvio-padrão agrupado (<span class="math inline">\(S_p =
 \sqrt{S_p^2}\)</span>) é então utilizado como parâmetro de dispersão no
-cálculo do poder do teste. A função empregada para esse cálculo, porém,
-depende do balanceamento amostral de cada subpopulação: para a
-subpopulação masculina, balanceada (<span class="math inline">\(n_{2016}
-= n_{2017} = 21\)</span>), utiliza-se <code>power.t.test()</code>; para
-a feminina, desbalanceada (<span class="math inline">\(n_{2016} \neq
-n_{2017}\)</span>), utiliza-se <code>pwr.t2n.test()</code> do pacote
-<code>pwr</code>, que admite tamanhos amostrais distintos entre os dois
-grupos.</p>
+cálculo do poder do teste.</p>
+<pre><code>## Desvio Padrão - masculino- : 3.905</code></pre>
+<pre><code>## Desvio Padrão - femenino- : 2.18</code></pre>
+<pre class="r"><code># Poder do teste para detectar delta* = 1, dado o n e Sp já calculados
+poder_masc &lt;- power.t.test(
+  n = n1_masc,
+  delta = 1,
+  sd = sd_pooled_masc,
+  sig.level = 0.05,
+  type = &quot;two.sample&quot;,
+  alternative = &quot;two.sided&quot;
+)$power
+
+poder_fem &lt;- power.t.test(
+  n = n1_fem,   # ajustar para o n usado no caso feminino (desbalanceado -&gt; ver pwr.t2n.test)
+  delta = 1,
+  sd = sd_pooled_fem,
+  sig.level = 0.05,
+  type = &quot;two.sample&quot;,
+  alternative = &quot;two.sided&quot;
+)$power
+
+cat(&quot;Poder para detectar delta* = 1 (masculino):&quot;, round(poder_masc, 3), &quot;\n&quot;)</code></pre>
+<pre><code>## Poder para detectar delta* = 1 (masculino): 0.125</code></pre>
+<pre class="r"><code>cat(&quot;Poder para detectar delta* = 1 (feminino):&quot;, round(poder_fem, 3), &quot;\n&quot;)</code></pre>
+<pre><code>## Poder para detectar delta* = 1 (feminino): 0.121</code></pre>
+<p>Observa-se que, em ambos os casos, o arranjo amostral disponível (com
+<span class="math inline">\(n_{masc}=42\)</span> e <span class="math inline">\(n_{fem}=11\)</span>) não teria sensibilidade
+suficiente para detectar, com poder de 80%, uma diferença da magnitude
+que se definiu como referência mínima de interesse (<span class="math inline">\(\delta^*=1\ \mathrm{kg/m^2}\)</span>). De fato, ao
+calcular diretamente o poder do teste para detectar especificamente
+<span class="math inline">\(\delta^*=1\ \mathrm{kg/m^2}\)</span>,
+obtém-se um poder de apenas 12,5% (masculino) e 12,1% (feminino),
+valores bem abaixo do limiar convencional de 80% considerado
+adequado.</p>
+</div>
+</div>
+</div>
+<div id="conclusões-e-recomendações" class="section level1">
+<h1>Conclusões e Recomendações</h1>
+<p>Os resultado extraidos a parti do poder do teste nos diz que falha em
+rejeitar <span class="math inline">\(H_0\)</span> em ambas as
+subpopulações não deve ser interpretada como evidência de ausência de
+diferença real entre os semestres. Uma vez que a probabilidade de
+cometer um erro do tipo 2 é aproximadamente de 88% para ambas
+subpopulações para o delta definido.</p>
+<div id="sugestões-de-melhoria-do-experimento" class="section level2">
+<h2>Sugestões de melhoria do experimento</h2>
+<div id="menor-diferença-detectável" class="section level3">
+<h3>Menor Diferença Detectável</h3>
+<p>Considerando, o baixo poder de teste calculado na seçao anterior,
+aqui se pretende discutir:</p>
+<ol style="list-style-type: decimal">
+<li>o numero de observaçoes necessarios para atingir o poder de teste de
+80%;</li>
+<li>a menor diferença detectavel para um poder de teste de 80% e o nível
+de significância em <span class="math inline">\(\alpha =
+0{,}05\)</span>, considerando o arrajo amostral disponivel.</li>
+</ol>
+<p>A função empregada para esse cálculo, porém, depende do balanceamento
+amostral de cada subpopulação: para a subpopulação masculina, balanceada
+(<span class="math inline">\(n_{2016} = n_{2017} = 21\)</span>),
+utiliza-se <code>power.t.test()</code>; para a feminina, desbalanceada
+(<span class="math inline">\(n_{2016} \neq n_{2017}\)</span>),
+utiliza-se <code>pwr.t2n.test()</code> do pacote <code>pwr</code>, que
+admite tamanhos amostrais distintos entre os dois grupos.</p>
 <p><strong>Subpopulação Masculina</strong></p>
-<pre><code>## Menor diferença detectável - masculina: 3.7 kg/m²</code></pre>
-<p>Para a subpopulação masculina, utilizou-se a função
-<code>power.t.test()</code>, aproveitando o fato de a amostragem ser
-balanceada (<span class="math inline">\(n_{2016} = n_{2017} =
-21\)</span>). Os resultados obtidos foram:</p>
-<ul>
-<li>Menor diferença detectável (<span class="math inline">\(\delta^*\)</span>): <span class="math inline">\(3{,}7 \mathrm{kg/m^2}\)</span>:</li>
-</ul>
+<pre><code>## Número de observações necessário (delta* = 1) - masculina: 240.3</code></pre>
+<pre><code>## Menor diferença detectável - masculina: 3.46 kg/m²</code></pre>
 <p><strong>Subpopulação Feminina</strong></p>
-<pre><code>## Menor diferença detectável - feminina: 4.61 kg/m²</code></pre>
-<p>Por outro lado, para a subpopulação feminina, caracterizada por um
-arranjo desbalanceado) (<span class="math inline">\(n_{2016} \neq
-n_{2017}\)</span>, o cálculo da diferença mínima detectável foi
-realizado empregando a função <code>pwr.t2n.test()</code> do pacote
-<code>pwr</code>, adequada para comparações de duas amostras de tamanhos
-desiguais.</p>
-<ul>
-<li>Menor diferença detectável (<span class="math inline">\(\delta^*\)</span>): <span class="math inline">\(4{,}6 \mathrm{kg/m^2}\)</span>:</li>
-</ul>
-</div>
-<div id="nível-de-significância-e-tamanho-amostral" class="section level3">
-<h3>Nível de significância e tamanho amostral</h3>
-<p>Os testes foram executados com <code>conf.level = 0.95</code>, o que
-corresponde a um nível de significância <span class="math inline">\(\alpha = 0{,}05\)</span>.</p>
-</div>
-<div id="conclusões-e-recomendações" class="section level3">
-<h3>Conclusões e recomendações</h3>
-<p><strong>[PLACEHOLDER — discussão dos resultados e do significado
-técnico/científico dos efeitos detectados, retomando a questão original:
-houve mudança no IMC médio dos alunos do PPGEE entre 2016-2 e 2017-2? As
-conclusões devem ser amarradas ao <span class="math inline">\(\delta^*\)</span> definido e aos intervalos de
-confiança obtidos.]</strong></p>
-</div>
-<div id="sugestões-de-melhoria-do-experimento" class="section level3">
-<h3>Sugestões de melhoria do experimento</h3>
-<p>Os testes que falharam em rejeitar <span class="math inline">\(H_0\)</span> apresentam alguma diferença nas
-médias, mas não o suficiente para confirmá-la estatisticamente.
-Sugere-se que sejam medidas populações com maior quantidade de amostras,
-de forma a aumentar o poder do teste.</p>
-<p><strong>[PLACEHOLDER. Desenvolver as sugestões de melhoria: cálculo
-do tamanho amostral necessário para a potência desejada, controle de
-fatores de ruído e melhorias no procedimento de coleta.]</strong></p>
+<pre><code>## Número de observações necessário (delta* = 1) - feminino: 75.6</code></pre>
+<pre><code>## Menor diferença detectável - feminina: 4.3 kg/m²</code></pre>
+<p>Essa limitação reforça a recomendação de que estudos futuros sobre o
+tema considerem um planejamento amostral prévio, com cálculo de tamanho
+de amostra baseado em um <span class="math inline">\(\delta^*\)</span>
+definido antes da coleta, de modo a garantir poder adequado para
+detectar efeitos de magnitude prática relevante.</p>
 </div>
 </div>
 <div id="declaração-sobre-o-uso-de-ia-generativa-e-tecnologias-assistidas-por-ia-no-processo-de-elaboração-do-relatório" class="section level2">
-<h2>Declaração sobre o uso de IA generativa e tecnologias assistidas por
-IA no processo de elaboração do relatório</h2>
+<h2>Declaração sobre o Uso de IA Generativa e Tecnologias Assistidas por
+IA no Processo de Elaboração do Relatório</h2>
 <p>Durante a preparação deste trabalho, os autores utilizaram o Claude
 (Anthropic) para redigir a versão inicial das seções descritivas deste
-relatório a partir dos resultados registrados como comentários no script
-de análise processamento_separtado.R. Após utilizar esta ferramenta, os
-autores revisaram e editaram o conteúdo conforme necessário e assumem
-total responsabilidade pelo conteúdo da publicação.</p>
+relatório, a partir dos resultados registrados como comentários no
+script de análise <code>processamento_separado.R</code>. Após utilizar
+essa ferramenta, os autores revisaram e editaram o conteúdo conforme
+necessário e assumem total responsabilidade pelo conteúdo da
+publicação.</p>
+<p>Também foi utilizada IA para auxiliar na formatação do texto,
+incluindo a inclusão de bibliotecas que ajudam na visualização de
+gráficos e tabelas apresentados no relatório. Da mesma forma, foi
+solicitado apoio para revisar o <em>chunk</em> de <em>setup</em> do R
+Markdown, de modo a garantir a instalação das bibliotecas necessárias
+para que o arquivo compilasse sem erros.</p>
+<p>Por fim, na seção sobre Menor Diferença Detectável, foi questionado
+qual função poderia ser utilizada para realizar o teste de poder no caso
+de populações não balanceadas, uma vez que esse caso não foi discutido
+(em R) durante as aulas.</p>
 </div>
 </div>
 
