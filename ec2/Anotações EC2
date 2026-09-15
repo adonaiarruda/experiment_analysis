@@ -1,0 +1,16 @@
+EC2 anotações:
+
+
+- Preprocessamento: preciso calcular o retorno da ação. (Valor mes atual - valor mes anterior)/valor mes anterior
+
+35 retornos em 36 messes
+
+Nível: 5 níveis (ações)
+
+Hipóteses:
+- Existe algum nível do fator que tem efeito não nulo? (Anova)
+
+	- todos contra todos
+
+
+	- Achar alguma evidência para escolher uma ação só 
