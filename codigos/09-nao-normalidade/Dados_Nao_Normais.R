@@ -102,9 +102,7 @@ pbinom(1,n,prob = 0.5)  # P(X<=1), p-value < alpha
 # No sample greater than 200
 pbinom(0,n,prob = 0.5)  # P(X<=0), p-value < alpha
 
-
-
-# using BSDA package
+###### using BSDA package
 # (equivale a library(BSDA) + SIGN.test(...), como no slide; o prefixo BSDA::
 #  evita anexar o pacote inteiro e funciona com requireNamespace)
 if (has_BSDA) {
@@ -122,9 +120,9 @@ if (has_BSDA) {
 # P(X<=3) + P(X >= 7) = P(X<=3) + 1 - P(X <=6)
 pbinom(r,n,prob = 0.5)  + 1 - pbinom(6,n,prob = 0.5)
 
-#===================
+#========================================================================
 # Wilcoxon test
-#===================
+#========================================================================
 
 # changes in heart rate example
 
