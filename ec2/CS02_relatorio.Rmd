@@ -1,0 +1,286 @@
+---
+title: "EEE933 - Estudo de Caso 02: Avaliação e comparação do retorno médio de ações"
+author: "Grupo E — [nomes dos integrantes]"
+date: "`r format(Sys.Date(), '%d/%m/%Y')`"
+lang: pt-BR
+output:
+  pdf_document:
+    toc: true
+    number_sections: true
+    latex_engine: xelatex
+fontsize: 11pt
+geometry: margin=2.5cm
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
+                      fig.align = "center", fig.height = 4, fig.width = 6.5)
+set.seed(933)
+alpha <- 0.05
+```
+
+# Introdução
+
+Um investidor deseja aplicar todo o seu capital em **uma única ação** no próximo mês, buscando o maior retorno mensal. Foram coletados os preços de fechamento de cinco ações nos últimos 36 meses. O objetivo deste relatório é:
+
+1.  determinar qual ação tem maior potencial de retorno mensal médio;
+2.  caso mais de uma ação se destaque, apresentar evidências adicionais para escolher uma única ação.
+
+# Dados e construção da variável resposta
+
+O arquivo não possui cabeçalho. Cada linha é um mês (linha 1 = mês mais recente) e cada coluna é uma ação. Pela simplificação do enunciado, o preço de abertura de um mês é o fechamento do mês anterior. Assim, o retorno mensal da ação $j$ no mês $t$ é
+
+$$ r_{t,j} = \frac{P_{t,j}}{P_{t+1,j}} - 1 , $$
+
+em que $P_{t+1,j}$ é o fechamento do mês imediatamente anterior. Como a linha mais antiga não possui mês anterior, obtêm-se $n = 35$ retornos por ação.
+
+```{r dados}
+precos <- read.csv("DadosAcoesGrupoE.csv", header = FALSE)
+colnames(precos) <- paste0("Acao", 1:5)
+stopifnot(nrow(precos) == 36, ncol(precos) == 5, !anyNA(precos))
+
+n_p <- nrow(precos)
+ret <- as.data.frame(precos[-n_p, ] / precos[-1, ] - 1)   # 35 x 5
+n   <- nrow(ret)
+k   <- ncol(ret)
+
+# formato longo (mes = bloco; 1 = mais recente)
+long <- data.frame(
+  retorno = unlist(ret, use.names = FALSE),
+  acao    = factor(rep(names(ret), each = n)),
+  mes     = factor(rep(seq_len(n), times = k))
+)
+```
+
+# Análise exploratória
+
+```{r descritiva}
+desc <- data.frame(
+  Media   = sapply(ret, mean),
+  DP      = sapply(ret, sd),
+  Mediana = sapply(ret, median),
+  Minimo  = sapply(ret, min),
+  Maximo  = sapply(ret, max)
+)
+knitr::kable(round(desc * 100, 3),
+             caption = "Estatísticas descritivas dos retornos mensais (em %).")
+```
+
+```{r boxplot, fig.cap="Distribuição dos retornos mensais por ação."}
+boxplot(ret * 100, ylab = "Retorno mensal (%)", col = "lightgray")
+abline(h = 0, lty = 2)
+```
+
+```{r correlacao}
+knitr::kable(round(cor(ret), 2),
+             caption = "Correlação entre os retornos das ações (mesmos meses).")
+```
+
+# Hipóteses e planejamento dos testes
+
+Seja $\mu_j$ o retorno mensal médio da ação $j$. A sequência de testes é:
+
+1.  **Teste global (ANOVA):** $H_0: \mu_1 = \dots = \mu_5$ contra $H_1$: ao menos uma média difere. Como todas as ações são observadas nos mesmos 36 meses, o **mês é tratado como bloco** (ANOVA de dois fatores sem repetição), o que remove a variação comum de mercado. A alternativa não paramétrica equivalente é o teste de **Friedman**; o **Kruskal-Wallis** (sem blocos) é usado como verificação adicional.
+2.  **Comparações múltiplas (post-hoc):** para cada par, $H_0: \mu_i = \mu_j$ contra $H_1: \mu_i \neq \mu_j$, com correção de Holm para controle do erro global. Também se comparam todas as ações contra a de maior média.
+3.  **Equivalência / não inferioridade** (apenas se mais de uma ação se destacar): com margem $\delta$, testa-se $H_0: \mu_j - \mu_{melhor} \le -\delta$ contra $H_1: \mu_j - \mu_{melhor} > -\delta$ (não inferioridade) e o TOST para equivalência.
+4.  **Critérios adicionais** de desempate: risco (desvio-padrão), razão retorno/risco e pior mês.
+
+Nível de significância adotado: $\alpha = `r alpha`$.
+
+# Verificação das premissas
+
+## Normalidade
+
+```{r normalidade}
+sw <- sapply(ret, function(x) shapiro.test(x)$p.value)
+knitr::kable(data.frame(p_valor = round(sw, 4)),
+             caption = "Shapiro-Wilk por ação (H0: retornos normais).")
+```
+
+```{r qq, fig.height=5, fig.cap="QQ-plots dos retornos por ação."}
+par(mfrow = c(2, 3))
+for (j in seq_len(k)) {
+  qqnorm(ret[[j]], main = names(ret)[j]); qqline(ret[[j]])
+}
+par(mfrow = c(1, 1))
+```
+
+## Modelo em blocos e análise de resíduos
+
+```{r modelo}
+mod <- aov(retorno ~ acao + mes, data = long)
+res <- residuals(mod)
+shapiro.test(res)
+```
+
+```{r resid, fig.height=4.5, fig.cap="Diagnóstico dos resíduos do modelo em blocos."}
+par(mfrow = c(1, 2))
+qqnorm(res, main = "QQ-plot dos resíduos"); qqline(res)
+plot(fitted(mod), res, xlab = "Ajustados", ylab = "Resíduos",
+     main = "Resíduos vs. ajustados"); abline(h = 0, lty = 2)
+par(mfrow = c(1, 1))
+```
+
+## Homocedasticidade
+
+```{r homoc}
+bartlett.test(retorno ~ acao, data = long)   # sensível à não normalidade
+fligner.test(retorno ~ acao, data = long)    # robusto
+```
+
+## Independência (temporal)
+
+```{r indep, fig.cap="Autocorrelação dos retornos de cada ação (mês 1 = mais recente)."}
+par(mfrow = c(2, 3))
+for (j in seq_len(k)) acf(rev(ret[[j]]), main = names(ret)[j], lag.max = 12)
+par(mfrow = c(1, 1))
+```
+
+```{r indep-lb}
+lb <- sapply(ret, function(x) Box.test(rev(x), lag = 6, type = "Ljung-Box")$p.value)
+knitr::kable(data.frame(p_valor = round(lb, 4)),
+             caption = "Ljung-Box (lag 6) por ação (H0: sem autocorrelação).")
+```
+
+**Discussão das premissas.** *[Preencher com base nos resultados acima: quais premissas foram satisfeitas? Se alguma violação for leve (por exemplo, normalidade em uma única ação com n = 35), justificar o uso do teste paramétrico pela robustez do teste F com amostras balanceadas e pelo Teorema Central do Limite, e confirmar com os testes não paramétricos.]*
+
+# Resultados
+
+## Teste global
+
+```{r anova}
+summary(mod)
+```
+
+```{r nonparam}
+friedman.test(retorno ~ acao | mes, data = long)
+kruskal.test(retorno ~ acao, data = long)
+```
+
+## Comparações múltiplas
+
+```{r posthoc}
+# Tukey no modelo em blocos
+TukeyHSD(mod, which = "acao")
+
+# t pareado e Wilcoxon pareado, com correção de Holm
+pairwise.t.test(long$retorno, long$acao, paired = TRUE, p.adjust.method = "holm")
+pairwise.wilcox.test(long$retorno, long$acao, paired = TRUE, p.adjust.method = "holm")
+```
+
+## Ação de maior retorno médio contra as demais
+
+```{r melhor}
+medias  <- colMeans(ret)
+melhor  <- names(which.max(medias))
+outras  <- setdiff(names(ret), melhor)
+
+comp <- do.call(rbind, lapply(outras, function(j) {
+  d  <- ret[[melhor]] - ret[[j]]
+  tt <- t.test(d)
+  data.frame(Comparacao = paste(melhor, "-", j),
+             Dif_media  = mean(d) * 100,
+             IC_inf     = tt$conf.int[1] * 100,
+             IC_sup     = tt$conf.int[2] * 100,
+             p_t        = tt$p.value,
+             p_wilcox   = wilcox.test(d)$p.value)
+}))
+comp$p_t_holm      <- p.adjust(comp$p_t, "holm")
+comp$p_wilcox_holm <- p.adjust(comp$p_wilcox, "holm")
+knitr::kable(comp, digits = 4, row.names = FALSE,
+             caption = "Diferença de retorno médio (em p.p.) da ação de maior média contra as demais (pareado por mês).")
+```
+
+A ação de maior retorno médio é a **`r melhor`** (`r round(100 * medias[melhor], 3)`% ao mês).
+
+## Equivalência e não inferioridade (desempate)
+
+Adota-se a margem $\delta$ = **0,5 ponto percentual ao mês** (*[justificar: diferença abaixo da qual o investidor considera as ações economicamente equivalentes; ajustar se necessário]*).
+
+```{r tost}
+delta <- 0.005
+
+equiv <- do.call(rbind, lapply(outras, function(j) {
+  d   <- ret[[j]] - ret[[melhor]]                       # j menos o melhor
+  p_ni <- t.test(d, mu = -delta, alternative = "greater")$p.value   # nao inferioridade
+  p_lo <- t.test(d, mu = -delta, alternative = "greater")$p.value   # TOST: limite inferior
+  p_up <- t.test(d, mu =  delta, alternative = "less")$p.value      # TOST: limite superior
+  data.frame(Acao = j,
+             Dif_media_pp = mean(d) * 100,
+             p_nao_inferioridade = p_ni,
+             p_TOST = max(p_lo, p_up))
+}))
+equiv$Nao_inferior <- equiv$p_nao_inferioridade < alpha
+equiv$Equivalente  <- equiv$p_TOST < alpha
+knitr::kable(equiv, digits = 4, row.names = FALSE,
+             caption = paste0("Não inferioridade e equivalência em relação à ", melhor,
+                              " (margem = ", delta * 100, " p.p.)."))
+```
+
+## Risco e retorno
+
+```{r risco}
+risco <- data.frame(
+  Media_pct  = 100 * sapply(ret, mean),
+  DP_pct     = 100 * sapply(ret, sd),
+  Razao      = sapply(ret, mean) / sapply(ret, sd),
+  Pior_mes   = 100 * sapply(ret, min),
+  Prop_meses_positivos = sapply(ret, function(x) mean(x > 0))
+)
+knitr::kable(round(risco, 3),
+             caption = "Retorno médio, risco e razão retorno/risco (sem taxa livre de risco).")
+```
+
+# Potência do teste
+
+```{r potencia}
+# Potência do teste global (ANOVA one-way) com n = 35 por ação e efeito observado
+power.anova.test(groups = k, n = n,
+                 between.var = var(colMeans(ret)),
+                 within.var  = mean(sapply(ret, var)),
+                 sig.level = alpha)
+
+# Potência do t pareado para detectar a menor diferença de médias observada
+dif_min <- min(abs(outer(colMeans(ret), colMeans(ret), "-"))[lower.tri(diag(k))])
+sd_dif  <- sd(ret[[melhor]] - ret[[outras[1]]])
+power.t.test(n = n, delta = dif_min, sd = sd_dif, sig.level = alpha, type = "paired")
+
+# Tamanho amostral necessário para 80% de potência nessa diferença mínima
+power.t.test(power = 0.8, delta = dif_min, sd = sd_dif, sig.level = alpha, type = "paired")
+```
+
+*[Discutir: a potência é adequada para detectar as diferenças relevantes? Diferenças pequenas entre ações próximas exigiriam mais meses de dados.]*
+
+# Conclusões e recomendações
+
+*[Preencher com base nos resultados: (i) o teste global rejeitou H0? (ii) qual(is) ação(ões) se destaca(m) após correção para comparações múltiplas? (iii) se houver mais de uma, qual critério de desempate (risco, razão retorno/risco, não inferioridade) sustenta a escolha final? (iv) recomendação final com o suporte estatístico.]*
+
+# Possíveis melhorias do experimento
+
+- Ampliar a janela histórica (mais de 36 meses) e/ou usar retornos semanais para aumentar o poder.
+- Usar retornos logarítmicos e avaliar melhor a normalidade e a simetria.
+- Considerar dividendos, custos de transação e impostos.
+- Ajustar o retorno ao risco (índice de Sharpe, com taxa livre de risco) em vez de comparar só médias.
+- Tratar heterocedasticidade e autocorrelação da volatilidade (modelos ARCH/GARCH) e mudanças de regime.
+- Usar bootstrap ou testes de permutação para intervalos e comparações sem hipótese distribucional.
+- Avaliar desempenho fora da amostra (janela deslizante): rentabilidade passada não garante a do mês seguinte.
+- Incluir mais ações e considerar diversificação (carteira) em vez de uma única ação.
+
+# Papéis desempenhados pela equipe
+
+| Integrante | Papel                  |
+|------------|------------------------|
+| *[Nome]*   | Relator                |
+| *[Nome]*   | Verificador            |
+| *[Nome]*   | Programador / Analista |
+| *[Nome]*   | Coordenador            |
+
+# Declaração sobre o uso de IA generativa
+
+*[Descrever, conforme a política da Elsevier/template da disciplina, se e como ferramentas de IA generativa foram utilizadas na elaboração do relatório, e que os autores revisaram e assumem responsabilidade pelo conteúdo.]*
+
+# Informações da sessão (reprodutibilidade)
+
+```{r sessao}
+sessionInfo()
+```
