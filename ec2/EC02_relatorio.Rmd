@@ -1,6 +1,15 @@
 ---
 title: "EEE933 - Estudo de Caso 02: Avaliação e comparação do retorno médio de ações"
-author: "Grupo E — [nomes dos integrantes]"
+author: "Grupo E — [nomes dos integrantes e funções]
+  \begin{tabular}{ll}
+  \textbf{Membro} & \textbf{Papel} \\ \hline
+  Adonai Arruda & PAPEL \\
+  Alexandra Milaya Soto Aponte & PAPEL \\
+  João Paulo Gonçalves Simim & PAPEL \\
+  Yasmim Machado & PAPEL \\
+  \end{tabular}
+
+"
 date: "`r format(Sys.Date(), '%d/%m/%Y')`"
 lang: pt-BR
 output:
@@ -121,6 +130,9 @@ knitr::kable(round(cor(retornos), 2),
 
 # Análise Estatística
 
+As próximas sessões explicam os testes realizados bem como os resultados obtidos para cada um deles. Os testes contam uma história de como escolher uma ação ideal para investimento.
+
+
 ## Validação das Premissas do Modelo
 
 ### Normalidade
@@ -160,6 +172,8 @@ summary(modelo)
 
 ## Teste T de Tukey
 
+[Teste todos contra todos]
+
 ```{r T Tukey}
 library(multcomp)
 mc <- glht(modelo, linfct = mcp(acao = "Tukey"))
@@ -169,14 +183,14 @@ plot(mc_CI)
 ```
 
 <!--juntando o boxplot e o mc_IC descartamos v2 e V4. Agora não tem evidencia #de que v1,v3 e v4 sejam diferntes Assumindo que V1 é referência-->
-[Explicar que não podemos considerar que V1 difere de V3 e V5] 
+
+[Explicar que não podemos considerar que V1 difere de V3 e V5]
 
 [Descartamos V2 e V4]
 
 ## Teste de Dunnet
 
 [Fazemos para tomar um deles como candidata e descartar as outras duas ações]
-
 
 ```{r T Dunnett}
 retornos_long$acao <- relevel(retornos_long$acao, ref = "V1")
@@ -189,12 +203,18 @@ mc2_CI <- confint(mc2, level = 0.95)
 
 plot(mc2_CI)
 ```
+
 [Explicar que descartamos V1 e V5 mas ainda não podemos afirmar que existe uma diferença entre V1 e V3]
 
 <!--#Aumentamos a sensibilidade e conseguimos descartar V5 mas ainda não é ppossivel dizer que a diferença de há diferença entre v1 e v3 -->
 
-
 ## Teste T de student
+
+
+[Hipótese nula (H0): As médias de retornos da ação V1 e V3 são iguais]
+[Hipótese nula (H1): As médias de retornos da ação V1 e V3 são diferentes]
+
+
 
 
 ```{r T student}
@@ -232,18 +252,36 @@ ggplot(df_ic, aes(x = Comparacao, y = Diferenca)) +
 
 ```
 
+[Considerando o teste t de student, podemos rejeitar a hipótese nula de ]
 
-
-
-
-## Resultados
 
 # Conclusões e Recomendações
 
-## Discussão da significância do teste
 
-------------------------------------------------------------------------
 
+*[Preencher com base nos resultados: (i) o teste global rejeitou H0? (ii) qual(is) ação(ões) se destaca(m) após correção para comparações múltiplas? (iii) se houver mais de uma, qual critério de desempate (risco, razão retorno/risco, não inferioridade) sustenta a escolha final? (iv) recomendação final com o suporte estatístico.]*
+
+
+
+
+
+# Discussão da significância do teste
+
+[Análise da significância e risco do teste]
+
+
+
+
+<!-- Lambrar: Referenciar fontes-->
+
+<!-- Lambrar: Termo de IA-->
+
+
+
+
+
+---------------------------------------------------------------------------------------------------------------------
+A partir
 # 
 
 ## Pre-processamento de dados

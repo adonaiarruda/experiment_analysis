@@ -12,7 +12,7 @@ calcular_retorno <- function(acao) {
   return(retorno_list)
 }
 
-acoes <- read.csv("DadosAcoesGrupoE.csv",
+acoes <- read.csv("dados/DadosAcoesGrupoE.csv",
   header = FALSE
 )
 
@@ -26,6 +26,19 @@ boxplot(retornos,
         xlab = "Ação",
         ylab = "Retorno",
         col = c("darkorchid3", "steelblue3","darkorange2","darkolivegreen3","tomato2"))
+
+
+
+
+desc <- data.frame(
+  Media   = sapply(ret, mean),
+  DP      = sapply(ret, sd),
+  Mediana = sapply(ret, median),
+  Minimo  = sapply(ret, min),
+  Maximo  = sapply(ret, max)
+)
+knitr::kable(round(desc * 100, 3),
+             caption = "Estatísticas descritivas dos retornos mensais (em %).")
 
 
 # converte os dados em formato longo pois é a formatação que usa aov
