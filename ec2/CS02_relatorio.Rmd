@@ -19,6 +19,8 @@ set.seed(933)
 alpha <- 0.05
 ```
 
+# Resumo
+
 # Introdução
 
 Um investidor deseja aplicar todo o seu capital em **uma única ação** no próximo mês, buscando o maior retorno mensal. Foram coletados os preços de fechamento de cinco ações nos últimos 36 meses. O objetivo deste relatório é:
@@ -26,7 +28,225 @@ Um investidor deseja aplicar todo o seu capital em **uma única ação** no pró
 1.  determinar qual ação tem maior potencial de retorno mensal médio;
 2.  caso mais de uma ação se destaque, apresentar evidências adicionais para escolher uma única ação.
 
-# Dados e construção da variável resposta
+# Planejamento do Experimento
+
+## Objetivos do Experimento (Hipóteses a serem testatas)
+
+1.  **Teste global (ANOVA):** $H_0: \mu_1 = \dots = \mu_5$ contra $H_1$: ao menos uma média difere. Como todas as ações são observadas nos mesmos 36 meses, o **mês é tratado como bloco** (ANOVA de dois fatores sem repetição), o que remove a variação comum de mercado.
+
+[Colocar formula do anova no slide 22/41 e explica h0]
+
+A resposta do anova mostra que existe ao menos um nível (retorno de ação) com um efeito significativamente diferente de zero.
+
+2.  **Teste de Tukey**: Verificar quais níveis (ações) tem efeito significativamente diferente de 0. É um teste post-hoc, para cada par, $H_0: \mu_i = \mu_j$ contra $H_1: \mu_i \neq \mu_j$. Também se comparam todas as ações contra a de maior média.
+
+3.  **Teste de Dunnett**: Comparar um dos níveis com os demais. Considerando um ou dois níveis que se destacam no teste de Tukey, é possível não verificar diferença estatísticamente significativa para um ou mais níveis, por isso, comparamos o nível que mais se destaca.
+
+4.  **T-teste de student**: Caso sobre apenas dois níveis com alguma similaridade estatística, realizamos com um t-teste de student para obter maior poder de teste na comparação entre esses níveis.
+
+## Descrição da coleta e consolidação dos dados (Pre-processamento dos dados)
+
+[Transformação do valor para retorno]
+
+# Análise Exploratória dos Dados
+
+Analisando Cada linha é um mês (linha 1 = mês mais recente) e cada coluna é uma ação. Pela simplificação do enunciado, o preço de abertura de um mês é o fechamento do mês anterior. Assim, o retorno mensal da ação $j$ no mês $t$ é
+
+$$ r_{t,j} = \frac{P_{t+1,j}}{P_{t,j}} - 1 $$
+
+em que $P_{t+1,j}$ é o fechamento do mês imediatamente posterior. Como a linha mais antiga não possui mês anterior, obtêm-se $n = 35$ retornos por ação.
+
+```{r dados}
+
+
+
+calcular_retorno <- function(acao) {
+  n <- length(acao)
+  retorno_list <- numeric(n - 1)
+  
+  for (i in 1:(n - 1)) {
+    retorno_list[i] <- (acao[i] - acao[i + 1]) / acao[i]
+  }
+  
+  return(retorno_list)
+}
+
+acoes <- read.csv("DadosAcoesGrupoE.csv",
+                  header = FALSE
+)
+
+
+retornos <- as.data.frame(sapply(acoes, calcular_retorno))
+
+
+
+retornos_long <- stack(retornos)
+names(retornos_long) <- c("retorno", "acao")
+
+
+```
+
+Considerando o pre-processamento de retornos por ação, avaliamos o boxplot de cada ação, para entender o comportamento dos dados.
+
+```{r boxplot, fig.cap="Distribuição dos retornos mensais por ação."}
+boxplot(retornos,
+        main = "Distribuição dos Retornos por Ação",
+        xlab = "Ação",
+        ylab = "Retorno",
+        col = c("darkorchid3", "steelblue3","darkorange2","darkolivegreen3","tomato2"))
+```
+
+Verificando as estatísticas descritivas de cada ação.
+
+```{r descritiva}
+desc <- data.frame(
+  Media   = sapply(retornos, mean),
+  DP      = sapply(retornos, sd),
+  Mediana = sapply(retornos, median),
+  Minimo  = sapply(retornos, min),
+  Maximo  = sapply(retornos, max)
+)
+knitr::kable(round(desc * 100, 3),
+             caption = "Estatísticas descritivas dos retornos mensais (em %).")
+```
+
+Considerando apenas a média das ações, verificamos que a ação 1 tem maior retorno médio.
+
+```{r correlacao}
+knitr::kable(round(cor(retornos), 2),
+             caption = "Correlação entre os retornos das ações (mesmos meses).")
+```
+
+[Explicar a correlçao das ações]
+
+# Análise Estatística
+
+## Validação das Premissas do Modelo
+
+### Normalidade
+
+```{r teste de normalidade}
+shapiro.test(modelo$residuals)
+```
+
+[com p_value 0.16 não rejeita normalidade]
+
+```{r teste de normalidade}
+library(car)
+qqPlot(modelo$residuals)
+```
+
+[qqplot para verificar se podemos considerar normalidade mesmo com p valor \> alpha]
+
+### Homoscedasticidade
+
+```{r Homescedasticidade para verificar normalidade dos resíduos}
+fligner.test(retorno ~ acao, data = retornos_long)
+plot(x = modelo$fitted.values,
+     y = modelo$residuals)
+```
+
+[Explicar normalidade dos resíduos e que vamos considerar normalidade]
+
+## Teste ANOVA
+
+[O primeiro teste a ser feito é o teste anova, para avaliar a hipótese nula (H0) que as médias são iguais.... continuar...]
+
+```{r ANOVA}
+
+modelo <- aov(retorno ~ acao, data = retornos_long)
+summary(modelo)
+```
+
+## Teste T de Tukey
+
+```{r T Tukey}
+library(multcomp)
+mc <- glht(modelo, linfct = mcp(acao = "Tukey"))
+mc_CI  <- confint(mc, level= 0.95)
+
+plot(mc_CI)
+```
+
+<!--juntando o boxplot e o mc_IC descartamos v2 e V4. Agora não tem evidencia #de que v1,v3 e v4 sejam diferntes Assumindo que V1 é referência-->
+[Explicar que não podemos considerar que V1 difere de V3 e V5] 
+
+[Descartamos V2 e V4]
+
+## Teste de Dunnet
+
+[Fazemos para tomar um deles como candidata e descartar as outras duas ações]
+
+
+```{r T Dunnett}
+retornos_long$acao <- relevel(retornos_long$acao, ref = "V1")
+modelo2 <- aov(retorno ~ acao, data = retornos_long)
+
+summary(modelo2)
+
+mc2 <- glht(modelo2, linfct = mcp(acao = "Dunnett"))
+mc2_CI <- confint(mc2, level = 0.95)
+
+plot(mc2_CI)
+```
+[Explicar que descartamos V1 e V5 mas ainda não podemos afirmar que existe uma diferença entre V1 e V3]
+
+<!--#Aumentamos a sensibilidade e conseguimos descartar V5 mas ainda não é ppossivel dizer que a diferença de há diferença entre v1 e v3 -->
+
+
+## Teste T de student
+
+
+```{r T student}
+
+# o que pode me dar evidencias para escolher apenas 1 entre essas 2
+subset_v1_v3 <- subset(retornos_long, acao %in% c("V1", "V3"))
+subset_v1_v3$acao <- droplevels(subset_v1_v3$acao)  # remove níveis de fator não usados
+
+teste_t <- t.test(retorno ~ acao, data = subset_v1_v3)
+teste_t
+library(ggplot2)
+
+
+df_ic <- data.frame(
+  Diferenca       = teste_t$estimate[1] - teste_t$estimate[2], # Média(V1) - Média(V3)
+  Limite_Inferior = teste_t$conf.int[1],
+  Limite_Superior = teste_t$conf.int[2],
+  Comparacao      = "V1 vs V3"
+)
+
+ggplot(df_ic, aes(x = Comparacao, y = Diferenca)) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed", size = 1) + # Linha de referência no zero
+  geom_errorbar(aes(ymin = Limite_Inferior, ymax = Limite_Superior), width = 0.2, color = "blue", size = 1) +
+  geom_point(color = "darkblue", size = 4) + # Ponto central representando a diferença estimada
+  coord_flip() + # Rotaciona o gráfico para facilitar a leitura horizontal
+  labs(
+    title = "Intervalo de Confiança da Diferença entre Retornos",
+    subtitle = paste0("Nível de Confiança: ", attr(teste_t$conf.int, "conf.level") * 100, "%"),
+    x = "",
+    y = "Diferença Estimada nos Retornos (V1 - V3)"
+  ) +
+  theme_minimal()
+
+
+
+```
+
+
+
+
+
+## Resultados
+
+# Conclusões e Recomendações
+
+## Discussão da significância do teste
+
+------------------------------------------------------------------------
+
+# 
+
+## Pre-processamento de dados
 
 O arquivo não possui cabeçalho. Cada linha é um mês (linha 1 = mês mais recente) e cada coluna é uma ação. Pela simplificação do enunciado, o preço de abertura de um mês é o fechamento do mês anterior. Assim, o retorno mensal da ação $j$ no mês $t$ é
 
