@@ -1,15 +1,6 @@
 ---
 title: "EEE933 - Estudo de Caso 02: Avaliação e comparação do retorno médio de ações"
-author: "Grupo E — [nomes dos integrantes e funções]
-  \begin{tabular}{ll}
-  \textbf{Membro} & \textbf{Papel} \\ \hline
-  Adonai Arruda & PAPEL \\
-  Alexandra Milaya Soto Aponte & PAPEL \\
-  João Paulo Gonçalves Simim & PAPEL \\
-  Yasmim Machado & PAPEL \\
-  \end{tabular}
-
-"
+author: "Grupo E — Adonai Arruda, Alexandra Milaya Soto Aponte, João Paulo Gonçalves Simim e Yasmim Machado"
 date: "`r format(Sys.Date(), '%d/%m/%Y')`"
 lang: pt-BR
 output:
@@ -26,9 +17,19 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
                       fig.align = "center", fig.height = 4, fig.width = 6.5)
 set.seed(933)
 alpha <- 0.05
+
+# formata p-valores em português
+fmtp <- function(p) ifelse(p < 0.001, "< 0,001",
+                           format(round(p, 4), decimal.mark = ",", nsmall = 4))
+# p-valor com sinal ("= 0,0290" ou "< 0,001")
+fmtpe <- function(p) ifelse(p < 0.001, "< 0,001", paste("=", fmtp(p)))
+# formata números com vírgula decimal
+fmt <- function(x, d = 2) format(round(x, d), decimal.mark = ",", nsmall = d)
 ```
 
 # Resumo
+
+Um investidor deseja aplicar todo o seu capital em uma única ação durante o próximo mês e dispõe dos preços de fechamento de cinco ações nos últimos 36 meses. Os preços foram convertidos em 35 retornos mensais por ação e comparados por meio de uma sequência de testes de hipóteses: ANOVA (teste global), teste de Tukey (todos contra todos), teste de Dunnett (todos contra a ação de maior média) e, por fim, um teste t para decidir entre as duas ações que restaram. O teste global rejeitou a igualdade das médias ($\alpha = 0{,}05$). As ações V2 e V4 foram descartadas pelo teste de Tukey, e V5 foi descartada pelo teste de Dunnett. Restaram V1 e V3, e a diferença entre elas é apenas marginalmente significativa, com evidência dependente do teste utilizado. A ação **V1** tem o maior retorno médio, o maior retorno por unidade de risco e foi a recomendada, com a ressalva de que o experimento tem potência limitada para separá-la de V3.
 
 # Introdução
 
@@ -37,75 +38,64 @@ Um investidor deseja aplicar todo o seu capital em **uma única ação** no pró
 1.  determinar qual ação tem maior potencial de retorno mensal médio;
 2.  caso mais de uma ação se destaque, apresentar evidências adicionais para escolher uma única ação.
 
+As simplificações do enunciado foram adotadas: o preço de abertura de um mês é idêntico ao preço de fechamento do mês anterior, e as ações podem ser compradas de forma fracionária.
+
 # Planejamento do Experimento
 
-## Objetivos do Experimento (Hipóteses a serem testatas)
+## Objetivos do Experimento (Hipóteses a serem testadas)
 
-1.  **Teste global (ANOVA):** $H_0: \mu_1 = \dots = \mu_5$ contra $H_1$: ao menos uma média difere. Como todas as ações são observadas nos mesmos 36 meses, o **mês é tratado como bloco** (ANOVA de dois fatores sem repetição), o que remove a variação comum de mercado.
+Seja $\mu_j$ o retorno mensal médio da ação $j$ ($j = 1, \dots, 5$). Os testes formam uma sequência, em que cada etapa é motivada pelo resultado da anterior.
 
-[Colocar formula do anova no slide 22/41 e explica h0]
+1.  **Teste global (ANOVA):** o modelo é $y_{ij} = \mu + \tau_j + \varepsilon_{ij}$, com $y_{ij}$ o retorno do mês $i$ da ação $j$, $\tau_j$ o efeito da ação $j$ e $\varepsilon_{ij} \sim N(0, \sigma^2)$. As hipóteses são $H_0: \mu_1 = \dots = \mu_5$ (todos os efeitos $\tau_j$ são nulos) contra $H_1$: ao menos uma média difere. Se $H_0$ for rejeitada, existe ao menos uma ação cujo retorno médio é diferente das demais, mas o teste não indica qual.
 
-A resposta do anova mostra que existe ao menos um nível (retorno de ação) com um efeito significativamente diferente de zero.
+2.  **Teste de Tukey:** teste post-hoc que, para cada par de ações, testa $H_0: \mu_i = \mu_j$ contra $H_1: \mu_i \neq \mu_j$, controlando a taxa de erro global (*family-wise*) em $\alpha$. Serve para descartar as ações claramente inferiores.
 
-2.  **Teste de Tukey**: Verificar quais níveis (ações) tem efeito significativamente diferente de 0. É um teste post-hoc, para cada par, $H_0: \mu_i = \mu_j$ contra $H_1: \mu_i \neq \mu_j$. Também se comparam todas as ações contra a de maior média.
+3.  **Teste de Dunnett:** compara uma ação de referência (a de maior média) com todas as demais. Como são apenas $k-1$ comparações, e não todos os pares, o teste é mais sensível que o de Tukey para esse fim, e permite descartar ações que o Tukey não separou da referência.
 
-3.  **Teste de Dunnett**: Comparar um dos níveis com os demais. Considerando um ou dois níveis que se destacam no teste de Tukey, é possível não verificar diferença estatísticamente significativa para um ou mais níveis, por isso, comparamos o nível que mais se destaca.
+4.  **Teste t de Student (Welch):** se restarem apenas duas ações sem diferença clara, compara-se diretamente $H_0: \mu_1 = \mu_3$ contra $H_1: \mu_1 \neq \mu_3$. Por ser uma única comparação, o teste tem maior potência do que as comparações múltiplas, que pagam o preço da correção.
 
-4.  **T-teste de student**: Caso sobre apenas dois níveis com alguma similaridade estatística, realizamos com um t-teste de student para obter maior poder de teste na comparação entre esses níveis.
+O nível de significância adotado em todos os testes é $\alpha = `r alpha`$.
 
-## Descrição da coleta e consolidação dos dados (Pre-processamento dos dados)
+## Descrição da coleta e consolidação dos dados (Pré-processamento)
 
-[Transformação do valor para retorno]
+O arquivo `DadosAcoesGrupoE.csv` não possui cabeçalho. Tem 36 linhas (meses) e 5 colunas (ações, nomeadas V1 a V5 pelo R). A linha 1 é o mês mais recente e a linha 36 é o mais distante. Como o preço de abertura de um mês é o fechamento do mês anterior, o retorno mensal da ação $j$ na linha $t$ é
+
+$$ r_{t,j} = \frac{P_{t,j} - P_{t+1,j}}{P_{t+1,j}} = \frac{P_{t,j}}{P_{t+1,j}} - 1, $$
+
+em que $P_{t+1,j}$ é o fechamento do mês imediatamente anterior ao mês $t$ (a linha seguinte, pois a ordenação é do mais recente para o mais antigo). A linha mais antiga não possui mês anterior, portanto obtêm-se $n = 35$ retornos por ação, totalizando 175 observações.
+
+```{r dados}
+calcular_retorno <- function(preco) {
+  n <- length(preco)
+  # linha t é mais recente que t+1: retorno = P_t / P_{t+1} - 1
+  preco[1:(n - 1)] / preco[2:n] - 1
+}
+
+acoes <- read.csv("DadosAcoesGrupoE.csv", header = FALSE)
+stopifnot(nrow(acoes) == 36, ncol(acoes) == 5, !anyNA(acoes))
+
+retornos <- as.data.frame(sapply(acoes, calcular_retorno))   # 35 x 5
+n <- nrow(retornos)
+k <- ncol(retornos)
+
+# formato longo (uma linha por observação) e fator "mes" para checar bloco
+retornos_long <- stack(retornos)
+names(retornos_long) <- c("retorno", "acao")
+retornos_long$mes <- factor(rep(seq_len(n), times = k))
+```
 
 # Análise Exploratória dos Dados
 
-Analisando Cada linha é um mês (linha 1 = mês mais recente) e cada coluna é uma ação. Pela simplificação do enunciado, o preço de abertura de um mês é o fechamento do mês anterior. Assim, o retorno mensal da ação $j$ no mês $t$ é
+O boxplot mostra a distribuição dos retornos de cada ação.
 
-$$ r_{t,j} = \frac{P_{t+1,j}}{P_{t,j}} - 1 $$
-
-em que $P_{t+1,j}$ é o fechamento do mês imediatamente posterior. Como a linha mais antiga não possui mês anterior, obtêm-se $n = 35$ retornos por ação.
-
-```{r dados}
-
-
-
-calcular_retorno <- function(acao) {
-  n <- length(acao)
-  retorno_list <- numeric(n - 1)
-  
-  for (i in 1:(n - 1)) {
-    retorno_list[i] <- (acao[i] - acao[i + 1]) / acao[i]
-  }
-  
-  return(retorno_list)
-}
-
-acoes <- read.csv("DadosAcoesGrupoE.csv",
-                  header = FALSE
-)
-
-
-retornos <- as.data.frame(sapply(acoes, calcular_retorno))
-
-
-
-retornos_long <- stack(retornos)
-names(retornos_long) <- c("retorno", "acao")
-
-
-```
-
-Considerando o pre-processamento de retornos por ação, avaliamos o boxplot de cada ação, para entender o comportamento dos dados.
-
-```{r boxplot, fig.cap="Distribuição dos retornos mensais por ação."}
-boxplot(retornos,
+```{r boxplot, fig.cap="Distribuição dos retornos mensais por ação (em %)."}
+boxplot(retornos * 100,
         main = "Distribuição dos Retornos por Ação",
-        xlab = "Ação",
-        ylab = "Retorno",
-        col = c("darkorchid3", "steelblue3","darkorange2","darkolivegreen3","tomato2"))
+        xlab = "Ação", ylab = "Retorno mensal (%)",
+        col = c("darkorchid3", "steelblue3", "darkorange2",
+                "darkolivegreen3", "tomato2"))
+abline(h = 0, lty = 2)
 ```
-
-Verificando as estatísticas descritivas de cada ação.
 
 ```{r descritiva}
 desc <- data.frame(
@@ -119,423 +109,262 @@ knitr::kable(round(desc * 100, 3),
              caption = "Estatísticas descritivas dos retornos mensais (em %).")
 ```
 
-Considerando apenas a média das ações, verificamos que a ação 1 tem maior retorno médio.
+```{r melhor-media}
+medias <- colMeans(retornos)
+melhor <- names(which.max(medias))
+```
+
+Considerando apenas a média, a ação com maior retorno é a **`r melhor`** (`r fmt(100 * medias[melhor], 3)`% ao mês), seguida por V3 (`r fmt(100 * medias["V3"], 3)`%) e V5 (`r fmt(100 * medias["V5"], 3)`%). V2 e V4 têm as menores médias (`r fmt(100 * medias["V2"], 3)`% e `r fmt(100 * medias["V4"], 3)`%). V4 é também a ação de maior dispersão (desvio-padrão de `r fmt(100 * sd(retornos$V4), 3)`%). Apenas as médias amostrais, porém, não permitem concluir que as diferenças são reais, o que motiva os testes seguintes.
 
 ```{r correlacao}
 knitr::kable(round(cor(retornos), 2),
              caption = "Correlação entre os retornos das ações (mesmos meses).")
 ```
 
-[Explicar a correlçao das ações]
+As correlações entre os retornos das ações são todas baixas (em módulo, no máximo `r fmt(max(abs(cor(retornos)[upper.tri(cor(retornos))])), 2)`). Isso indica que não há um movimento comum de mercado forte entre essas ações nos mesmos meses, o que é coerente com tratar as colunas como amostras aproximadamente independentes.
 
 # Análise Estatística
 
-As próximas sessões explicam os testes realizados bem como os resultados obtidos para cada um deles. Os testes contam uma história de como escolher uma ação ideal para investimento.
+As próximas seções explicam os testes realizados e os resultados obtidos. Os testes contam uma história de como escolher uma ação ideal para investimento.
 
+## Modelo e validação das premissas
 
-## Validação das Premissas do Modelo
+O modelo de ANOVA a um fator é ajustado primeiro, pois as premissas (normalidade, homoscedasticidade e independência dos resíduos) são verificadas sobre ele.
+
+```{r modelo}
+modelo <- aov(retorno ~ acao, data = retornos_long)
+```
 
 ### Normalidade
 
-```{r teste de normalidade}
+```{r normalidade}
 shapiro.test(modelo$residuals)
+
+sw <- sapply(retornos, function(x) shapiro.test(x)$p.value)
+knitr::kable(data.frame(p_valor = round(sw, 4)),
+             caption = "Shapiro-Wilk por ação (H0: retornos normais).")
 ```
 
-[com p_value 0.16 não rejeita normalidade]
-
-```{r teste de normalidade}
+```{r qqplot, fig.cap="QQ-plot dos resíduos do modelo."}
 library(car)
-qqPlot(modelo$residuals)
+qqPlot(modelo$residuals, ylab = "Resíduos", id = FALSE)
 ```
 
-[qqplot para verificar se podemos considerar normalidade mesmo com p valor \> alpha]
+O teste de Shapiro-Wilk sobre os resíduos do modelo tem p-valor de `r fmtp(shapiro.test(modelo$residuals)$p.value)`, portanto não rejeita a normalidade ao nível de 5%. O QQ-plot confirma o resultado: os pontos acompanham a reta e ficam dentro da banda de confiança. Há uma ressalva: ao testar cada ação separadamente, V5 rejeita normalidade (p `r fmtpe(sw["V5"])`). Como se trata de uma única ação em cinco, com amostras balanceadas ($n = 35$ por grupo), o teste F é robusto a esse desvio, e os testes não paramétricos da Seção 5.2 confirmam o resultado. Assume-se, portanto, normalidade dos resíduos.
 
 ### Homoscedasticidade
 
-```{r Homescedasticidade para verificar normalidade dos resíduos}
+```{r homoscedasticidade}
 fligner.test(retorno ~ acao, data = retornos_long)
-plot(x = modelo$fitted.values,
-     y = modelo$residuals)
+bartlett.test(retorno ~ acao, data = retornos_long)
+
+plot(x = modelo$fitted.values, y = modelo$residuals,
+     xlab = "Valores ajustados", ylab = "Resíduos",
+     main = "Resíduos vs. ajustados")
+abline(h = 0, lty = 2)
 ```
 
-[Explicar normalidade dos resíduos e que vamos considerar normalidade]
+O teste de Fligner-Killeen (robusto à não normalidade) tem p `r fmtpe(fligner.test(retorno ~ acao, data = retornos_long)$p.value)` e o de Bartlett tem p `r fmtpe(bartlett.test(retorno ~ acao, data = retornos_long)$p.value)`. Nenhum rejeita a igualdade das variâncias. O gráfico de resíduos contra ajustados não mostra padrão de funil, a dispersão é semelhante entre as ações. A premissa de homoscedasticidade é considerada satisfeita.
+
+### Independência
+
+Os dados são séries mensais da mesma ação, então foi verificada a autocorrelação temporal (os retornos foram revertidos para a ordem cronológica). Além disso, como todas as ações são observadas nos mesmos meses, avaliou-se se o mês funciona como um bloco, isto é, se há um efeito comum de mercado que justificaria uma ANOVA em blocos.
+
+```{r independencia}
+lb <- sapply(retornos, function(x) Box.test(rev(x), lag = 6, type = "Ljung-Box")$p.value)
+knitr::kable(data.frame(p_valor = round(lb, 4)),
+             caption = "Ljung-Box (lag 6) por ação (H0: sem autocorrelação).")
+
+summary(aov(retorno ~ acao + mes, data = retornos_long))
+```
+
+O teste de Ljung-Box não detecta autocorrelação em nenhuma das ações (todos os p-valores acima de `r fmtp(min(lb))`). No modelo em blocos, o fator mês não é significativo (p `r fmtpe(summary(aov(retorno ~ acao + mes, data = retornos_long))[[1]][["Pr(>F)"]][2])`), e as correlações entre ações são baixas. Não há ganho em usar o mês como bloco, então o modelo a um fator é adequado. O efeito de `acao` permanece praticamente igual nos dois modelos.
 
 ## Teste ANOVA
 
-[O primeiro teste a ser feito é o teste anova, para avaliar a hipótese nula (H0) que as médias são iguais.... continuar...]
+O primeiro teste avalia a hipótese nula $H_0$ de que as médias de retorno das cinco ações são iguais, contra a alternativa de que ao menos uma difere.
 
 ```{r ANOVA}
-
-modelo <- aov(retorno ~ acao, data = retornos_long)
 summary(modelo)
+p_anova <- summary(modelo)[[1]][["Pr(>F)"]][1]
 ```
 
-## Teste T de Tukey
+O p-valor de `r fmtp(p_anova)` é menor que $\alpha = 0{,}05$, portanto **rejeita-se** $H_0$: existe ao menos uma ação com retorno médio diferente das demais. Como o ANOVA não diz quais ações diferem, seguem-se as comparações múltiplas. Como verificação adicional, que não depende da normalidade, o teste de Kruskal-Wallis também rejeita a igualdade (p `r fmtpe(kruskal.test(retorno ~ acao, data = retornos_long)$p.value)`), assim como o de Friedman, que considera o mês como bloco (p `r fmtpe(friedman.test(retorno ~ acao | mes, data = retornos_long)$p.value)`).
 
-[Teste todos contra todos]
+## Teste de Tukey
 
-```{r T Tukey}
+O teste de Tukey compara todos os pares de ações, controlando o erro global.
+
+```{r Tukey}
 library(multcomp)
 mc <- glht(modelo, linfct = mcp(acao = "Tukey"))
-mc_CI  <- confint(mc, level= 0.95)
+summary(mc)
+mc_CI <- confint(mc, level = 0.95)
 
-plot(mc_CI)
+par(mar = c(5, 8, 4, 2))
+plot(mc_CI, main = "Tukey: IC 95% das diferenças entre médias")
 ```
 
-<!--juntando o boxplot e o mc_IC descartamos v2 e V4. Agora não tem evidencia #de que v1,v3 e v4 sejam diferntes Assumindo que V1 é referência-->
+Os intervalos de confiança que não contêm o zero indicam diferença significativa. V2 e V4 têm retorno médio significativamente menor que V1 (p `r fmtpe(summary(mc)$test$pvalues[1])` e p `r fmtp(summary(mc)$test$pvalues[3])`). Juntando esse resultado ao boxplot, **V2 e V4 são descartadas**. Já V3 e V5 **não podem ser distinguidas de V1** ao nível de 5% (p `r fmtpe(summary(mc)$test$pvalues[2])` e `r fmtp(summary(mc)$test$pvalues[4])`). Isso não prova que as médias são iguais, apenas que, com a correção para comparações múltiplas, os dados não trazem evidência de diferença. Note que entre V2, V3, V4 e V5 também não há diferença significativa entre si.
 
-[Explicar que não podemos considerar que V1 difere de V3 e V5]
+## Teste de Dunnett
 
-[Descartamos V2 e V4]
+Como V1 tem a maior média, ela é tomada como referência. Em vez de comparar todos os pares, o Dunnett compara apenas V1 contra cada uma das outras, o que dá mais sensibilidade para tentar descartar V3 e V5.
 
-## Teste de Dunnet
-
-[Fazemos para tomar um deles como candidata e descartar as outras duas ações]
-
-```{r T Dunnett}
+```{r Dunnett}
 retornos_long$acao <- relevel(retornos_long$acao, ref = "V1")
 modelo2 <- aov(retorno ~ acao, data = retornos_long)
 
-summary(modelo2)
-
 mc2 <- glht(modelo2, linfct = mcp(acao = "Dunnett"))
+summary(mc2)
 mc2_CI <- confint(mc2, level = 0.95)
 
-plot(mc2_CI)
+par(mar = c(5, 8, 4, 2))
+plot(mc2_CI, main = "Dunnett: IC 95% das diferenças em relação a V1")
 ```
 
-[Explicar que descartamos V1 e V5 mas ainda não podemos afirmar que existe uma diferença entre V1 e V3]
+```{r dunnett-p, include=FALSE}
+pd <- summary(mc2)$test$pvalues   # V2, V3, V4, V5 contra V1
+```
 
-<!--#Aumentamos a sensibilidade e conseguimos descartar V5 mas ainda não é ppossivel dizer que a diferença de há diferença entre v1 e v3 -->
+Com a sensibilidade extra, **V5 também é descartada** (p `r fmtpe(pd[4])`), além de V2 e V4 (p `r fmtpe(pd[1])` e `r fmtpe(pd[3])`). Para V3, porém, o p-valor é `r fmtp(pd[2])`, e o intervalo de confiança da diferença (V3 − V1) contém o zero. Ainda não é possível afirmar que existe diferença entre V1 e V3, e as duas permanecem como candidatas.
 
-## Teste T de student
+## Teste t de Student
 
+Restam duas candidatas, V1 e V3. Como é uma única comparação, não há necessidade de corrigir para comparações múltiplas, e o teste t entre as duas tem maior potência. As hipóteses são:
 
-[Hipótese nula (H0): As médias de retornos da ação V1 e V3 são iguais]
-[Hipótese nula (H1): As médias de retornos da ação V1 e V3 são diferentes]
+- $H_0$: as médias de retorno das ações V1 e V3 são iguais ($\mu_1 = \mu_3$);
+- $H_1$: as médias de retorno das ações V1 e V3 são diferentes ($\mu_1 \neq \mu_3$).
 
-
-
-
-```{r T student}
-
-# o que pode me dar evidencias para escolher apenas 1 entre essas 2
+```{r T-student}
 subset_v1_v3 <- subset(retornos_long, acao %in% c("V1", "V3"))
-subset_v1_v3$acao <- droplevels(subset_v1_v3$acao)  # remove níveis de fator não usados
+subset_v1_v3$acao <- droplevels(subset_v1_v3$acao)
 
-teste_t <- t.test(retorno ~ acao, data = subset_v1_v3)
+teste_t <- t.test(retorno ~ acao, data = subset_v1_v3)   # Welch, bilateral
 teste_t
+
 library(ggplot2)
-
-
 df_ic <- data.frame(
-  Diferenca       = teste_t$estimate[1] - teste_t$estimate[2], # Média(V1) - Média(V3)
+  Diferenca       = unname(teste_t$estimate[1] - teste_t$estimate[2]),  # V1 - V3
   Limite_Inferior = teste_t$conf.int[1],
   Limite_Superior = teste_t$conf.int[2],
   Comparacao      = "V1 vs V3"
 )
 
 ggplot(df_ic, aes(x = Comparacao, y = Diferenca)) +
-  geom_hline(yintercept = 0, color = "red", linetype = "dashed", size = 1) + # Linha de referência no zero
-  geom_errorbar(aes(ymin = Limite_Inferior, ymax = Limite_Superior), width = 0.2, color = "blue", size = 1) +
-  geom_point(color = "darkblue", size = 4) + # Ponto central representando a diferença estimada
-  coord_flip() + # Rotaciona o gráfico para facilitar a leitura horizontal
-  labs(
-    title = "Intervalo de Confiança da Diferença entre Retornos",
-    subtitle = paste0("Nível de Confiança: ", attr(teste_t$conf.int, "conf.level") * 100, "%"),
-    x = "",
-    y = "Diferença Estimada nos Retornos (V1 - V3)"
-  ) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  geom_errorbar(aes(ymin = Limite_Inferior, ymax = Limite_Superior),
+                width = 0.2, color = "blue") +
+  geom_point(color = "darkblue", size = 4) +
+  coord_flip() +
+  labs(title = "Intervalo de Confiança da Diferença entre Retornos",
+       subtitle = paste0("Nível de confiança: ",
+                         attr(teste_t$conf.int, "conf.level") * 100, "%"),
+       x = "", y = "Diferença estimada nos retornos (V1 - V3)") +
   theme_minimal()
-
-
-
 ```
 
-[Considerando o teste t de student, podemos rejeitar a hipótese nula de ]
+Como verificação de robustez, o mesmo contraste foi feito de forma pareada por mês (t pareado) e sem suposição de normalidade (Wilcoxon pareado):
 
-
-# Conclusões e Recomendações
-
-
-
-*[Preencher com base nos resultados: (i) o teste global rejeitou H0? (ii) qual(is) ação(ões) se destaca(m) após correção para comparações múltiplas? (iii) se houver mais de uma, qual critério de desempate (risco, razão retorno/risco, não inferioridade) sustenta a escolha final? (iv) recomendação final com o suporte estatístico.]*
-
-
-
-
-
-# Discussão da significância do teste
-
-[Análise da significância e risco do teste]
-
-
-
-
-<!-- Lambrar: Referenciar fontes-->
-
-<!-- Lambrar: Termo de IA-->
-
-
-
-
-
----------------------------------------------------------------------------------------------------------------------
-A partir
-# 
-
-## Pre-processamento de dados
-
-O arquivo não possui cabeçalho. Cada linha é um mês (linha 1 = mês mais recente) e cada coluna é uma ação. Pela simplificação do enunciado, o preço de abertura de um mês é o fechamento do mês anterior. Assim, o retorno mensal da ação $j$ no mês $t$ é
-
-$$ r_{t,j} = \frac{P_{t,j}}{P_{t+1,j}} - 1 , $$
-
-em que $P_{t+1,j}$ é o fechamento do mês imediatamente anterior. Como a linha mais antiga não possui mês anterior, obtêm-se $n = 35$ retornos por ação.
-
-```{r dados}
-precos <- read.csv("DadosAcoesGrupoE.csv", header = FALSE)
-colnames(precos) <- paste0("Acao", 1:5)
-stopifnot(nrow(precos) == 36, ncol(precos) == 5, !anyNA(precos))
-
-n_p <- nrow(precos)
-ret <- as.data.frame(precos[-n_p, ] / precos[-1, ] - 1)   # 35 x 5
-n   <- nrow(ret)
-k   <- ncol(ret)
-
-# formato longo (mes = bloco; 1 = mais recente)
-long <- data.frame(
-  retorno = unlist(ret, use.names = FALSE),
-  acao    = factor(rep(names(ret), each = n)),
-  mes     = factor(rep(seq_len(n), times = k))
-)
+```{r robustez}
+t_par <- t.test(retornos$V1, retornos$V3, paired = TRUE)
+w_par <- wilcox.test(retornos$V1, retornos$V3, paired = TRUE)
+data.frame(Teste = c("t de Welch (não pareado)", "t pareado", "Wilcoxon pareado"),
+           p_valor = round(c(teste_t$p.value, t_par$p.value, w_par$p.value), 4))
 ```
 
-# Análise exploratória
+O teste t de Welch rejeita $H_0$ (p `r fmtpe(teste_t$p.value)`): a diferença estimada é de `r fmt(100 * df_ic$Diferenca, 2)` ponto percentual ao mês a favor de V1, com IC de 95% de `r fmt(100 * df_ic$Limite_Inferior, 2)` a `r fmt(100 * df_ic$Limite_Superior, 2)` p.p. O intervalo exclui o zero, mas o limite inferior fica muito próximo dele. Os testes de robustez são mais conservadores: o t pareado dá p `r fmtpe(t_par$p.value)` e o Wilcoxon pareado dá p `r fmtpe(w_par$p.value)`, ambos acima de 5%. A evidência a favor de V1 sobre V3 é, portanto, **sugestiva, mas não conclusiva**. O resultado depende do teste usado, e as ações têm correlação baixa entre si (`r fmt(cor(retornos$V1, retornos$V3), 2)`), o que reduz o ganho do pareamento e favorece o teste não pareado.
 
-```{r descritiva}
-desc <- data.frame(
-  Media   = sapply(ret, mean),
-  DP      = sapply(ret, sd),
-  Mediana = sapply(ret, median),
-  Minimo  = sapply(ret, min),
-  Maximo  = sapply(ret, max)
-)
-knitr::kable(round(desc * 100, 3),
-             caption = "Estatísticas descritivas dos retornos mensais (em %).")
-```
+## Risco e retorno (critério adicional de desempate)
 
-```{r boxplot, fig.cap="Distribuição dos retornos mensais por ação."}
-boxplot(ret * 100, ylab = "Retorno mensal (%)", col = "lightgray")
-abline(h = 0, lty = 2)
-```
-
-```{r correlacao}
-knitr::kable(round(cor(ret), 2),
-             caption = "Correlação entre os retornos das ações (mesmos meses).")
-```
-
-# Hipóteses e planejamento dos testes
-
-Seja $\mu_j$ o retorno mensal médio da ação $j$. A sequência de testes é:
-
-1.  **Teste global (ANOVA):** $H_0: \mu_1 = \dots = \mu_5$ contra $H_1$: ao menos uma média difere. Como todas as ações são observadas nos mesmos 36 meses, o **mês é tratado como bloco** (ANOVA de dois fatores sem repetição), o que remove a variação comum de mercado. A alternativa não paramétrica equivalente é o teste de **Friedman**; o **Kruskal-Wallis** (sem blocos) é usado como verificação adicional.
-2.  **Comparações múltiplas (post-hoc):** para cada par, $H_0: \mu_i = \mu_j$ contra $H_1: \mu_i \neq \mu_j$, com correção de Holm para controle do erro global. Também se comparam todas as ações contra a de maior média.
-3.  **Equivalência / não inferioridade** (apenas se mais de uma ação se destacar): com margem $\delta$, testa-se $H_0: \mu_j - \mu_{melhor} \le -\delta$ contra $H_1: \mu_j - \mu_{melhor} > -\delta$ (não inferioridade) e o TOST para equivalência.
-4.  **Critérios adicionais** de desempate: risco (desvio-padrão), razão retorno/risco e pior mês.
-
-Nível de significância adotado: $\alpha = `r alpha`$.
-
-# Verificação das premissas
-
-## Normalidade
-
-```{r normalidade}
-sw <- sapply(ret, function(x) shapiro.test(x)$p.value)
-knitr::kable(data.frame(p_valor = round(sw, 4)),
-             caption = "Shapiro-Wilk por ação (H0: retornos normais).")
-```
-
-```{r qq, fig.height=5, fig.cap="QQ-plots dos retornos por ação."}
-par(mfrow = c(2, 3))
-for (j in seq_len(k)) {
-  qqnorm(ret[[j]], main = names(ret)[j]); qqline(ret[[j]])
-}
-par(mfrow = c(1, 1))
-```
-
-## Modelo em blocos e análise de resíduos
-
-```{r modelo}
-mod <- aov(retorno ~ acao + mes, data = long)
-res <- residuals(mod)
-shapiro.test(res)
-```
-
-```{r resid, fig.height=4.5, fig.cap="Diagnóstico dos resíduos do modelo em blocos."}
-par(mfrow = c(1, 2))
-qqnorm(res, main = "QQ-plot dos resíduos"); qqline(res)
-plot(fitted(mod), res, xlab = "Ajustados", ylab = "Resíduos",
-     main = "Resíduos vs. ajustados"); abline(h = 0, lty = 2)
-par(mfrow = c(1, 1))
-```
-
-## Homocedasticidade
-
-```{r homoc}
-bartlett.test(retorno ~ acao, data = long)   # sensível à não normalidade
-fligner.test(retorno ~ acao, data = long)    # robusto
-```
-
-## Independência (temporal)
-
-```{r indep, fig.cap="Autocorrelação dos retornos de cada ação (mês 1 = mais recente)."}
-par(mfrow = c(2, 3))
-for (j in seq_len(k)) acf(rev(ret[[j]]), main = names(ret)[j], lag.max = 12)
-par(mfrow = c(1, 1))
-```
-
-```{r indep-lb}
-lb <- sapply(ret, function(x) Box.test(rev(x), lag = 6, type = "Ljung-Box")$p.value)
-knitr::kable(data.frame(p_valor = round(lb, 4)),
-             caption = "Ljung-Box (lag 6) por ação (H0: sem autocorrelação).")
-```
-
-**Discussão das premissas.** *[Preencher com base nos resultados acima: quais premissas foram satisfeitas? Se alguma violação for leve (por exemplo, normalidade em uma única ação com n = 35), justificar o uso do teste paramétrico pela robustez do teste F com amostras balanceadas e pelo Teorema Central do Limite, e confirmar com os testes não paramétricos.]*
-
-# Resultados
-
-## Teste global
-
-```{r anova}
-summary(mod)
-```
-
-```{r nonparam}
-friedman.test(retorno ~ acao | mes, data = long)
-kruskal.test(retorno ~ acao, data = long)
-```
-
-## Comparações múltiplas
-
-```{r posthoc}
-# Tukey no modelo em blocos
-TukeyHSD(mod, which = "acao")
-
-# t pareado e Wilcoxon pareado, com correção de Holm
-pairwise.t.test(long$retorno, long$acao, paired = TRUE, p.adjust.method = "holm")
-pairwise.wilcox.test(long$retorno, long$acao, paired = TRUE, p.adjust.method = "holm")
-```
-
-## Ação de maior retorno médio contra as demais
-
-```{r melhor}
-medias  <- colMeans(ret)
-melhor  <- names(which.max(medias))
-outras  <- setdiff(names(ret), melhor)
-
-comp <- do.call(rbind, lapply(outras, function(j) {
-  d  <- ret[[melhor]] - ret[[j]]
-  tt <- t.test(d)
-  data.frame(Comparacao = paste(melhor, "-", j),
-             Dif_media  = mean(d) * 100,
-             IC_inf     = tt$conf.int[1] * 100,
-             IC_sup     = tt$conf.int[2] * 100,
-             p_t        = tt$p.value,
-             p_wilcox   = wilcox.test(d)$p.value)
-}))
-comp$p_t_holm      <- p.adjust(comp$p_t, "holm")
-comp$p_wilcox_holm <- p.adjust(comp$p_wilcox, "holm")
-knitr::kable(comp, digits = 4, row.names = FALSE,
-             caption = "Diferença de retorno médio (em p.p.) da ação de maior média contra as demais (pareado por mês).")
-```
-
-A ação de maior retorno médio é a **`r melhor`** (`r round(100 * medias[melhor], 3)`% ao mês).
-
-## Equivalência e não inferioridade (desempate)
-
-Adota-se a margem $\delta$ = **0,5 ponto percentual ao mês** (*[justificar: diferença abaixo da qual o investidor considera as ações economicamente equivalentes; ajustar se necessário]*).
-
-```{r tost}
-delta <- 0.005
-
-equiv <- do.call(rbind, lapply(outras, function(j) {
-  d   <- ret[[j]] - ret[[melhor]]                       # j menos o melhor
-  p_ni <- t.test(d, mu = -delta, alternative = "greater")$p.value   # nao inferioridade
-  p_lo <- t.test(d, mu = -delta, alternative = "greater")$p.value   # TOST: limite inferior
-  p_up <- t.test(d, mu =  delta, alternative = "less")$p.value      # TOST: limite superior
-  data.frame(Acao = j,
-             Dif_media_pp = mean(d) * 100,
-             p_nao_inferioridade = p_ni,
-             p_TOST = max(p_lo, p_up))
-}))
-equiv$Nao_inferior <- equiv$p_nao_inferioridade < alpha
-equiv$Equivalente  <- equiv$p_TOST < alpha
-knitr::kable(equiv, digits = 4, row.names = FALSE,
-             caption = paste0("Não inferioridade e equivalência em relação à ", melhor,
-                              " (margem = ", delta * 100, " p.p.)."))
-```
-
-## Risco e retorno
+Para reforçar a escolha entre V1 e V3, compara-se também o risco (desvio-padrão), a razão retorno/risco (sem taxa livre de risco) e o pior mês.
 
 ```{r risco}
 risco <- data.frame(
-  Media_pct  = 100 * sapply(ret, mean),
-  DP_pct     = 100 * sapply(ret, sd),
-  Razao      = sapply(ret, mean) / sapply(ret, sd),
-  Pior_mes   = 100 * sapply(ret, min),
-  Prop_meses_positivos = sapply(ret, function(x) mean(x > 0))
+  Media_pct = 100 * sapply(retornos, mean),
+  DP_pct    = 100 * sapply(retornos, sd),
+  Razao     = sapply(retornos, mean) / sapply(retornos, sd),
+  Pior_mes  = 100 * sapply(retornos, min),
+  Prop_meses_positivos = sapply(retornos, function(x) mean(x > 0))
 )
 knitr::kable(round(risco, 3),
-             caption = "Retorno médio, risco e razão retorno/risco (sem taxa livre de risco).")
+             caption = "Retorno médio, risco e razão retorno/risco.")
 ```
 
-# Potência do teste
+V1 combina a maior média (`r fmt(risco["V1", "Media_pct"], 2)`%) com um dos menores riscos (desvio-padrão de `r fmt(risco["V1", "DP_pct"], 2)`%, menor que o de V3, `r fmt(risco["V3", "DP_pct"], 2)`%), e tem a maior razão retorno/risco (`r fmt(risco["V1", "Razao"], 2)` contra `r fmt(risco["V3", "Razao"], 2)` de V3). Assim, V1 não apenas rende mais em média, como não exige assumir mais risco para isso.
+
+# Conclusões e Recomendações
+
+1.  **Teste global:** o ANOVA rejeitou $H_0$ (p `r fmtpe(p_anova)`). As cinco ações não têm o mesmo retorno médio mensal.
+2.  **Ações que se destacam:** após as comparações múltiplas, V2 e V4 foram descartadas pelo teste de Tukey, e V5 foi descartada pelo teste de Dunnett. Restaram **V1 e V3**, sem diferença significativa entre si nos testes com correção para comparações múltiplas.
+3.  **Desempate:** o teste t entre V1 e V3 indicou V1 como superior (p `r fmtpe(teste_t$p.value)`), mas a evidência é marginal, pois os testes pareado e de Wilcoxon não rejeitam $H_0$. Os critérios adicionais favorecem V1: maior retorno médio, menor desvio-padrão e maior razão retorno/risco.
+4.  **Recomendação:** investir na ação **V1**, com retorno médio estimado de `r fmt(100 * medias["V1"], 2)`% ao mês. Se o investidor for averso a decisões baseadas em evidência marginal, V3 é a alternativa estatisticamente indistinguível, mas com retorno médio e razão retorno/risco menores. Vale lembrar que o retorno médio histórico não garante o retorno do próximo mês, pois a variabilidade mensal (cerca de 1 p.p.) é grande em relação às diferenças entre as médias.
+
+# Discussão da significância e da potência dos testes
+
+O nível de significância $\alpha = 0{,}05$ significa aceitar uma probabilidade de 5% de apontar diferença entre ações quando na realidade elas têm o mesmo retorno médio (erro tipo I). Nas comparações múltiplas (Tukey e Dunnett), esse nível se refere ao conjunto de comparações, e não a cada uma isoladamente, o que torna esses testes mais conservadores. O teste t final é uma comparação escolhida **depois** de ver os resultados anteriores e não foi corrigida, por isso o p-valor dele deve ser lido com cautela.
+
+O risco oposto é o erro tipo II: não detectar uma diferença que existe. Esse risco é relevante entre V1 e V3, onde os testes não conseguem separar as ações com folga. A potência foi calculada para o contraste V1 contra V3, usando a diferença observada como tamanho de efeito (potência *a posteriori*, que serve apenas como referência):
 
 ```{r potencia}
-# Potência do teste global (ANOVA one-way) com n = 35 por ação e efeito observado
+dif_v1v3 <- abs(mean(retornos$V1) - mean(retornos$V3))
+sd_v1v3  <- sqrt((var(retornos$V1) + var(retornos$V3)) / 2)
+
+power.t.test(n = n, delta = dif_v1v3, sd = sd_v1v3, sig.level = alpha)
+
+# n por ação necessário para 80% de potência nessa diferença
+power.t.test(power = 0.8, delta = dif_v1v3, sd = sd_v1v3, sig.level = alpha)
+
+# potência do teste global (ANOVA)
 power.anova.test(groups = k, n = n,
-                 between.var = var(colMeans(ret)),
-                 within.var  = mean(sapply(ret, var)),
+                 between.var = var(colMeans(retornos)),
+                 within.var  = mean(sapply(retornos, var)),
                  sig.level = alpha)
-
-# Potência do t pareado para detectar a menor diferença de médias observada
-dif_min <- min(abs(outer(colMeans(ret), colMeans(ret), "-"))[lower.tri(diag(k))])
-sd_dif  <- sd(ret[[melhor]] - ret[[outras[1]]])
-power.t.test(n = n, delta = dif_min, sd = sd_dif, sig.level = alpha, type = "paired")
-
-# Tamanho amostral necessário para 80% de potência nessa diferença mínima
-power.t.test(power = 0.8, delta = dif_min, sd = sd_dif, sig.level = alpha, type = "paired")
 ```
 
-*[Discutir: a potência é adequada para detectar as diferenças relevantes? Diferenças pequenas entre ações próximas exigiriam mais meses de dados.]*
+```{r potencia-val, include=FALSE}
+pot_t  <- power.t.test(n = n, delta = dif_v1v3, sd = sd_v1v3, sig.level = alpha)$power
+n_80   <- ceiling(power.t.test(power = 0.8, delta = dif_v1v3, sd = sd_v1v3, sig.level = alpha)$n)
+pot_av <- power.anova.test(groups = k, n = n, between.var = var(colMeans(retornos)),
+                           within.var = mean(sapply(retornos, var)), sig.level = alpha)$power
+```
 
-# Conclusões e recomendações
-
-*[Preencher com base nos resultados: (i) o teste global rejeitou H0? (ii) qual(is) ação(ões) se destaca(m) após correção para comparações múltiplas? (iii) se houver mais de uma, qual critério de desempate (risco, razão retorno/risco, não inferioridade) sustenta a escolha final? (iv) recomendação final com o suporte estatístico.]*
+O teste global tem potência alta (`r fmt(pot_av, 2)`), o que é coerente com a rejeição clara de $H_0$. Para a comparação V1 contra V3, a potência é de apenas **`r fmt(100 * pot_t, 0)`%** com 35 meses por ação. Seriam necessários cerca de **`r n_80` meses por ação** para ter 80% de potência para essa diferença. Em outras palavras, 36 meses de dados bastam para separar V1 de V2 e V4, mas não para separar V1 de V3 com segurança, e a incerteza que sobra nessa comparação vem desse limite de potência.
 
 # Possíveis melhorias do experimento
 
-- Ampliar a janela histórica (mais de 36 meses) e/ou usar retornos semanais para aumentar o poder.
-- Usar retornos logarítmicos e avaliar melhor a normalidade e a simetria.
+- Ampliar a janela histórica (mais de 36 meses) e/ou usar retornos semanais, aumentando o número de observações e a potência.
+- Usar retornos logarítmicos e avaliar melhor a normalidade e a simetria (V5 rejeitou normalidade individualmente).
 - Considerar dividendos, custos de transação e impostos.
 - Ajustar o retorno ao risco (índice de Sharpe, com taxa livre de risco) em vez de comparar só médias.
-- Tratar heterocedasticidade e autocorrelação da volatilidade (modelos ARCH/GARCH) e mudanças de regime.
+- Tratar a volatilidade variável no tempo (modelos ARCH/GARCH) e mudanças de regime de mercado.
 - Usar bootstrap ou testes de permutação para intervalos e comparações sem hipótese distribucional.
-- Avaliar desempenho fora da amostra (janela deslizante): rentabilidade passada não garante a do mês seguinte.
+- Avaliar o desempenho fora da amostra (janela deslizante), já que rentabilidade passada não garante a do mês seguinte.
 - Incluir mais ações e considerar diversificação (carteira) em vez de uma única ação.
+- Definir antes do experimento a margem de equivalência economicamente relevante, para usar testes de equivalência/não inferioridade em vez de depender de $p$-valores marginais.
 
 # Papéis desempenhados pela equipe
 
-| Integrante | Papel                  |
-|------------|------------------------|
-| *[Nome]*   | Relator                |
-| *[Nome]*   | Verificador            |
-| *[Nome]*   | Programador / Analista |
-| *[Nome]*   | Coordenador            |
+| Integrante                   | Papel                                   |
+|------------------------------|-----------------------------------------|
+| Adonai Arruda                | *[PREENCHER: ex. Relator]*              |
+| Alexandra Milaya Soto Aponte | *[PREENCHER: ex. Verificador]*          |
+| João Paulo Gonçalves Simim   | *[PREENCHER: ex. Programador/Analista]* |
+| Yasmim Machado               | *[PREENCHER: ex. Coordenador]*          |
 
 # Declaração sobre o uso de IA generativa
 
-*[Descrever, conforme a política da Elsevier/template da disciplina, se e como ferramentas de IA generativa foram utilizadas na elaboração do relatório, e que os autores revisaram e assumem responsabilidade pelo conteúdo.]*
+*[REVISAR E AJUSTAR conforme o que o grupo realmente fez.]* Durante a elaboração deste relatório foi utilizada uma ferramenta de IA generativa (Claude, da Anthropic) como apoio na organização do texto, na redação das interpretações e na revisão do código em R. Após o uso, os autores revisaram e editaram o conteúdo e assumem total responsabilidade pelo trabalho.
+
+# Referências
+
+- MONTGOMERY, D. C. *Design and Analysis of Experiments*. John Wiley & Sons.
+- TUKEY, J. W. Comparing individual means in the analysis of variance. *Biometrics*, v. 5, n. 2, p. 99–114, 1949.
+- DUNNETT, C. W. A multiple comparison procedure for comparing several treatments with a control. *Journal of the American Statistical Association*, v. 50, n. 272, p. 1096–1121, 1955.
+- HOTHORN, T.; BRETZ, F.; WESTFALL, P. Simultaneous inference in general parametric models. *Biometrical Journal*, v. 50, n. 3, p. 346–363, 2008 (pacote `multcomp`).
+- FOX, J.; WEISBERG, S. *An R Companion to Applied Regression*. Sage (pacote `car`).
+- R CORE TEAM. *R: A language and environment for statistical computing*. R Foundation for Statistical Computing, Vienna, Austria.
+- Material da disciplina EEE933 (slides sobre ANOVA e comparações múltiplas), PPGEE/UFMG.
 
 # Informações da sessão (reprodutibilidade)
 
