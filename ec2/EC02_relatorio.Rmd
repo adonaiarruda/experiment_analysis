@@ -1,8 +1,8 @@
 ---
-title: "Estudo de Caso 02:Avaliação e comparação do retorno médio de ações"
+title: "Estudo de Caso 02: Avaliação e comparação do retorno médio de ações"
 author: Adonai Arruda, Alexandra Milaya Soto Aponte, João Paulo Gonçalves Simim, Yasmim
   Machado
-date: "04 de outubro de 2026"
+date: "05 de outubro de 2026"
 output:
   bookdown::pdf_document2:
     fig_caption: true
@@ -18,7 +18,7 @@ header-includes:
 - \usepackage{float}
 - \restylefloat{figure}
 - \restylefloat{table}
-subtitle: "EEE933 - Planejamento e Análise de Experimentos"
+subtitle: "EEE933 - Planejamento e Análise de Experimentos — PPGEE/UFMG"
 ---
 
 ```{r setup, include=FALSE}
@@ -38,7 +38,7 @@ fmt <- function(x, d = 2) format(round(x, d), decimal.mark = ",", nsmall = d)
 
 # Resumo
 
-Um investidor deseja aplicar todo o seu capital em uma única ação durante o próximo mês e dispõe dos preços de fechamento de cinco ações nos últimos 36 meses. Os preços foram convertidos em 35 retornos mensais por ação e comparados por meio de uma sequência de testes de hipóteses: ANOVA (teste global), teste de Tukey (todos contra todos), teste de Dunnett (todos contra a ação de maior média) e, por fim, um teste t para decidir entre as duas ações que restaram. O teste global rejeitou a igualdade das médias ($\alpha = 0{,}05$). As ações V2 e V4 foram descartadas pelo teste de Tukey, e V5 foi descartada pelo teste de Dunnett. Restaram V1 e V3, e a diferença entre elas é apenas marginalmente significativa, com evidência dependente do teste utilizado. A ação **V1** tem o maior retorno médio, o maior retorno por unidade de risco e foi a recomendada, com a ressalva de que o experimento tem potência limitada para separá-la de V3.
+Um investidor deseja aplicar todo o seu capital em uma única ação durante o próximo mês e dispõe dos preços de fechamento de cinco ações nos últimos 36 meses. Os preços foram convertidos em 35 retornos mensais por ação e comparados por meio de testes de hipóteses: ANOVA (teste global), seguido do teste de Dunnett (todas contra a ação de maior média amostral) como teste confirmatório; o teste de Tukey (todos contra todos) foi usado apenas em caráter exploratório. O teste global rejeitou a igualdade das médias (p < 0,001; $\alpha = 0{,}05$). O teste de Dunnett descartou V2, V4 e V5 (p < 0,05), mas não distinguiu V3 de V1. Como mais de uma ação se destacou, adotou-se como critério de desempate a análise de risco e variabilidade: V1 tem o maior retorno médio, o menor desvio-padrão, a maior razão retorno/risco e a menor perda mensal, dominando V3 em todos os indicadores. A ação **V1** foi a recomendada, com a ressalva de que o experimento tem potência limitada para separá-la de V3.
 
 # Introdução
 
@@ -53,19 +53,19 @@ As simplificações do enunciado foram adotadas: o preço de abertura de um mês
 
 ## Objetivos do Experimento (Hipóteses a serem testadas)
 
-Seja $\mu_j$ o retorno mensal médio da ação $j$ ($j = 1, \dots, 5$). Os testes formam uma sequência, em que cada etapa é motivada pelo resultado da anterior.
+Seja $\mu_j$ o retorno mensal médio da ação $j$ ($j = 1, \dots, 5$). A inferência é feita com um teste global seguido de **um único** procedimento de comparações múltiplas, escolhido de acordo com a pergunta do experimento; as demais análises são exploratórias ou descritivas.
 
-1.  **Teste global (ANOVA):** o modelo é $$
+1.  **Teste global (ANOVA):** segundo Montgomery (2017), o modelo de um fator é $$
     \begin{cases}
     H_0: \tau_i = 0, \;\; \forall\, i \in \{1, 2, \ldots, a\} \\
     H_1: \exists\, i \;:\; \tau_i \neq 0
     \end{cases}. $$ As hipóteses são $H_0: \mu_1 = \dots = \mu_5$ (todos os efeitos $\tau_j$ são nulos) contra $H_1$: ao menos uma média difere. Se $H_0$ for rejeitada, existe ao menos uma ação cujo retorno médio é diferente das demais, mas o teste não indica qual.
 
-2.  **Teste de Tukey:** teste post-hoc que, para cada par de ações, testa $H_0: \mu_i = \mu_j$ contra $H_1: \mu_i \neq \mu_j$. Serve para descartar as ações claramente inferiores.
+2.  **Teste de Tukey (exploratório; Tukey, 1949):** compara todos os pares de ações ($H_0: \mu_i = \mu_j$ contra $H_1: \mu_i \neq \mu_j$). É usado apenas para visualizar o panorama geral das diferenças; nenhuma decisão é tomada com base nele.
 
-3.  **Teste de Dunnett:** compara uma ação de referência (a de maior média) com todas as demais. Como são apenas $k-1$ comparações, e não todos os pares, o teste é mais sensível que o de Tukey para esse fim, e permite descartar ações que o Tukey não separou da referência.
+3.  **Teste de Dunnett (confirmatório; Dunnett, 1955):** a pergunta do experimento é "qual ação tem o maior retorno?", uma comparação do tipo *todas contra uma*. Toma-se como referência a ação de maior média amostral (V1) e testa-se $H_0: \mu_j = \mu_1$ contra $H_1: \mu_j \neq \mu_1$ para cada $j \neq 1$. Com apenas $k-1$ comparações, é o procedimento de maior potência para essa pergunta. Registra-se que a referência foi escolhida após observar os dados, o que é uma limitação declarada do experimento.
 
-4.  **Teste t de Student (Welch):** se restarem apenas duas ações sem diferença clara, compara-se diretamente $H_0: \mu_1 = \mu_3$ contra $H_1: \mu_1 \neq \mu_3$. Por ser uma única comparação, o teste tem maior potência do que as comparações múltiplas, que pagam o preço da correção.
+4.  **Critério de desempate (análise de risco e variabilidade):** se mais de uma ação não for distinguível da referência, não se realiza um novo teste de hipóteses sobre as mesmas médias, pois isso inflaria o erro tipo I (ver Seção \@ref(discussao-riscos)). Em vez disso, as candidatas são comparadas por indicadores de risco: desvio-padrão dos retornos, razão retorno/risco, pior mês e proporção de meses positivos. Escolhe-se a ação que domina as demais nesses critérios. O intervalo de confiança da diferença entre as candidatas é reportado apenas como medida do tamanho do efeito.
 
 O nível de significância adotado em todos os testes é $\alpha = `r fmt(alpha)`$.
 
@@ -76,7 +76,7 @@ O arquivo `DadosAcoesGrupoE.csv` não possui cabeçalho. Tem 36 linhas (meses) e
 $$ r_{t,j} = \frac{P_{t,j} - P_{t+1,j}}{P_{t+1,j}}
 $$ em que $P_{t+1,j}$ é o fechamento do mês imediatamente anterior ao mês $t$ (a linha seguinte, pois a ordenação é do mais recente para o mais antigo). A linha mais antiga não possui mês anterior, portanto obtêm-se $n = 35$ retornos por ação, totalizando 175 observações.
 
-```{r dados}
+```{r dados, echo=FALSE}
 calcular_retorno <- function(preco) {
   n <- length(preco)
   # linha t é mais recente que t+1: retorno = P_t / P_{t+1} - 1
@@ -98,9 +98,9 @@ retornos_long$mes <- factor(rep(seq_len(n), times = k))
 
 # Análise Exploratória dos Dados
 
-O boxplot mostra a distribuição dos retornos de cada ação.
+A Figura \@ref(fig:boxplot) mostra a distribuição dos retornos de cada ação.
 
-```{r boxplot, fig.cap="Distribuição dos retornos mensais por ação (em %)."}
+```{r boxplot, echo=FALSE, fig.cap="Distribuição dos retornos mensais por ação (em %)."}
 boxplot(retornos * 100,
         main = "Distribuição dos Retornos por Ação",
         xlab = "Ação", ylab = "Retorno mensal (%)",
@@ -109,7 +109,7 @@ boxplot(retornos * 100,
 abline(h = 0, lty = 2)
 ```
 
-```{r descritiva}
+```{r descritiva, echo=FALSE}
 desc <- data.frame(
   Media   = sapply(retornos, mean),
   DP      = sapply(retornos, sd),
@@ -117,34 +117,31 @@ desc <- data.frame(
   Minimo  = sapply(retornos, min),
   Maximo  = sapply(retornos, max)
 )
-knitr::kable(round(desc * 100, 3),
-             caption = "Estatísticas descritivas dos retornos mensais (em %).")
+knitr::kable(round(desc * 100, 3), align = "r",
+             caption = "Estatísticas descritivas dos retornos mensais (valores em porcentagem).")
 ```
 
----
-A tabela apresenta as estatísticas descritivas dos retornos mensais de cada ação, Todos os valores estão em porcentagem. A média indica o
-retorno esperado ao mês, e o desvio-padrão mede a variabilidade dos retornos, ou
-seja, o risco. Mediana, mínimo e máximo ajudam a identificar assimetria e
-valores extremos.
----
+A Tabela \@ref(tab:descritiva) apresenta as estatísticas descritivas dos retornos mensais de cada ação; todos os valores estão em porcentagem. A média indica o retorno esperado ao mês, e o desvio-padrão mede a variabilidade dos retornos, ou seja, o risco. Mediana, mínimo e máximo ajudam a identificar assimetria e valores extremos.
 
-```{r melhor-media}
+```{r melhor-media, echo=FALSE}
 medias <- colMeans(retornos)
 melhor <- names(which.max(medias))
 ```
 
 Considerando apenas a média, a ação com maior retorno é a **`r melhor`** (`r fmt(100 * medias[melhor], 3)`% ao mês), seguida por V3 (`r fmt(100 * medias["V3"], 3)`%) e V5 (`r fmt(100 * medias["V5"], 3)`%). V2 e V4 têm as menores médias (`r fmt(100 * medias["V2"], 3)`% e `r fmt(100 * medias["V4"], 3)`%). V4 é também a ação de maior dispersão (desvio-padrão de `r fmt(100 * sd(retornos$V4), 3)`%). Apenas as médias amostrais, porém, não permitem concluir que as diferenças são reais, o que motiva os testes seguintes.
 
-```{r correlacao}
+Como todas as ações são observadas nos mesmos meses, verifica-se também se há um movimento comum de mercado entre elas (Tabela \@ref(tab:correlacao)), o que afetaria a premissa de independência entre os grupos.
+
+```{r correlacao, echo=FALSE}
 knitr::kable(round(cor(retornos), 2),
              caption = "Correlação entre os retornos das ações (mesmos meses).")
 ```
 
-As correlações entre os retornos das ações são todas baixas (em módulo, no máximo `r fmt(max(abs(cor(retornos)[upper.tri(cor(retornos))])), 2)`). Isso indica que não há um movimento comum de mercado forte entre essas ações nos mesmos meses, o que é coerente com tratar as colunas como amostras aproximadamente independentes.
+As correlações da Tabela \@ref(tab:correlacao) são todas baixas (em módulo, no máximo `r fmt(max(abs(cor(retornos)[upper.tri(cor(retornos))])), 2)`). Isso indica que não há um movimento comum de mercado forte entre essas ações nos mesmos meses, o que é coerente com tratar as colunas como amostras aproximadamente independentes.
 
 # Análise Estatística
 
-As próximas seções explicam os testes realizados e os resultados obtidos. Os testes contam uma história de como escolher uma ação ideal para investimento.
+As próximas seções explicam os testes realizados e os resultados obtidos. Os testes seguem Montgomery (2017) e o material da disciplina; a análise foi feita em R (R Core Team, 2025).
 
 ## Modelo e validação das premissas
 
@@ -156,7 +153,7 @@ modelo <- aov(retorno ~ acao, data = retornos_long)
 
 ### Normalidade
 
-```{r normalidade}
+```{r normalidade, echo=FALSE}
 shapiro.test(modelo$residuals)
 
 sw <- sapply(retornos, function(x) shapiro.test(x)$p.value)
@@ -164,14 +161,16 @@ knitr::kable(data.frame(p_valor = round(sw, 4)),
              caption = "Shapiro-Wilk por ação (H0: retornos normais).")
 ```
 
-```{r qqplot, fig.cap="QQ-plot dos resíduos do modelo."}
+```{r qqplot, echo=FALSE, fig.cap="QQ-plot dos resíduos do modelo."}
 library(car)
 qqPlot(modelo$residuals, ylab = "Resíduos", id = FALSE)
 ```
 
-O teste de Shapiro-Wilk sobre os resíduos do modelo tem p-valor de `r fmtp(shapiro.test(modelo$residuals)$p.value)`, portanto não rejeita a normalidade ao nível de 5%. O QQ-plot confirma o resultado: os pontos acompanham a reta e ficam dentro da banda de confiança. Homoscedasticidade
+O teste de Shapiro-Wilk sobre os resíduos do modelo tem p-valor de `r fmtp(shapiro.test(modelo$residuals)$p.value)`, portanto não rejeita a normalidade ao nível de 5%. O QQ-plot (Figura \@ref(fig:qqplot)) confirma o resultado: os pontos acompanham a reta e ficam dentro da banda de confiança. Avaliando cada ação separadamente (Tabela \@ref(tab:normalidade)), apenas V5 rejeita a normalidade (p `r fmtpe(sw["V5"])`); como a premissa se refere aos resíduos do modelo e o ANOVA é robusto a desvios moderados de normalidade com grupos balanceados, a premissa é considerada atendida.
 
-```{r homoscedasticidade}
+### Homoscedasticidade
+
+```{r homoscedasticidade, echo=FALSE, fig.cap="Resíduos do modelo contra valores ajustados."}
 fligner.test(retorno ~ acao, data = retornos_long)
 
 plot(x = modelo$fitted.values, y = modelo$residuals,
@@ -180,11 +179,21 @@ plot(x = modelo$fitted.values, y = modelo$residuals,
 abline(h = 0, lty = 2)
 ```
 
-O teste de Fligner-Killeen mostrado na figura acima, (robusto à não normalidade) tem p `r fmtpe(fligner.test(retorno ~ acao, data = retornos_long)$p.value)` . Não rejeita a igualdade das variâncias. O gráfico de resíduos contra ajustados não mostra padrão de funil, a dispersão é semelhante entre as ações. A premissa de homoscedasticidade é considerada satisfeita.
+O teste de Fligner-Killeen (robusto à não normalidade) tem p `r fmtpe(fligner.test(retorno ~ acao, data = retornos_long)$p.value)` e não rejeita a igualdade das variâncias. O gráfico de resíduos contra ajustados (Figura \@ref(fig:homoscedasticidade)) não mostra padrão de funil, a dispersão é semelhante entre as ações. A premissa de homoscedasticidade é considerada satisfeita.
 
 ### Independência
 
 Os dados são séries mensais da mesma ação, então foi verificada a autocorrelação temporal (os retornos foram revertidos para a ordem cronológica). Além disso, como todas as ações são observadas nos mesmos meses, avaliou-se se o mês funciona como um bloco, isto é, se há um efeito comum de mercado que justificaria uma ANOVA em blocos.
+
+```{r independencia, echo=FALSE}
+cron <- retornos[nrow(retornos):1, ]                       # ordem cronológica
+bp   <- sapply(cron, function(x) Box.test(x, lag = 6)$p.value)   # autocorrelação
+dw   <- car::durbinWatsonTest(modelo)                      # resíduos do modelo
+mb   <- aov(retorno ~ acao + mes, data = retornos_long)    # mês como bloco
+p_bloco <- summary(mb)[[1]][["Pr(>F)"]][2]
+```
+
+O teste de Box-Pierce (6 defasagens) não indica autocorrelação em nenhuma ação (menor p-valor `r fmtpe(min(bp))`), e o teste de Durbin-Watson sobre os resíduos do modelo tem p `r fmtpe(dw$p)`. O efeito de bloco "mês" não é significativo (p `r fmtpe(p_bloco)`), coerente com as baixas correlações entre ações da Tabela \@ref(tab:correlacao). A premissa de independência é considerada atendida, e o modelo de um fator sem bloco é mantido.
 
 ## Teste ANOVA
 
@@ -199,9 +208,9 @@ O p-valor de `r fmtp(p_anova)` é menor que $\alpha = 0{,}05$, portanto **rejeit
 
 ## Teste de Tukey {#teste-de-tukey}
 
-O teste de Tukey compara todos os pares de ações, controlando o erro global.
+Em caráter exploratório, o teste de Tukey (1949) compara todos os pares de ações, controlando o erro global da família de 10 comparações.
 
-```{r Tukey}
+```{r Tukey, fig.cap="Intervalos de confiança simultâneos de 95% (Tukey) para as diferenças entre todos os pares de ações."}
 library(multcomp)
 mc <- glht(modelo, linfct = mcp(acao = "Tukey"))
 summary(mc)
@@ -211,13 +220,13 @@ par(mar = c(5, 8, 4, 2))
 plot(mc_CI, main = "Tukey: IC 95% das diferenças entre médias")
 ```
 
-Os intervalos de confiança que não contêm o zero indicam diferença significativa. V2 e V4 têm retorno médio significativamente menor que V1 (p `r fmtpe(summary(mc)$test$pvalues[1])` e p `r fmtp(summary(mc)$test$pvalues[3])`). Juntando esse resultado ao boxplot, **V2 e V4 são descartadas**. Já V3 e V5 **não podem ser distinguidas de V1** ao nível de 5% (p `r fmtpe(summary(mc)$test$pvalues[2])` e `r fmtp(summary(mc)$test$pvalues[4])`). Isso não prova que as médias são iguais, apenas que, com a correção para comparações múltiplas, os dados não trazem evidência de diferença. Note que entre V2, V3, V4 e V5 também não há diferença significativa entre si.
+Na Figura \@ref(fig:Tukey), os intervalos de confiança que não contêm o zero indicam diferença significativa. V2 e V4 têm retorno médio significativamente menor que V1 (p `r fmtpe(summary(mc)$test$pvalues[1])` e p `r fmtp(summary(mc)$test$pvalues[3])`). Já V3 e V5 **não podem ser distinguidas de V1** ao nível de 5% (p `r fmtpe(summary(mc)$test$pvalues[2])` e `r fmtp(summary(mc)$test$pvalues[4])`). Isso não prova que as médias são iguais, apenas que, com a correção para comparações múltiplas, os dados não trazem evidência de diferença. Note que entre V2, V3, V4 e V5 também não há diferença significativa entre si. Esse panorama orienta a escolha da referência para o teste confirmatório, mas as decisões são tomadas apenas com base nele (Seção \@ref(teste-de-dunnett)).
 
 ## Teste de Dunnett {#teste-de-dunnett}
 
-Como V1 tem a maior média, ela é tomada como referência. Em vez de comparar todos os pares, o Dunnett compara apenas V1 contra cada uma das outras, o que dá mais sensibilidade para tentar descartar V3 e V5.
+Este é o teste confirmatório. Como V1 tem a maior média amostral, ela é tomada como referência. Em vez de comparar todos os pares, o Dunnett compara apenas V1 contra cada uma das outras ($k - 1 = 4$ comparações), com controle do erro *family-wise* em 5%.
 
-```{r Dunnett}
+```{r Dunnett, echo=FALSE, fig.cap="Intervalos de confiança simultâneos de 95% (Dunnett) para as diferenças de cada ação em relação a V1."}
 retornos_long$acao <- relevel(retornos_long$acao, ref = "V1")
 modelo2 <- aov(retorno ~ acao, data = retornos_long)
 
@@ -233,21 +242,17 @@ plot(mc2_CI, main = "Dunnett: IC 95% das diferenças em relação a V1")
 pd <- summary(mc2)$test$pvalues   # V2, V3, V4, V5 contra V1
 ```
 
-Com a sensibilidade extra, **V5 também é descartada** (p `r fmtpe(pd[4])`), além de V2 e V4 (p `r fmtpe(pd[1])` e `r fmtpe(pd[3])`). Para V3, porém, o p-valor é `r fmtp(pd[2])`, e o intervalo de confiança da diferença (V3 $-$ V1) contém o zero. Ainda não é possível afirmar que existe diferença entre V1 e V3, e as duas permanecem como candidatas.
+A Figura \@ref(fig:Dunnett) e os p-valores ajustados mostram que três ações têm retorno médio significativamente menor que a referência: V2 e V4 (ambas com p `r fmtpe(pd[1])`) e V5 (p `r fmtpe(pd[4])`). Como as três rejeitam a igualdade com V1 ao nível de 5%, **V2, V4 e V5 são descartadas**. V3, por outro lado, apresenta p `r fmtpe(pd[2])`, e o intervalo de confiança da diferença (V3 $-$ V1) contém o zero; portanto, não é possível afirmar que seu retorno médio difere do de V1. Assim, **V1 e V3 se destacam** como resposta à primeira pergunta do experimento, e a escolha entre elas passa ao critério de desempate.
 
-## Teste t de Student {#teste-t-de-student}
+## Tamanho do efeito entre V1 e V3 {#teste-t-de-student}
 
-Restam duas candidatas, V1 e V3. Como é uma única comparação, não há necessidade de corrigir para comparações múltiplas, e o teste t entre as duas tem maior potência. As hipóteses são:
+Restam duas candidatas, V1 e V3. Um novo teste de hipóteses entre elas não seria válido: a comparação foi selecionada após examinar todas as outras, e um teste t sem correção nessa posição não controla o erro tipo I (Seção \@ref(discussao-riscos)). O intervalo de confiança de 95% da diferença $\mu_1 - \mu_3$ é apresentado apenas como estimativa do **tamanho do efeito**, para dimensionar o que está em jogo no desempate.
 
-- $H_0$: as médias de retorno das ações V1 e V3 são iguais ($\mu_1 = \mu_3$);
-- $H_1$: as médias de retorno das ações V1 e V3 são diferentes ($\mu_1 \neq \mu_3$).
-
-```{r T-student}
+```{r T-student, echo=FALSE, fig.cap="Intervalo de confiança de 95% da diferença de retorno médio entre V1 e V3."}
 subset_v1_v3 <- subset(retornos_long, acao %in% c("V1", "V3"))
 subset_v1_v3$acao <- droplevels(subset_v1_v3$acao)
 
-teste_t <- t.test(retorno ~ acao, data = subset_v1_v3)   # Welch, bilateral
-teste_t
+teste_t <- t.test(retorno ~ acao, data = subset_v1_v3)   # usado apenas para o IC da diferença
 
 library(ggplot2)
 df_ic <- data.frame(
@@ -270,11 +275,13 @@ ggplot(df_ic, aes(x = Comparacao, y = Diferenca)) +
   theme_minimal()
 ```
 
-## Risco e retorno (critério adicional de desempate) {#risco-e-retorno}
+A diferença estimada (Figura \@ref(fig:T-student)) é de `r fmt(100 * (teste_t$estimate[1] - teste_t$estimate[2]), 2)` pontos percentuais (p.p.) ao mês a favor de V1, com IC de 95% de `r fmt(100 * teste_t$conf.int[1], 2)` a `r fmt(100 * teste_t$conf.int[2], 2)` p.p. O limite inferior próximo de zero mostra que o efeito, embora favorável a V1, é pequeno em relação à variabilidade mensal.
 
-Para reforçar a escolha entre V1 e V3, compara-se também o risco (desvio-padrão), a razão retorno/risco (sem taxa livre de risco) e o pior mês.
+## Critério de desempate: análise de risco e variabilidade {#risco-e-retorno}
 
-```{r risco}
+Como os testes de hipóteses não distinguem V1 de V3, a escolha entre elas é feita por um critério econômico: entre duas ações com retorno médio estatisticamente indistinguível, o investidor racional prefere a de menor risco. Comparam-se o desvio-padrão dos retornos, a razão retorno/risco (sem taxa livre de risco), o pior mês e a proporção de meses positivos.
+
+```{r risco, echo=FALSE}
 risco <- data.frame(
   Media_pct = 100 * sapply(retornos, mean),
   DP_pct    = 100 * sapply(retornos, sd),
@@ -286,7 +293,7 @@ knitr::kable(round(risco, 3),
              caption = "Retorno médio, risco e razão retorno/risco.")
 ```
 
-A Tabela resume o desempenho de cada ação em termos de retorno e risco. As colunas são:
+A Tabela \@ref(tab:risco) resume o desempenho de cada ação em termos de retorno e risco. As colunas são:
 
 - **Media_pct:** retorno médio mensal, em porcentagem ($\bar{r}_j = \frac{1}{n}\sum_t r_{t,j}$). É o retorno que se espera, em média, ao investir na ação por um mês, e é a medida que os testes de hipóteses comparam.
 - **DP_pct:** desvio-padrão dos retornos mensais, em porcentagem. Mede a variabilidade do retorno em torno da média e é usado aqui como medida de risco: quanto maior, mais incerto é o resultado do próximo mês.
@@ -294,14 +301,18 @@ A Tabela resume o desempenho de cada ação em termos de retorno e risco. As col
 - **Pior_mes:** menor retorno mensal observado nos 35 meses, em porcentagem. Mostra a pior perda histórica em um único mês.
 - **Prop_meses_positivos:** proporção de meses em que o retorno foi positivo (valor entre 0 e 1). Indica com que frequência a ação deu lucro no mês.
 
-V1 combina a maior média (`r fmt(risco["V1", "Media_pct"], 2)`%) com um dos menores riscos (desvio-padrão de `r fmt(risco["V1", "DP_pct"], 2)`%, menor que o de V3, `r fmt(risco["V3", "DP_pct"], 2)`%), e tem a maior razão retorno/risco (`r fmt(risco["V1", "Razao"], 2)` contra `r fmt(risco["V3", "Razao"], 2)` de V3). Assim, V1 não apenas rende mais em média, como não exige assumir mais risco para isso.
+```{r vartest, include=FALSE}
+p_var <- var.test(retornos$V1, retornos$V3)$p.value
+```
+
+As variâncias de V1 e V3 não diferem significativamente (teste F, p `r fmtpe(p_var)`), então o desempate não se apoia em um único teste, e sim na **dominância** de V1 no conjunto de indicadores: maior média (`r fmt(risco["V1", "Media_pct"], 2)`% contra `r fmt(risco["V3", "Media_pct"], 2)`%), menor desvio-padrão (`r fmt(risco["V1", "DP_pct"], 2)`% contra `r fmt(risco["V3", "DP_pct"], 2)`%), maior razão retorno/risco (`r fmt(risco["V1", "Razao"], 2)` contra `r fmt(risco["V3", "Razao"], 2)`), pior mês menos severo (`r fmt(risco["V1", "Pior_mes"], 2)`% contra `r fmt(risco["V3", "Pior_mes"], 2)`%) e mais meses positivos (`r fmt(100 * risco["V1", "Prop_meses_positivos"], 0)`% contra `r fmt(100 * risco["V3", "Prop_meses_positivos"], 0)`%). V1 é melhor ou igual a V3 em todos os critérios: rende mais em média e não exige assumir mais risco para isso. Esse conjunto constitui a evidência para a escolha de uma única ação, conforme pede a segunda pergunta do experimento.
 
 # Conclusões e Recomendações {#conclusoes}
 
 1.  **Teste global:** o ANOVA rejeitou $H_0$ (p `r fmtpe(p_anova)`). As cinco ações não têm o mesmo retorno médio mensal.
-2.  **Ações que se destacam:** após as comparações múltiplas, V2 e V4 foram descartadas pelo teste de Tukey, e V5 foi descartada pelo teste de Dunnett. Restaram **V1 e V3**, sem diferença significativa entre si nos testes com correção para comparações múltiplas.
-3.  **Desempate:** o teste t entre V1 e V3 indicou V1 como superior (p `r fmtpe(teste_t$p.value)`). Os critérios adicionais favorecem V1: maior retorno médio, menor desvio-padrão e maior razão retorno/risco.
-4.  **Recomendação:** investir na ação **V1**, com retorno médio estimado de `r fmt(100 * medias["V1"], 2)`% ao mês. Se o investidor for averso a decisões baseadas em evidência marginal, V3 é a alternativa estatisticamente indistinguível, mas com retorno médio e razão retorno/risco menores. Vale lembrar que o retorno médio histórico não garante o retorno do próximo mês, pois a variabilidade mensal (cerca de 1 p.p.) é grande em relação às diferenças entre as médias.
+2.  **Ações que se destacam:** o teste de Dunnett, tomando V1 como referência, descartou V2, V4 e V5 (p < 0,05). Restaram **V1 e V3**, sem diferença significativa entre si.
+3.  **Desempate:** como não é válido aplicar um novo teste de hipóteses entre as duas, a escolha foi feita por análise de risco e variabilidade. V1 domina V3 em todos os indicadores: maior retorno médio, menor desvio-padrão, maior razão retorno/risco, pior mês menos severo e mais meses positivos.
+4.  **Recomendação:** investir na ação **V1**, com retorno médio estimado de `r fmt(100 * medias["V1"], 2)`% ao mês. V3 é a alternativa estatisticamente indistinguível em retorno médio, mas com mais risco e menor razão retorno/risco. Vale lembrar que o retorno médio histórico não garante o retorno do próximo mês, pois a variabilidade mensal (cerca de 1 p.p.) é grande em relação às diferenças entre as médias.
 
 # Discussão da significância e dos riscos do teste {#discussao-riscos}
 
@@ -310,11 +321,11 @@ dif_v1v3 <- abs(mean(retornos$V1) - mean(retornos$V3))      # diferença observa
 sd_v1v3  <- sqrt((var(retornos$V1) + var(retornos$V3)) / 2) # desvio-padrão combinado
 ```
 
-Todo teste de hipóteses pode errar de duas formas: rejeitar $H_0$ quando ela é verdadeira (**erro tipo I**, cuja probabilidade máxima é o nível de significância $\alpha$) e não rejeitar $H_0$ quando ela é falsa (**erro tipo II**, de probabilidade $\beta$). A potência do teste, $1 - \beta$, é a probabilidade de detectar uma diferença que de fato existe. Nesta seção discute-se como esses dois riscos se distribuem ao longo da sequência de testes adotada e o que eles significam para a decisão do investidor.
+Todo teste de hipóteses pode errar de duas formas: rejeitar $H_0$ quando ela é verdadeira (**erro tipo I**, cuja probabilidade máxima é o nível de significância $\alpha$) e não rejeitar $H_0$ quando ela é falsa (**erro tipo II**, de probabilidade $\beta$). A potência do teste, $1 - \beta$, é a probabilidade de detectar uma diferença que de fato existe. Nesta seção discute-se como esses dois riscos se distribuem ao longo do procedimento adotado e o que eles significam para a decisão do investidor.
 
 ## Nível de significância e controle do erro tipo I
 
-Adotou-se $\alpha = `r fmt(alpha)`$ em todos os testes. Para o investidor, um erro tipo I significa apontar uma ação como diferente das demais quando, na verdade, todas têm o mesmo retorno médio: a sequência de testes "enxergaria" uma vencedora que não existe.
+Adotou-se $\alpha = `r fmt(alpha)`$ em todos os testes. Para o investidor, um erro tipo I significa apontar uma ação como diferente das demais quando, na verdade, todas têm o mesmo retorno médio: a análise "enxergaria" uma vencedora que não existe.
 
 Esse risco é controlado de forma diferente em cada etapa. No ANOVA, o $\alpha$ se refere a uma única hipótese global. Nas comparações múltiplas, porém, cada comparação adicional é uma nova oportunidade de erro: se as $m$ comparações fossem feitas com testes t independentes, cada um a 5%, a probabilidade de ao menos um falso positivo no conjunto (erro *family-wise*, FWER) seria $1 - (1-\alpha)^m$. A Tabela \@ref(tab:fwer) mostra esse valor para as duas famílias usadas no relatório.
 
@@ -334,15 +345,15 @@ knitr::kable(fwer, row.names = FALSE, align = c("l", "c", "c", "c"),
 
 É aí que entra o controle *family-wise*: os p-valores reportados nas Seções \@ref(teste-de-tukey) e \@ref(teste-de-dunnett) já são **ajustados** (método *single-step* do pacote `multcomp`, que usa a distribuição conjunta dos contrastes), de modo que a probabilidade de qualquer falso positivo dentro de cada família fica em 5%. O preço dessa proteção é um teste mais conservador: cada comparação individual precisa de uma diferença maior para ser declarada significativa. Como o Dunnett tem menos comparações na família (`r m_dunnett` contra `r m_tukey` do Tukey), ele paga uma correção menor e por isso consegue separar V5 de V1 (p `r fmtpe(pd[4])`) onde o Tukey não conseguiu (p `r fmtpe(summary(mc)$test$pvalues[4])`).
 
-## O teste t final e a leitura do p-valor marginal
+## Por que não se usou um teste t para o desempate
 
-O teste t entre V1 e V3 (Seção \@ref(teste-t-de-student)) foi feito **sem correção** e **depois** de examinar os resultados anteriores. Isso tem duas consequências. Primeiro, o seu $\alpha$ nominal de 5% não é mais exato: a comparação foi escolhida justamente por ser a mais promissora entre as que restaram, o que favorece a rejeição. Segundo, o resultado depende de quanto se cobra pela multiplicidade: a Tabela \@ref(tab:pv1v3) mostra a mesma diferença $\mu_1 - \mu_3$ avaliada pelos três procedimentos.
+Seria tentador decidir entre V1 e V3 com um teste t direto, **sem correção**, feito **depois** de examinar os resultados anteriores. Isso tem duas consequências. Primeiro, o seu $\alpha$ nominal de 5% não seria mais exato: a comparação teria sido escolhida justamente por ser a mais promissora entre as que restaram, o que favorece a rejeição. Segundo, o resultado dependeria de quanto se cobra pela multiplicidade: a Tabela \@ref(tab:pv1v3) mostra a mesma diferença $\mu_1 - \mu_3$ avaliada pelos três procedimentos.
 
 ```{r pv1v3, echo=FALSE}
 pv <- data.frame(
   Procedimento = c("Tukey (família de 10 comparações)",
                    "Dunnett (família de 4 comparações)",
-                   "Teste t de Welch (sem correção)"),
+                   "Teste t de Welch sem correção (não adotado)"),
   p = fmtp(c(summary(mc)$test$pvalues[2], pd[2], teste_t$p.value)),
   Decisao = c("não rejeita", "não rejeita", "rejeita")
 )
@@ -351,7 +362,7 @@ knitr::kable(pv, row.names = FALSE, align = c("l", "c", "c"),
              caption = "A comparação V1 vs V3 sob os três procedimentos: a conclusão muda conforme a correção aplicada.")
 ```
 
-A diferença observada (`r fmt(100 * dif_v1v3, 2)` p.p. ao mês) é a mesma nos três casos; o que muda é o quanto de proteção contra o erro tipo I se exige. A evidência de que V1 supera V3 é, portanto, **marginal**: existe (o intervalo de 95% do teste t, de `r fmt(100 * teste_t$conf.int[1], 2)` a `r fmt(100 * teste_t$conf.int[2], 2)` p.p., exclui o zero por pouco), mas não sobrevive a uma correção para multiplicidade. O relatório trata esse resultado como um desempate, não como uma conclusão forte, e por isso o complementa com os critérios de risco e retorno da Seção \@ref(risco-e-retorno).
+A diferença observada (`r fmt(100 * dif_v1v3, 2)` p.p. ao mês) é a mesma nos três casos; o que muda é o quanto de proteção contra o erro tipo I se exige. Só o procedimento que não paga pela multiplicidade rejeita, o que é sinal de evidência **marginal**, não de evidência forte. Por isso o relatório não usa o teste t como decisão: o teste confirmatório é o Dunnett, e a escolha entre V1 e V3 é feita pelo critério de risco e variabilidade da Seção \@ref(risco-e-retorno), que não depende de um novo teste sobre as mesmas médias.
 
 ## Erro tipo II e potência dos testes
 
@@ -423,7 +434,7 @@ Em resumo, 36 meses de dados bastam para separar V1 de V2, V4 e V5, cujas difere
 
 ## O que os dois riscos significam para o investidor
 
-Os dois tipos de erro têm custos muito diferentes neste problema, e isso ajuda a interpretar os resultados. Se o investidor escolher V1 e, na verdade, V1 e V3 tiverem o mesmo retorno médio (erro tipo I na comparação final), o custo esperado é nulo: ele investiu em uma ação tão boa quanto a alternativa. Se, por outro lado, V1 for de fato superior e o investidor tratar as duas como equivalentes (erro tipo II), ele abre mão, em média, de cerca de `r fmt(100 * dif_v1v3, 2)` p.p. ao mês. Como o investidor precisa, de qualquer forma, escolher **uma** ação, a decisão de ficar com a de maior média amostral, V1, é a que minimiza o arrependimento esperado, e é essa a recomendação da Seção \@ref(conclusoes). A rigidez do $\alpha = 5\%$ nas comparações múltiplas protege contra falsos positivos, o que é importante para a conclusão científica, mas, para este investidor em particular, o erro mais caro é o tipo II, e por isso a evidência marginal a favor de V1 ainda deve orientar a escolha.
+Os dois tipos de erro têm custos muito diferentes neste problema, e isso ajuda a interpretar os resultados. Se o investidor escolher V1 e, na verdade, V1 e V3 tiverem o mesmo retorno médio (o equivalente a um erro tipo I na comparação final), o custo esperado é nulo: ele investiu em uma ação tão boa quanto a alternativa. Se, por outro lado, V1 for de fato superior e o investidor tratar as duas como equivalentes (erro tipo II), ele abre mão, em média, de cerca de `r fmt(100 * dif_v1v3, 2)` p.p. ao mês. Como o investidor precisa, de qualquer forma, escolher **uma** ação, a decisão de ficar com a de maior média amostral, V1, é a que minimiza o arrependimento esperado, e é essa a recomendação da Seção \@ref(conclusoes). A rigidez do $\alpha = 5\%$ nas comparações múltiplas protege contra falsos positivos, o que é importante para a conclusão científica, mas, para este investidor em particular, o erro mais caro é o tipo II, e por isso a evidência marginal a favor de V1 ainda deve orientar a escolha.
 
 Por fim, é importante distinguir a incerteza sobre a **média** da incerteza sobre o **próximo mês**. Os testes tratam da média de longo prazo. A variabilidade mensal dos retornos (desvio-padrão de cerca de `r fmt(100 * sd_v1v3, 1)` p.p.) é quase o dobro da diferença entre as médias de V1 e V3, e nos 35 meses observados V1 rendeu mais que V3 em apenas `r fmt(100 * mean(retornos$V1 > retornos$V3), 0)`% dos meses. Mesmo que V1 seja a melhor escolha em média, há uma chance considerável de V3 render mais em um mês específico. Nenhum teste de hipóteses elimina esse risco, que é inerente à decisão de investir em uma única ação.
 
@@ -450,13 +461,15 @@ Por fim, é importante distinguir a incerteza sobre a **média** da incerteza so
 
 Durante a preparação deste trabalho, os autores utilizaram o Claude (Anthropic) para redigir a versão inicial das seções descritivas deste relatório, a partir dos resultados registrados como comentários no script de análise `exploracao_dos_dados.R`. Após utilizar essa ferramenta, os autores revisaram, editaram e finalizaram o conteúdo conforme necessário e assumem total responsabilidade pelo conteúdo da publicação.
 
+A ferramenta também foi utilizada na revisão metodológica da análise. Nessa revisão, ela ajudou os autores a identificar que a sequência de testes inicialmente adotada (Tukey, seguido de Dunnett e de um teste t sem correção sobre as duas ações restantes) não controlava adequadamente o erro tipo I, e corrigiu a interpretação de que V1 seria estatisticamente superior a V3. Com base nisso, os autores reestruturaram a análise, adotando o teste de Dunnett como único teste confirmatório e a análise de risco e variabilidade como critério de desempate, e redigiram, com apoio da ferramenta, a Seção \@ref(discussao-riscos) (significância, riscos e potência dos testes) e a verificação da premissa de independência. Todos os cálculos e conclusões foram conferidos pelos autores.
+
 Também foi utilizada IA para auxiliar na formatação do texto, incluindo a inclusão de bibliotecas que ajudam na visualização de gráficos e tabelas apresentados no relatório. Da mesma forma, foi solicitado apoio para revisar o chunk de setup do R Markdown, de modo a garantir a instalação das bibliotecas necessárias para que o arquivo compilasse sem erros.
 
 # Referências
 
-- MONTGOMERY, D. C. *Design and Analysis of Experiments*. John Wiley & Sons.
+- MONTGOMERY, D. C. *Design and Analysis of Experiments*. 9. ed. John Wiley & Sons, 2017.
 - TUKEY, J. W. Comparing individual means in the analysis of variance. *Biometrics*, v. 5, n. 2, p. 99–114, 1949.
 - DUNNETT, C. W. A multiple comparison procedure for comparing several treatments with a control. *Journal of the American Statistical Association*, v. 50, n. 272, p. 1096–1121, 1955.
-- R CORE TEAM. *R: A language and environment for statistical computing*. R Foundation for Statistical Computing, Vienna, Austria.
-- Material da disciplina EEE933 (slides sobre ANOVA e comparações múltiplas), PPGEE/UFMG.
+- R CORE TEAM. *R: A language and environment for statistical computing*. R Foundation for Statistical Computing, Vienna, Austria, 2025. Pacotes `multcomp` (comparações múltiplas) e `car` (diagnósticos).
+- BESSANI, M. Material da disciplina EEE933 - Planejamento e Análise de Experimentos (notas de aula sobre ANOVA e comparações múltiplas). PPGEE/UFMG, 2026.
 
