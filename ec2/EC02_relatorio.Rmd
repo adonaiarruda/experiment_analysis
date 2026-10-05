@@ -56,8 +56,8 @@ As simplificações do enunciado foram adotadas: o preço de abertura de um mês
 
 Seja $\mu_j$ o retorno mensal médio da ação $j$ ($j = 1, \dots, 5$). Os testes formam uma sequência, em que cada etapa é motivada pelo resultado da anterior.
 
-1.  **Teste global (ANOVA):** o modelo é $$
-    \begin{cases}
+1.  **Teste global (ANOVA):** o modelo é
+    $$\begin{cases}
     H_0: \tau_i = 0, \;\; \forall\, i \in \{1, 2, \ldots, a\} \\
     H_1: \exists\, i \;:\; \tau_i \neq 0
     \end{cases}. $$ As hipóteses são $H_0: \mu_1 = \dots = \mu_5$ (todos os efeitos $\tau_j$ são nulos) contra $H_1$: ao menos uma média difere. Se $H_0$ for rejeitada, existe ao menos uma ação cujo retorno médio é diferente das demais, mas o teste não indica qual.
@@ -74,8 +74,8 @@ O nível de significância adotado em todos os testes é $\alpha = `r alpha`$.
 
 O arquivo `DadosAcoesGrupoE.csv` não possui cabeçalho. Tem 36 linhas (meses) e 5 colunas (ações, nomeadas V1 a V5 pelo R). A linha 1 é o mês mais recente e a linha 36 é o mais distante. Como o preço de abertura de um mês é o fechamento do mês anterior, o retorno mensal da ação $j$ na linha $t$ é
 
-$$ r_{t,j} = \frac{P_{t,j} - P_{t+1,j}}{P_{t+1,j}}
-$$ em que $P_{t+1,j}$ é o fechamento do mês imediatamente anterior ao mês $t$ (a linha seguinte, pois a ordenação é do mais recente para o mais antigo). A linha mais antiga não possui mês anterior, portanto obtêm-se $n = 35$ retornos por ação, totalizando 175 observações.
+$$ r_{t,j} = \frac{P_{t,j} - P_{t+1,j}}{P_{t+1,j}}$$
+em que $P_{t+1,j}$ é o fechamento do mês imediatamente anterior ao mês $t$ (a linha seguinte, pois a ordenação é do mais recente para o mais antigo). A linha mais antiga não possui mês anterior, portanto obtêm-se $n = 35$ retornos por ação, totalizando 175 observações.
 
 ```{r dados}
 calcular_retorno <- function(preco) {
@@ -347,12 +347,19 @@ O teste global tem potência alta (`r fmt(pot_av, 2)`), o que é coerente com a 
 
 # Papéis desempenhados pela equipe
 
-| Integrante | Papel |
-|-------------------------------|-----------------------------------------|
-| Adonai Arruda | *[PREENCHER: ex. Relator]* |
-| Alexandra Milaya Soto Aponte | *[PREENCHER: ex. Verificador]* |
-| João Paulo Gonçalves Simim | *[PREENCHER: ex. Programador/Analista]* |
-| Yasmim Machado | Verificador: compilação independente do relatório,revisão dos resultados, redação do relatório, e das sugestões de melhoria. \| |
++------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Integrante                   | Papel                                                                                                                                                                                                                                                                                        |
++==============================+==============================================================================================================================================================================================================================================================================================+
+| Adonai Arruda                | *[PREENCHER: ex. Relator]*                                                                                                                                                                                                                                                                   |
++------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Alexandra Milaya Soto Aponte | Elaboração do código no arquivo *exploracao_dos_dados.R*, no qual foram realizados o pré-processamento dos dados, a análise exploratória e a aplicação de testes estatísticos, bem como a verificação dos pressupostos de normalidade e homocedasticidade para o conjunto completo de dados. |
+|                              |                                                                                                                                                                                                                                                                                              |
+|                              | No mesmo arquivo, foram implementados testes de comparações múltiplas, como Tukey, Dunnett e t de Student. Também foram inseridos comentários explicativos no código, abordando a motivação de cada teste estatístico e a interpretação dos resultados obtidos.                              |
++------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| João Paulo Gonçalves Simim   | *[PREENCHER: ex. Programador/Analista]*                                                                                                                                                                                                                                                      |
++------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Yasmim Machado               | Verificador: compilação independente do relatório,revisão dos resultados, redação do relatório, e das sugestões de melhoria. \|                                                                                                                                                              |
++------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 # Declaração sobre o uso de IA generativa
 
