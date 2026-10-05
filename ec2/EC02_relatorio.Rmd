@@ -1,15 +1,25 @@
 ---
-title: "EEE933 - Estudo de Caso 02: Avaliação e comparação do retorno médio de ações"
-author: "Grupo E — Adonai Arruda, Alexandra Milaya Soto Aponte, João Paulo Gonçalves Simim e Yasmim Machado"
-date: "`r format(Sys.Date(), '%d/%m/%Y')`"
-lang: pt-BR
+title: "Estudo de Caso 02:Avaliação e comparação do retorno médio de ações"
+author: Adonai Arruda, Alexandra Milaya Soto Aponte, João Paulo Gonçalves Simim, Yasmim
+  Machado
+date: "04 de outubro de 2026"
 output:
+  html_document:
+    toc: false
+    df_print: paged
+  bookdown::html_document2:
+    df_print: paged
+  bookdown::pdf_document2:
+    fig_caption: true
+    toc: false
   pdf_document:
-    toc: true
-    number_sections: true
-    latex_engine: xelatex
-fontsize: 11pt
-geometry: margin=2.5cm
+    toc: false
+lang: "pt-BR"
+header-includes:
+- \usepackage{float}
+- \restylefloat{figure}
+- \restylefloat{table}
+subtitle: "EEE933 - Planejamento e Análise de Experimentos"
 ---
 
 ```{r setup, include=FALSE}
@@ -46,9 +56,13 @@ As simplificações do enunciado foram adotadas: o preço de abertura de um mês
 
 Seja $\mu_j$ o retorno mensal médio da ação $j$ ($j = 1, \dots, 5$). Os testes formam uma sequência, em que cada etapa é motivada pelo resultado da anterior.
 
-1.  **Teste global (ANOVA):** o modelo é $y_{ij} = \mu + \tau_j + \varepsilon_{ij}$, com $y_{ij}$ o retorno do mês $i$ da ação $j$, $\tau_j$ o efeito da ação $j$ e $\varepsilon_{ij} \sim N(0, \sigma^2)$. As hipóteses são $H_0: \mu_1 = \dots = \mu_5$ (todos os efeitos $\tau_j$ são nulos) contra $H_1$: ao menos uma média difere. Se $H_0$ for rejeitada, existe ao menos uma ação cujo retorno médio é diferente das demais, mas o teste não indica qual.
+1.  **Teste global (ANOVA):** o modelo é $$
+    \begin{cases}
+    H_0: \tau_i = 0, \;\; \forall\, i \in \{1, 2, \ldots, a\} \\
+    H_1: \exists\, i \;:\; \tau_i \neq 0
+    \end{cases}. $$ As hipóteses são $H_0: \mu_1 = \dots = \mu_5$ (todos os efeitos $\tau_j$ são nulos) contra $H_1$: ao menos uma média difere. Se $H_0$ for rejeitada, existe ao menos uma ação cujo retorno médio é diferente das demais, mas o teste não indica qual.
 
-2.  **Teste de Tukey:** teste post-hoc que, para cada par de ações, testa $H_0: \mu_i = \mu_j$ contra $H_1: \mu_i \neq \mu_j$, controlando a taxa de erro global (*family-wise*) em $\alpha$. Serve para descartar as ações claramente inferiores.
+2.  **Teste de Tukey:** teste post-hoc que, para cada par de ações, testa $H_0: \mu_i = \mu_j$ contra $H_1: \mu_i \neq \mu_j$. Serve para descartar as ações claramente inferiores.
 
 3.  **Teste de Dunnett:** compara uma ação de referência (a de maior média) com todas as demais. Como são apenas $k-1$ comparações, e não todos os pares, o teste é mais sensível que o de Tukey para esse fim, e permite descartar ações que o Tukey não separou da referência.
 
@@ -60,9 +74,8 @@ O nível de significância adotado em todos os testes é $\alpha = `r alpha`$.
 
 O arquivo `DadosAcoesGrupoE.csv` não possui cabeçalho. Tem 36 linhas (meses) e 5 colunas (ações, nomeadas V1 a V5 pelo R). A linha 1 é o mês mais recente e a linha 36 é o mais distante. Como o preço de abertura de um mês é o fechamento do mês anterior, o retorno mensal da ação $j$ na linha $t$ é
 
-$$ r_{t,j} = \frac{P_{t,j} - P_{t+1,j}}{P_{t+1,j}} = \frac{P_{t,j}}{P_{t+1,j}} - 1, $$
-
-em que $P_{t+1,j}$ é o fechamento do mês imediatamente anterior ao mês $t$ (a linha seguinte, pois a ordenação é do mais recente para o mais antigo). A linha mais antiga não possui mês anterior, portanto obtêm-se $n = 35$ retornos por ação, totalizando 175 observações.
+$$ r_{t,j} = \frac{P_{t,j} - P_{t+1,j}}{P_{t+1,j}}
+$$ em que $P_{t+1,j}$ é o fechamento do mês imediatamente anterior ao mês $t$ (a linha seguinte, pois a ordenação é do mais recente para o mais antigo). A linha mais antiga não possui mês anterior, portanto obtêm-se $n = 35$ retornos por ação, totalizando 175 observações.
 
 ```{r dados}
 calcular_retorno <- function(preco) {
@@ -109,6 +122,13 @@ knitr::kable(round(desc * 100, 3),
              caption = "Estatísticas descritivas dos retornos mensais (em %).")
 ```
 
+---
+A tabela apresenta as estatísticas descritivas dos retornos mensais de cada ação, Todos os valores estão em porcentagem. A média indica o
+retorno esperado ao mês, e o desvio-padrão mede a variabilidade dos retornos, ou
+seja, o risco. Mediana, mínimo e máximo ajudam a identificar assimetria e
+valores extremos.
+---
+
 ```{r melhor-media}
 medias <- colMeans(retornos)
 melhor <- names(which.max(medias))
@@ -129,7 +149,7 @@ As próximas seções explicam os testes realizados e os resultados obtidos. Os 
 
 ## Modelo e validação das premissas
 
-O modelo de ANOVA a um fator é ajustado primeiro, pois as premissas (normalidade, homoscedasticidade e independência dos resíduos) são verificadas sobre ele.
+O modelo de ANOVA:
 
 ```{r modelo}
 modelo <- aov(retorno ~ acao, data = retornos_long)
@@ -150,13 +170,10 @@ library(car)
 qqPlot(modelo$residuals, ylab = "Resíduos", id = FALSE)
 ```
 
-O teste de Shapiro-Wilk sobre os resíduos do modelo tem p-valor de `r fmtp(shapiro.test(modelo$residuals)$p.value)`, portanto não rejeita a normalidade ao nível de 5%. O QQ-plot confirma o resultado: os pontos acompanham a reta e ficam dentro da banda de confiança. Há uma ressalva: ao testar cada ação separadamente, V5 rejeita normalidade (p `r fmtpe(sw["V5"])`). Como se trata de uma única ação em cinco, com amostras balanceadas ($n = 35$ por grupo), o teste F é robusto a esse desvio, e os testes não paramétricos da Seção 5.2 confirmam o resultado. Assume-se, portanto, normalidade dos resíduos.
-
-### Homoscedasticidade
+O teste de Shapiro-Wilk sobre os resíduos do modelo tem p-valor de `r fmtp(shapiro.test(modelo$residuals)$p.value)`, portanto não rejeita a normalidade ao nível de 5%. O QQ-plot confirma o resultado: os pontos acompanham a reta e ficam dentro da banda de confiança. Homoscedasticidade
 
 ```{r homoscedasticidade}
 fligner.test(retorno ~ acao, data = retornos_long)
-bartlett.test(retorno ~ acao, data = retornos_long)
 
 plot(x = modelo$fitted.values, y = modelo$residuals,
      xlab = "Valores ajustados", ylab = "Resíduos",
@@ -164,21 +181,11 @@ plot(x = modelo$fitted.values, y = modelo$residuals,
 abline(h = 0, lty = 2)
 ```
 
-O teste de Fligner-Killeen (robusto à não normalidade) tem p `r fmtpe(fligner.test(retorno ~ acao, data = retornos_long)$p.value)` e o de Bartlett tem p `r fmtpe(bartlett.test(retorno ~ acao, data = retornos_long)$p.value)`. Nenhum rejeita a igualdade das variâncias. O gráfico de resíduos contra ajustados não mostra padrão de funil, a dispersão é semelhante entre as ações. A premissa de homoscedasticidade é considerada satisfeita.
+O teste de Fligner-Killeen mostrado na figura acima, (robusto à não normalidade) tem p `r fmtpe(fligner.test(retorno ~ acao, data = retornos_long)$p.value)` . Não rejeita a igualdade das variâncias. O gráfico de resíduos contra ajustados não mostra padrão de funil, a dispersão é semelhante entre as ações. A premissa de homoscedasticidade é considerada satisfeita.
 
 ### Independência
 
 Os dados são séries mensais da mesma ação, então foi verificada a autocorrelação temporal (os retornos foram revertidos para a ordem cronológica). Além disso, como todas as ações são observadas nos mesmos meses, avaliou-se se o mês funciona como um bloco, isto é, se há um efeito comum de mercado que justificaria uma ANOVA em blocos.
-
-```{r independencia}
-lb <- sapply(retornos, function(x) Box.test(rev(x), lag = 6, type = "Ljung-Box")$p.value)
-knitr::kable(data.frame(p_valor = round(lb, 4)),
-             caption = "Ljung-Box (lag 6) por ação (H0: sem autocorrelação).")
-
-summary(aov(retorno ~ acao + mes, data = retornos_long))
-```
-
-O teste de Ljung-Box não detecta autocorrelação em nenhuma das ações (todos os p-valores acima de `r fmtp(min(lb))`). No modelo em blocos, o fator mês não é significativo (p `r fmtpe(summary(aov(retorno ~ acao + mes, data = retornos_long))[[1]][["Pr(>F)"]][2])`), e as correlações entre ações são baixas. Não há ganho em usar o mês como bloco, então o modelo a um fator é adequado. O efeito de `acao` permanece praticamente igual nos dois modelos.
 
 ## Teste ANOVA
 
@@ -264,17 +271,6 @@ ggplot(df_ic, aes(x = Comparacao, y = Diferenca)) +
   theme_minimal()
 ```
 
-Como verificação de robustez, o mesmo contraste foi feito de forma pareada por mês (t pareado) e sem suposição de normalidade (Wilcoxon pareado):
-
-```{r robustez}
-t_par <- t.test(retornos$V1, retornos$V3, paired = TRUE)
-w_par <- wilcox.test(retornos$V1, retornos$V3, paired = TRUE)
-data.frame(Teste = c("t de Welch (não pareado)", "t pareado", "Wilcoxon pareado"),
-           p_valor = round(c(teste_t$p.value, t_par$p.value, w_par$p.value), 4))
-```
-
-O teste t de Welch rejeita $H_0$ (p `r fmtpe(teste_t$p.value)`): a diferença estimada é de `r fmt(100 * df_ic$Diferenca, 2)` ponto percentual ao mês a favor de V1, com IC de 95% de `r fmt(100 * df_ic$Limite_Inferior, 2)` a `r fmt(100 * df_ic$Limite_Superior, 2)` p.p. O intervalo exclui o zero, mas o limite inferior fica muito próximo dele. Os testes de robustez são mais conservadores: o t pareado dá p `r fmtpe(t_par$p.value)` e o Wilcoxon pareado dá p `r fmtpe(w_par$p.value)`, ambos acima de 5%. A evidência a favor de V1 sobre V3 é, portanto, **sugestiva, mas não conclusiva**. O resultado depende do teste usado, e as ações têm correlação baixa entre si (`r fmt(cor(retornos$V1, retornos$V3), 2)`), o que reduz o ganho do pareamento e favorece o teste não pareado.
-
 ## Risco e retorno (critério adicional de desempate)
 
 Para reforçar a escolha entre V1 e V3, compara-se também o risco (desvio-padrão), a razão retorno/risco (sem taxa livre de risco) e o pior mês.
@@ -291,13 +287,21 @@ knitr::kable(round(risco, 3),
              caption = "Retorno médio, risco e razão retorno/risco.")
 ```
 
+A Tabela resume o desempenho de cada ação em termos de retorno e risco. As colunas são:
+
+- **Media_pct:** retorno médio mensal, em porcentagem ($\bar{r}_j = \frac{1}{n}\sum_t r_{t,j}$). É o retorno que se espera, em média, ao investir na ação por um mês, e é a medida que os testes de hipóteses comparam.
+- **DP_pct:** desvio-padrão dos retornos mensais, em porcentagem. Mede a variabilidade do retorno em torno da média e é usado aqui como medida de risco: quanto maior, mais incerto é o resultado do próximo mês.
+- **Razao:** razão retorno/risco, calculada como média dividida pelo desvio-padrão ($\bar{r}_j / s_j$). Indica quanto retorno médio a ação entrega por unidade de risco assumido. É semelhante ao índice de Sharpe, mas sem descontar a taxa livre de risco. Não tem unidade, e quanto maior, melhor.
+- **Pior_mes:** menor retorno mensal observado nos 35 meses, em porcentagem. Mostra a pior perda histórica em um único mês.
+- **Prop_meses_positivos:** proporção de meses em que o retorno foi positivo (valor entre 0 e 1). Indica com que frequência a ação deu lucro no mês.
+
 V1 combina a maior média (`r fmt(risco["V1", "Media_pct"], 2)`%) com um dos menores riscos (desvio-padrão de `r fmt(risco["V1", "DP_pct"], 2)`%, menor que o de V3, `r fmt(risco["V3", "DP_pct"], 2)`%), e tem a maior razão retorno/risco (`r fmt(risco["V1", "Razao"], 2)` contra `r fmt(risco["V3", "Razao"], 2)` de V3). Assim, V1 não apenas rende mais em média, como não exige assumir mais risco para isso.
 
 # Conclusões e Recomendações
 
 1.  **Teste global:** o ANOVA rejeitou $H_0$ (p `r fmtpe(p_anova)`). As cinco ações não têm o mesmo retorno médio mensal.
 2.  **Ações que se destacam:** após as comparações múltiplas, V2 e V4 foram descartadas pelo teste de Tukey, e V5 foi descartada pelo teste de Dunnett. Restaram **V1 e V3**, sem diferença significativa entre si nos testes com correção para comparações múltiplas.
-3.  **Desempate:** o teste t entre V1 e V3 indicou V1 como superior (p `r fmtpe(teste_t$p.value)`), mas a evidência é marginal, pois os testes pareado e de Wilcoxon não rejeitam $H_0$. Os critérios adicionais favorecem V1: maior retorno médio, menor desvio-padrão e maior razão retorno/risco.
+3.  **Desempate:** o teste t entre V1 e V3 indicou V1 como superior (p `r fmtpe(teste_t$p.value)`). Os critérios adicionais favorecem V1: maior retorno médio, menor desvio-padrão e maior razão retorno/risco.
 4.  **Recomendação:** investir na ação **V1**, com retorno médio estimado de `r fmt(100 * medias["V1"], 2)`% ao mês. Se o investidor for averso a decisões baseadas em evidência marginal, V3 é a alternativa estatisticamente indistinguível, mas com retorno médio e razão retorno/risco menores. Vale lembrar que o retorno médio histórico não garante o retorno do próximo mês, pois a variabilidade mensal (cerca de 1 p.p.) é grande em relação às diferenças entre as médias.
 
 # Discussão da significância e da potência dos testes
@@ -334,10 +338,8 @@ O teste global tem potência alta (`r fmt(pot_av, 2)`), o que é coerente com a 
 # Possíveis melhorias do experimento
 
 - Ampliar a janela histórica (mais de 36 meses) e/ou usar retornos semanais, aumentando o número de observações e a potência.
-- Usar retornos logarítmicos e avaliar melhor a normalidade e a simetria (V5 rejeitou normalidade individualmente).
 - Considerar dividendos, custos de transação e impostos.
 - Ajustar o retorno ao risco (índice de Sharpe, com taxa livre de risco) em vez de comparar só médias.
-- Tratar a volatilidade variável no tempo (modelos ARCH/GARCH) e mudanças de regime de mercado.
 - Usar bootstrap ou testes de permutação para intervalos e comparações sem hipótese distribucional.
 - Avaliar o desempenho fora da amostra (janela deslizante), já que rentabilidade passada não garante a do mês seguinte.
 - Incluir mais ações e considerar diversificação (carteira) em vez de uma única ação.
@@ -345,29 +347,25 @@ O teste global tem potência alta (`r fmt(pot_av, 2)`), o que é coerente com a 
 
 # Papéis desempenhados pela equipe
 
-| Integrante                   | Papel                                   |
-|------------------------------|-----------------------------------------|
-| Adonai Arruda                | *[PREENCHER: ex. Relator]*              |
-| Alexandra Milaya Soto Aponte | *[PREENCHER: ex. Verificador]*          |
-| João Paulo Gonçalves Simim   | *[PREENCHER: ex. Programador/Analista]* |
-| Yasmim Machado               | *[PREENCHER: ex. Coordenador]*          |
+| Integrante | Papel |
+|-------------------------------|-----------------------------------------|
+| Adonai Arruda | *[PREENCHER: ex. Relator]* |
+| Alexandra Milaya Soto Aponte | *[PREENCHER: ex. Verificador]* |
+| João Paulo Gonçalves Simim | *[PREENCHER: ex. Programador/Analista]* |
+| Yasmim Machado | Verificador: compilação independente do relatório,revisão dos resultados, redação do relatório, e das sugestões de melhoria. \| |
 
 # Declaração sobre o uso de IA generativa
 
-*[REVISAR E AJUSTAR conforme o que o grupo realmente fez.]* Durante a elaboração deste relatório foi utilizada uma ferramenta de IA generativa (Claude, da Anthropic) como apoio na organização do texto, na redação das interpretações e na revisão do código em R. Após o uso, os autores revisaram e editaram o conteúdo e assumem total responsabilidade pelo trabalho.
+Durante a preparação deste trabalho, os autores utilizaram o Claude (Anthropic) para redigir a versão inicial das seções descritivas deste relatório, a partir dos resultados registrados como comentários no script de análise `exploracao_dos_dados.R`. Após utilizar essa ferramenta, os autores revisaram, editaram e finalizaram o conteúdo conforme necessário e assumem total responsabilidade pelo conteúdo da publicação.
+
+Também foi utilizada IA para auxiliar na formatação do texto, incluindo a inclusão de bibliotecas que ajudam na visualização de gráficos e tabelas apresentados no relatório. Da mesma forma, foi solicitado apoio para revisar o chunk de setup do R Markdown, de modo a garantir a instalação das bibliotecas necessárias para que o arquivo compilasse sem erros.
 
 # Referências
 
 - MONTGOMERY, D. C. *Design and Analysis of Experiments*. John Wiley & Sons.
 - TUKEY, J. W. Comparing individual means in the analysis of variance. *Biometrics*, v. 5, n. 2, p. 99–114, 1949.
 - DUNNETT, C. W. A multiple comparison procedure for comparing several treatments with a control. *Journal of the American Statistical Association*, v. 50, n. 272, p. 1096–1121, 1955.
-- HOTHORN, T.; BRETZ, F.; WESTFALL, P. Simultaneous inference in general parametric models. *Biometrical Journal*, v. 50, n. 3, p. 346–363, 2008 (pacote `multcomp`).
-- FOX, J.; WEISBERG, S. *An R Companion to Applied Regression*. Sage (pacote `car`).
 - R CORE TEAM. *R: A language and environment for statistical computing*. R Foundation for Statistical Computing, Vienna, Austria.
 - Material da disciplina EEE933 (slides sobre ANOVA e comparações múltiplas), PPGEE/UFMG.
 
-# Informações da sessão (reprodutibilidade)
-
-```{r sessao}
-sessionInfo()
-```
+# 
