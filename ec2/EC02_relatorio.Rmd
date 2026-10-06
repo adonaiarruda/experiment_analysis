@@ -160,9 +160,7 @@ As correlações da Tabela \ref{tab:correlacao} são todas baixas (em módulo, n
 
 As próximas seções explicam os testes realizados e os resultados obtidos. Os testes seguem Montgomery (2017) e o material da disciplina; a análise foi feita em R (R Core Team, 2025).
 
-## Modelo e validação das premissas
-
-O modelo de ANOVA:
+## Modelo ANOVA e validação das premissas
 
 ```{r modelo}
 modelo <- aov(retorno ~ acao, data = retornos_long)

@@ -20,7 +20,6 @@ acoes <- read.csv("dados/DadosAcoesGrupoE.csv",
 retornos <- as.data.frame(sapply(acoes, calcular_retorno))
 
 
-
 boxplot(retornos,
         main = "Distribuição dos Retornos por Ação",
         xlab = "Ação",
@@ -93,7 +92,6 @@ plot(mc2_CI)
 
 #Aumentamos a sensibilidade e conseguimos descartar V5 mas ainda não é ppossivel
 #dizer que a diferença de há diferença entre v1 e v3
-
 
 # o que pode me dar evidencias para escolher apenas 1 entre essas 2
 subset_v1_v3 <- subset(retornos_long, acao %in% c("V1", "V3"))
