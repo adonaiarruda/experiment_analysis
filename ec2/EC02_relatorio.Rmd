@@ -30,6 +30,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,
                       fig.align = "center", fig.height = 4, fig.width = 6.5)
 set.seed(933)
 alpha <- 0.05
+options(OutDec = ",")   # vírgula decimal em tabelas e números impressos
 
 # no PDF, tabelas do kable em LaTeX (ambiente table), para a legenda ficar embaixo
 options(knitr.table.format = function() if (knitr::is_latex_output()) "latex" else "pipe")
@@ -170,7 +171,7 @@ modelo <- aov(retorno ~ acao, data = retornos_long)
 ### Normalidade
 
 ```{r normalidade}
-shapiro.test(modelo$residuals)
+sw_res <- shapiro.test(modelo$residuals)
 
 sw <- sapply(retornos, function(x) shapiro.test(x)$p.value)
 knitr::kable(data.frame(p_valor = round(sw, 4)),
@@ -187,7 +188,7 @@ O teste de Shapiro-Wilk sobre os resíduos do modelo tem p-valor de `r fmtp(shap
 ### Homoscedasticidade {#homoscedasticidade}
 
 ```{r homoscedasticidade, fig.cap="Resíduos do modelo contra valores ajustados."}
-fligner.test(retorno ~ acao, data = retornos_long)
+fk <- fligner.test(retorno ~ acao, data = retornos_long)
 
 plot(x = modelo$fitted.values, y = modelo$residuals,
      xlab = "Valores ajustados", ylab = "Resíduos",
@@ -219,7 +220,6 @@ O primeiro teste avalia se as médias de retorno das cinco ações são iguais. 
 - $H_1$: **ao menos uma ação tem retorno médio diferente das demais** ($\exists\, j : \tau_j \neq 0$).
 
 ```{r ANOVA}
-summary(modelo)
 p_anova <- summary(modelo)[[1]][["Pr(>F)"]][1]
 p_anova
 ```
@@ -238,7 +238,6 @@ mc <- glht(modelo, linfct = mcp(acao = "Tukey"))
 precisao <- adjusted("single-step",
                      algorithm = GenzBretz(maxpts = 1e6, abseps = 1e-7))
 mc_sum  <- summary(mc, test = precisao)
-mc_sum
 p_tukey <- mc_sum$test$pvalues   # V2-V1, V3-V1, V4-V1, V5-V1, ...
 mc_CI <- confint(mc, level = 0.95)
 
@@ -258,7 +257,6 @@ modelo2 <- aov(retorno ~ acao, data = retornos_long)
 
 mc2 <- glht(modelo2, linfct = mcp(acao = "Dunnett"))
 mc2_sum <- summary(mc2, test = precisao)
-mc2_sum
 mc2_CI <- confint(mc2, level = 0.95)
 
 par(mar = c(5, 8, 4, 2))
