@@ -168,7 +168,7 @@ qqPlot(modelo$residuals, ylab = "Resíduos", id = FALSE)
 
 O teste de Shapiro-Wilk sobre os resíduos do modelo tem p-valor de `r fmtp(shapiro.test(modelo$residuals)$p.value)`, portanto não rejeita a normalidade ao nível de 5%. O QQ-plot (Figura \@ref(fig:qqplot)) confirma o resultado: os pontos acompanham a reta e ficam dentro da banda de confiança. Avaliando cada ação separadamente (Tabela \@ref(tab:normalidade)), apenas V5 rejeita a normalidade (p `r fmtpe(sw["V5"])`); como a premissa se refere aos resíduos do modelo e o ANOVA é robusto a desvios moderados de normalidade com grupos balanceados, a premissa é considerada atendida.
 
-### Homoscedasticidade
+### Homoscedasticidade {#homoscedasticidade}
 
 ```{r homoscedasticidade, echo=FALSE, fig.cap="Resíduos do modelo contra valores ajustados."}
 fligner.test(retorno ~ acao, data = retornos_long)
@@ -252,7 +252,7 @@ Restam duas candidatas, V1 e V3. Um novo teste de hipóteses entre elas não ser
 subset_v1_v3 <- subset(retornos_long, acao %in% c("V1", "V3"))
 subset_v1_v3$acao <- droplevels(subset_v1_v3$acao)
 
-teste_t <- t.test(retorno ~ acao, data = subset_v1_v3)   # usado apenas para o IC da diferença
+teste_t <- t.test(retorno ~ acao, data = subset_v1_v3, var.equal = TRUE)   # t de Student (variâncias homogêneas); usado apenas para o IC da diferença
 
 library(ggplot2)
 df_ic <- data.frame(
@@ -301,11 +301,7 @@ A Tabela \@ref(tab:risco) resume o desempenho de cada ação em termos de retorn
 - **Pior_mes:** menor retorno mensal observado nos 35 meses, em porcentagem. Mostra a pior perda histórica em um único mês.
 - **Prop_meses_positivos:** proporção de meses em que o retorno foi positivo (valor entre 0 e 1). Indica com que frequência a ação deu lucro no mês.
 
-```{r vartest, include=FALSE}
-p_var <- var.test(retornos$V1, retornos$V3)$p.value
-```
-
-As variâncias de V1 e V3 não diferem significativamente (teste F, p `r fmtpe(p_var)`), então o desempate não se apoia em um único teste, e sim na **dominância** de V1 no conjunto de indicadores: maior média (`r fmt(risco["V1", "Media_pct"], 2)`% contra `r fmt(risco["V3", "Media_pct"], 2)`%), menor desvio-padrão (`r fmt(risco["V1", "DP_pct"], 2)`% contra `r fmt(risco["V3", "DP_pct"], 2)`%), maior razão retorno/risco (`r fmt(risco["V1", "Razao"], 2)` contra `r fmt(risco["V3", "Razao"], 2)`), pior mês menos severo (`r fmt(risco["V1", "Pior_mes"], 2)`% contra `r fmt(risco["V3", "Pior_mes"], 2)`%) e mais meses positivos (`r fmt(100 * risco["V1", "Prop_meses_positivos"], 0)`% contra `r fmt(100 * risco["V3", "Prop_meses_positivos"], 0)`%). V1 é melhor ou igual a V3 em todos os critérios: rende mais em média e não exige assumir mais risco para isso. Esse conjunto constitui a evidência para a escolha de uma única ação, conforme pede a segunda pergunta do experimento.
+Como a igualdade de variâncias entre as ações já foi verificada na Seção \@ref(homoscedasticidade) (Fligner-Killeen), a variabilidade por si só não separa V1 de V3; o desempate se apoia, portanto, na **dominância** de V1 no conjunto de indicadores: maior média (`r fmt(risco["V1", "Media_pct"], 2)`% contra `r fmt(risco["V3", "Media_pct"], 2)`%), menor desvio-padrão (`r fmt(risco["V1", "DP_pct"], 2)`% contra `r fmt(risco["V3", "DP_pct"], 2)`%), maior razão retorno/risco (`r fmt(risco["V1", "Razao"], 2)` contra `r fmt(risco["V3", "Razao"], 2)`), pior mês menos severo (`r fmt(risco["V1", "Pior_mes"], 2)`% contra `r fmt(risco["V3", "Pior_mes"], 2)`%) e mais meses positivos (`r fmt(100 * risco["V1", "Prop_meses_positivos"], 0)`% contra `r fmt(100 * risco["V3", "Prop_meses_positivos"], 0)`%). V1 é melhor ou igual a V3 em todos os critérios: rende mais em média e não exige assumir mais risco para isso. Esse conjunto constitui a evidência para a escolha de uma única ação, conforme pede a segunda pergunta do experimento.
 
 # Conclusões e Recomendações {#conclusoes}
 
@@ -353,7 +349,7 @@ Seria tentador decidir entre V1 e V3 com um teste t direto, **sem correção**, 
 pv <- data.frame(
   Procedimento = c("Tukey (família de 10 comparações)",
                    "Dunnett (família de 4 comparações)",
-                   "Teste t de Welch sem correção (não adotado)"),
+                   "Teste t de Student sem correção (não adotado)"),
   p = fmtp(c(summary(mc)$test$pvalues[2], pd[2], teste_t$p.value)),
   Decisao = c("não rejeita", "não rejeita", "rejeita")
 )
