@@ -119,7 +119,7 @@ par(par_motores_dunnett)
 
 # ===== 7) Lentes intraoculares: leitura e preparação [slides 35–38] =====
 if (!file.exists("lio.txt")) {
-  stop("Arquivo lio.txt não encontrado. Use Aula-10 como diretório de trabalho.",
+  stop("Arquivo lio.txt não encontrado. Use Aula-11 como diretório de trabalho.",
        call. = FALSE)
 }
 lentes <- read.table("lio.txt", header = TRUE)
