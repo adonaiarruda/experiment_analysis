@@ -83,7 +83,7 @@ run_de <- function(dim, cfg) {
 # dimensão não depende de quais outras foram rodadas antes (permite rodar as
 # instâncias em partes e em qualquer ordem).
 # ---------------------------------------------------------------------------
-algoritmo1 <- function(dim, se_star, n0 = 20, nmax = 200, transf = log,
+algoritmo1 <- function(dim, se_star, n0 = 2, nmax = 200, transf = log,
                        semente = 1000 + dim) {
   set.seed(semente)
   set_instance(dim)
@@ -294,7 +294,7 @@ dims_piloto <- sort(sample(setdiff(2:150, dims_exp), size = 8))
 pil <- obter_se_star(dims_piloto, n_rep = 15)
 cat(sprintf("se_star = %.4f\n", pil$se_star))
 
-# 3. Experimento (Algoritmo 2)
+# 3. Experimento (Algoritmo 2)  
 #    Rodar tudo (pula o que já estiver em 'resultados_ec03/'):
 exp <- algoritmo2(se_star = pil$se_star, dims = dims_exp, n0 = 20, nmax = 200)
 
