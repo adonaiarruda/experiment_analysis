@@ -1,0 +1,199 @@
+---
+title: 'Estudo de Caso 03: Comparação de desempenho de duas configurações de um algoritmo de otimização'
+author: Adonai Arruda, Alexandra Milaya Soto Aponte, João Paulo Gonçalves Simim, Yasmim Machado
+date: "05 de outubro de 2026"
+
+output:
+  # pdf_document:
+  #   latex_engine: xelatex
+  #   toc: false
+  #   number_sections: true
+
+  # bookdown::pdf_document2:
+  #   latex_engine: xelatex
+  #   fig_caption: true
+  #   toc: false
+  #   number_sections: true
+
+  bookdown::html_document2:
+    df_print: paged
+    toc: false
+    number_sections: true
+
+  # html_document:
+  #   toc: false
+  #   df_print: paged
+
+lang: "pt-BR"
+
+header-includes:
+  - \usepackage{float}
+  - \restylefloat{figure}
+  - \floatstyle{plain}
+  - \restylefloat{table}
+
+subtitle: "EEE933 - Planejamento e Análise de Experimentos — PPGEE/UFMG"
+---
+
+# Resumo
+
+# Introdução
+
+Algoritmos baseados em populações são frequentemente utilizados em problemas de otimização em engenharia. Neles, um conjunto de soluções candidatas é submetido iterativamente a operadores de variação e seleção, explorando o espaço de busca em direção ao mínimo (ou máximo) de uma função objetivo.
+
+Entre esses algoritmos, destaca-se o metodo de **evolução diferencial** (DE, do inglês *Differential Evolution*), proposta por Storn e Price (1997), cujo funcionamento pode ser resumido assim:
+
+**Entrada:** $N$ (tamanho da população), $n_{\text{iter}}$ (número de iterações), $\text{recpars}$ e $\text{mutpars}$ (parâmetros de recombinação e mutação).
+
+1.  **Inicialização:** $t \leftarrow 0$; gerar a população inicial $X_t = \{\vec{x}_1,\ldots,\vec{x}_N\}$ e avaliar $\vec{f}_t \leftarrow f(X_t)$.
+2.  **Enquanto** $t < n_{\text{iter}}$:
+    1.  **Mutação:** $V_t \leftarrow \operatorname{mutação}(X_t,\text{mutpars})$
+    2.  **Recombinação:** $U_t \leftarrow \operatorname{recombinação}(X_t,V_t,\text{recpars})$
+    3.  **Avaliação:** $\vec{j}_t \leftarrow f(U_t)$
+    4.  **Seleção:** $(X_{t+1},\vec{f}_{t+1}) \leftarrow \operatorname{seleção}(X_t,U_t,\vec{f}_t,\vec{j}_t)$
+    5.  $t \leftarrow t+1$
+3.  **Saída:** população final e valores da função objetivo, $(X_t,\vec{f}_t)$.
+
+Neste estudo, o critério de parada é um número máximo de avaliações da função objetivo ($5000 \cdot \text{dim}$), e o desempenho de cada execução é medido pelo melhor valor encontrado (`Fbest`). Valores menores indicam melhor desempenho.
+
+O objetivo é comparar duas configurações do DE na classe de problemas formada pelas funções de Rosenbrock com dimensão entre 2 e 150. Cada configuração combina um operador de recombinação e um de mutação. Neste caso de estudo particular, ambas configurações usam a mutação `mutation_rand`, mas com fatores de escala $F$ diferentes:
+
+- **Configuração 1:** recombinação por linha (*line recombination*) do *Breeder Genetic Algorithm* (BGA), `recombination_lbga`; mutação *rand* com $F = 4{,}5$.
+- **Configuração 2:** *Blend Crossover* Alpha-Beta (BLX-$\alpha\beta$), `recombination_blxAlphaBeta`, com $\alpha = 0{,}1$ e $\beta = 0{,}4$; mutação *rand* com $F = 3$.
+
+# Planejamento do Experimento
+
+## Objetivo e hipóteses
+
+O objeto deste experimento visa responder a três perguntas:
+
+1.  Existe diferença no desempenho médio das duas configurações na classe de problemas considerada?
+2.  Se existir, qual configuração é melhor e qual a magnitude da diferença?
+3.  Os resultados justificam recomendar uma configuração em relação à outra?
+
+Seja $Y_{ij}$ o desempenho médio da configuração $i$ na instância $j$, correspondente a uma função de Rosenbrock de dimensão específica. Para comparar as duas configurações em uma mesma instância, define-se a diferença pareada de desempenho como:
+
+$$\psi_j = Y_{2j} - Y_{1j}$$
+
+Como o desempenho é avaliado pelo valor de `Fbest`, que deve ser minimizado, valores de $\psi_j > 0$ indicam que a configuração 1 apresentou melhor desempenho, enquanto valores de $\psi_j < 0$ favorecem a configuração 2.
+
+Assim, define-se $\mu_D = E[\psi_j]$ como a diferença média esperada de desempenho entre as duas configurações, considerando o conjunto de instâncias avaliadas. Desta forma, as hipoteses a serem testadas afim de responder as pergutas do experiemento são:
+
+$$\begin{cases}
+H_0: \mu_D = 0 \\
+H_1: \mu_D \neq 0
+\end{cases}$$
+
+Onde, $H_0$ estabelece que não há diferença média de desempenho entre as duas configurações, enquanto $H_1$ admite diferença em qualquer direção. Já, o sinal da estimativa de $\mu_D$ e seu intervalo de confiança indicarão qual configuração é melhor,caso $H_0$ seja rejeitada.
+
+## Tamanho amostral
+
+### Instâncias avaliadas - N
+O enunciado do estudo de caso (referencia) estabeleceu os seguintes parâmetros experimentais:
+
+- Mínima diferença de importância prática (padronizada): $d^* = \delta^*/\sigma = 0{,}5$
+- Nível de significância: $\alpha = 0{,}05$
+- Potência mínima (para $d = d^*$): $\pi = 1 - \beta = 0{,}8$
+
+Desta forma, foi realizada uma análise de potência estatística, com o objetivo de determinar o tamanho amostral mínimo necessário para detectar uma diferença de importância prática entre as duas configurações do algoritmo, respeitando os níveis de significância e potência previamente estabelecidos.
+
+```{r tamanho_amostral, echo=FALSE}
+power.t.test(delta = 0.5, sd = 1, sig.level = 0.05, power = 0.8,
+             type = "paired", alternative = "two.sided")
+```
+
+A análise de potência estatística resultou em um tamanho amostral estimado de $n = 33{,}4$, que, após arredondamento para cima, corresponde a $n = 34$. Isso significa que o algoritmo deve ser avaliado em, no mínimo, 34 instâncias de problemas para cada configuração, garantindo o pareamento do problema.
+
+
+O algoritmo é testado em problemas formados pelas funções de Rosenbrock com dimensão entre 2 e 150. Para que as instâncias constituam uma amostra representativa dessa classe, as $N^* = 34$ dimensões foram sorteadas aleatoriamente, sem reposição, entre os inteiros de 2 a 150, usando semente fixa para garantir a reprodutibilidade. Assim, as instancias sobre as quais ambas configurações do algortime foi testado são apresentadas a seguir:
+
+```{r instancias, echo=FALSE, results='asis'}
+
+set.seed(2026)
+
+dims <- sort(sample(2:150, size = 34, replace = FALSE))
+
+cat(
+  "**Dimensões selecionadas:** ",
+  paste(dims, collapse = ", "),
+  "."
+)
+```
+
+Será que neste caso é interessante fazer uma blpcagem, agrupando um certo numero de instancias? 
+
+### Numero de repeticiones ($n_ij$)
+## Coleta dos dados
+
+Para a execução dos experimentos, instale os pacotes ExpDE (Campelo and Botelho, 2016) e smoof (Bossek, 2017):
+
+A classe de funções de interesse para este teste é composta por funções Rosenbrock (Rosenbrock, 1960) (Pohlheim, 2005) de dimensão entre 2 e 150. Para gerar uma função de Rosenbrock de uma dada dimensão dim, faça:
+
+# Análise Exploratória dos Dados
+
+A Figura mostra a distribuição dos retornos de cada ação.
+
+# Análise Estatística
+
+As próximas seções explicam os testes realizados e os resultados obtidos. Os testes seguem Montgomery (2017) e o material da disciplina.
+
+## Modelo ANOVA e validação das premissas
+
+### Normalidade
+
+```{r normalidade}
+
+```
+
+### Homoscedasticidade {#homoscedasticidade}
+
+```{r homoscedasticidade"}
+
+```
+
+### Independência
+
+## Teste ANOVA
+
+## Teste de Tukey {#teste-de-tukey}
+
+## Tamanho do efeito entre V1 e V3 {#teste-t-de-student}
+
+## Critério de desempate: análise de risco e variabilidade {#risco-e-retorno}
+
+# Conclusões e Recomendações {#conclusoes}
+
+# Discussão da significância e dos riscos do teste {#discussao-riscos}
+
+## Nível de significância e controle do erro tipo I
+
+## Erro tipo II e potência dos testes
+
+# Possíveis melhorias do experimento
+
+- Ampliar a janela histórica (mais de 36 meses) e/ou usar retornos semanais, aumentando o número de observações e a potência.
+- Considerar dividendos, custos de transação e impostos.
+- Ajustar o retorno ao risco (índice de Sharpe, com taxa livre de risco) em vez de comparar só médias.
+- Usar bootstrap ou testes de permutação para intervalos e comparações sem hipótese distribucional.
+- Avaliar o desempenho fora da amostra (janela deslizante), já que rentabilidade passada não garante a do mês seguinte.
+- Incluir mais ações e considerar diversificação (carteira) em vez de uma única ação.
+- Definir antes do experimento a margem de equivalência economicamente relevante, para usar testes de equivalência/não inferioridade em vez de depender de $p$-valores marginais.
+
+# Papéis desempenhados pela equipe
+
+| Integrante                   | Papel                  |
+|------------------------------|------------------------|
+| Adonai Arruda                | Relator:               |
+| Alexandra Milaya Soto Aponte | Programadora/Analista: |
+| João Paulo Gonçalves Simim   | Analista:              |
+| Yasmim Machado               | Verificador:           |
+
+# Declaração sobre o uso de IA generativa
+
+# Referências
+
+- MONTGOMERY, D. C. *Design and Analysis of Experiments*. 9. ed. John Wiley & Sons, 2017.
+- TUKEY, J. W. Comparing individual means in the analysis of variance. *Biometrics*, v. 5, n. 2, p. 99–114, 1949.
+- DUNNETT, C. W. A multiple comparison procedure for comparing several treatments with a control. *Journal of the American Statistical Association*, v. 50, n. 272, p. 1096–1121, 1955.
+- R CORE TEAM. *R: A language and environment for statistical computing*. R Foundation for Statistical Computing, Vienna, Austria, 2025. Pacotes `multcomp` (comparações múltiplas) e `car` (diagnósticos).
+- BESSANI, M. Material da disciplina EEE933 - Planejamento e Análise de Experimentos (notas de aula sobre ANOVA e comparações múltiplas). PPGEE/UFMG, 2026.
