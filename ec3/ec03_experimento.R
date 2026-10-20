@@ -289,7 +289,7 @@ dims_exp <- sortear_dims(N_inst)
 #    - Se 'piloto_ec03.csv' existir, o piloto NÃO é rodado de novo.
 #    - Para pular o piloto informando o valor: se_star_manual = 0.25 (exemplo)
 #    - Para refazer o piloto: forcar = TRUE
-set.seed(2027)
+set.seed(2026)
 dims_piloto <- sort(sample(setdiff(2:150, dims_exp), size = 8))
 pil <- obter_se_star(dims_piloto, n_rep = 15)
 cat(sprintf("se_star = %.4f\n", pil$se_star))
