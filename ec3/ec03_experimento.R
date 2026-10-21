@@ -83,7 +83,7 @@ run_de <- function(dim, cfg) {
 # dimensão não depende de quais outras foram rodadas antes (permite rodar as
 # instâncias em partes e em qualquer ordem).
 # ---------------------------------------------------------------------------
-algoritmo1 <- function(dim, se_star, n0 = 2, nmax = 200, transf = log,
+algoritmo1 <- function(dim, se_star, n0 = 20, nmax = 200, transf = log,
                        semente = 1000 + dim) {
   set.seed(semente)
   set_instance(dim)
@@ -209,7 +209,7 @@ obter_se_star <- function(dims_piloto, n_rep = 15, transf = log,
 algoritmo2 <- function(se_star, dims, dims_rodar = dims,
                        pasta = "resultados_ec03",
                        d_star = 0.5, alpha = 0.05, potencia = 0.8,
-                       n0 = 2, nmax = 200, transf = log) {
+                       n0 = 20, nmax = 200, transf = log) {
 
   N_star <- calc_N_star(d_star, alpha, potencia)
   if (length(dims) < N_star) {
@@ -296,7 +296,7 @@ cat(sprintf("se_star = %.4f\n", pil$se_star))
 
 # 3. Experimento (Algoritmo 2)  
 #    Rodar tudo (pula o que já estiver em 'resultados_ec03/'):
-exp <- algoritmo2(se_star = pil$se_star, dims = dims_exp, n0 = 2, nmax = 200)
+exp <- algoritmo2(se_star = pil$se_star, dims = dims_exp, n0 = 20, nmax = 200)
 
 #    Ou rodar só algumas dimensões agora e o resto depois, por exemplo:
 # exp <- algoritmo2(pil$se_star, dims_exp, dims_rodar = dims_exp[1:10])
