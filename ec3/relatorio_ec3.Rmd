@@ -1,39 +1,38 @@
 ---
-title: 'Estudo de Caso 03: Comparação de desempenho de duas configurações de um algoritmo de otimização'
-author: Adonai Arruda, Alexandra Milaya Soto Aponte, João Paulo Gonçalves Simim, Yasmim Machado
+title: "Estudo de Caso 03: Comparação de desempenho de duas configurações de um algoritmo de otimização"
+author: "Adonai Arruda, Alexandra Milaya Soto Aponte, João Paulo Gonçalves Simim, Yasmim Machado"
 date: "05 de outubro de 2026"
+subtitle: "EEE933 - Planejamento e Análise de Experimentos — PPGEE/UFMG"
+lang: "pt-BR"
 
 output:
-  # pdf_document:
-  #   latex_engine: xelatex
-  #   toc: false
-  #   number_sections: true
+  pdf_document:
+    latex_engine: xelatex
+    toc: false
+    number_sections: true
 
-  # bookdown::pdf_document2:
-  #   latex_engine: xelatex
-  #   fig_caption: true
-  #   toc: false
-  #   number_sections: true
+  bookdown::pdf_document2:
+    latex_engine: xelatex
+    fig_caption: true
+    toc: false
+    number_sections: true
 
   bookdown::html_document2:
     df_print: paged
     toc: false
     number_sections: true
 
-  # html_document:
-  #   toc: false
-  #   df_print: paged
-
-lang: "pt-BR"
+  html_document:
+    toc: false
+    df_print: paged
 
 header-includes:
   - \usepackage{float}
   - \restylefloat{figure}
   - \floatstyle{plain}
   - \restylefloat{table}
-
-subtitle: "EEE933 - Planejamento e Análise de Experimentos — PPGEE/UFMG"
 ---
+
 
 # Resumo
 
@@ -73,7 +72,7 @@ O objeto deste experimento visa responder a três perguntas:
 
 Seja $Y_{ij}$ o desempenho médio da configuração $i$ na instância $j$, correspondente a uma função de Rosenbrock de dimensão específica. Para comparar as duas configurações em uma mesma instância, define-se a diferença pareada de desempenho como:
 
-$$\psi_j = Y_{2j} - Y_{1j}$$
+$$\psi_j = \bar{Y}_{2j} - \bar{Y}_{1j}$$
 
 Como o desempenho é avaliado pelo valor de `Fbest`, que deve ser minimizado, valores de $\psi_j > 0$ indicam que a configuração 1 apresentou melhor desempenho, enquanto valores de $\psi_j < 0$ favorecem a configuração 2.
 
@@ -86,72 +85,218 @@ H_1: \mu_D \neq 0
 
 Onde, $H_0$ estabelece que não há diferença média de desempenho entre as duas configurações, enquanto $H_1$ admite diferença em qualquer direção. Já, o sinal da estimativa de $\mu_D$ e seu intervalo de confiança indicarão qual configuração é melhor,caso $H_0$ seja rejeitada.
 
-## Tamanho amostral
+## Coleta dos dados e Tamanho amostral
 
-### Instâncias avaliadas - N
-O enunciado do estudo de caso (referencia) estabeleceu os seguintes parâmetros experimentais:
+O planejamento do experimento exige a definição de dois tamanhos amostrais, seguindo a metodologia de Campelo e Takahashi (2019):
+
+1. o número de instâncias, $N$, suficiente para detectar a diferença de interesse e representativo da classe de problemas, isto é, funções de Rosenbrock com dimensão entre 2 e 150;
+2. o número de repetições de cada configuração em cada instância, $n_{ij}$, que permita estimar com precisão adequada o desempenho médio da configuração $i$ na instância $j$.
+
+### Número de instâncias ($N$)
+
+O enunciado do estudo de caso (referência) estabelece os seguintes parâmetros experimentais:
 
 - Mínima diferença de importância prática (padronizada): $d^* = \delta^*/\sigma = 0{,}5$
 - Nível de significância: $\alpha = 0{,}05$
 - Potência mínima (para $d = d^*$): $\pi = 1 - \beta = 0{,}8$
 
-Desta forma, foi realizada uma análise de potência estatística, com o objetivo de determinar o tamanho amostral mínimo necessário para detectar uma diferença de importância prática entre as duas configurações do algoritmo, respeitando os níveis de significância e potência previamente estabelecidos.
+Com base nesses valores, realizou-se uma análise de potência para o teste t pareado bilateral, a fim de determinar o menor número de instâncias capaz de detectar uma diferença de importância prática com o nível de significância e a potência especificados. Como $d^*$ já é uma quantidade padronizada, utilizaram-se `delta = 0.5` e `sd = 1`.
 
 ```{r tamanho_amostral, echo=FALSE}
 power.t.test(delta = 0.5, sd = 1, sig.level = 0.05, power = 0.8,
              type = "paired", alternative = "two.sided")
 ```
 
-A análise de potência estatística resultou em um tamanho amostral estimado de $n = 33{,}4$, que, após arredondamento para cima, corresponde a $n = 34$. Isso significa que o algoritmo deve ser avaliado em, no mínimo, 34 instâncias de problemas para cada configuração, garantindo o pareamento do problema.
+O resultado foi $n = 33{,}4$, que, arredondado para cima, corresponde a $N^* = 34$ instâncias. As duas configurações são avaliadas nas mesmas instâncias, o que garante o pareamento dos dados.
 
-
-O algoritmo é testado em problemas formados pelas funções de Rosenbrock com dimensão entre 2 e 150. Para que as instâncias constituam uma amostra representativa dessa classe, as $N^* = 34$ dimensões foram sorteadas aleatoriamente, sem reposição, entre os inteiros de 2 a 150, usando semente fixa para garantir a reprodutibilidade. Assim, as instancias sobre as quais ambas configurações do algortime foi testado são apresentadas a seguir:
+Para que as instâncias constituam uma amostra representativa da classe de problemas, as $N^* = 34$ dimensões foram sorteadas aleatoriamente, sem reposição, entre os inteiros de 2 a 150, com semente fixa para garantir a reprodutibilidade. As instâncias avaliadas são apresentadas a seguir:
 
 ```{r instancias, echo=FALSE, results='asis'}
-
 set.seed(2026)
-
 dims <- sort(sample(2:150, size = 34, replace = FALSE))
 
-cat(
-  "**Dimensões selecionadas:** ",
-  paste(dims, collapse = ", "),
-  "."
+cat("**Dimensões selecionadas:** ", paste(dims, collapse = ", "), ".")
+```
+
+### Número de repetições ($n_{ij}$)
+
+Para determinar o número de repetições de cada configuração em cada instância, implementou-se o Algoritmo 1 de Campelo e Takahashi (2019). Em cada instância, o algoritmo executa inicialmente $n_0$ repetições de cada configuração e, em seguida, acrescenta uma repetição por vez até que o erro padrão da diferença de desempenho $\psi_j$ atinja a precisão desejada, ou até que um orçamento máximo de execuções, $n_{max}$, seja alcançado. As repetições adicionais são alocadas preferencialmente à configuração de maior variância, de modo que $n_{1j}$ e $n_{2j}$ podem ser diferentes.
+
+Quanto a $n_0$, os autores recomendam basear a escolha na forma da distribuição do desempenho do algoritmo: valores baixos (3 ou 4) para distribuições aproximadamente gaussianas, em torno de 10 para outras distribuições simétricas e 20 ou 30 para distribuições fortemente assimétricas. Adotou-se $n_0 = 20$, valor que atende bem à maioria dos casos. Nas instâncias em que a variabilidade é maior, o algoritmo acrescenta repetições até alcançar a precisão desejada. O orçamento máximo foi fixado em $n_{max} = 200$  execuções por instância, somando as duas configurações.
+
+# Análise exploratória e tratamento dos dados
+
+As inferências deste experimento são realizadas sobre $\psi_j$, a diferença de desempenho médio entre as configurações na instância $j$. Por isso, os dados brutos obtidos das execuções do algoritmo passaram por duas etapas de processamento:
+
+1. para cada dimensão (instância), calculou-se o desempenho médio de cada configuração, $\bar{F}_{1j}$ e $\bar{F}_{2j}$, a partir das $n_{1j}$ e $n_{2j}$ repetições do melhor valor encontrado (`Fbest`);
+2. a partir dessas médias, calculou-se a diferença $\psi_j^{\text{bruto}} = \bar{F}_{2j} - \bar{F}_{1j}$, observação amostral da diferença de desempenho na instância $j$, na escala original.
+
+```{r calcular_medias, echo=FALSE}
+
+# Leitura dos dados brutos
+res <- read.csv("dados_ec03.csv",
+                sep = ";", dec = ".", header = TRUE)
+
+# Média e número de repetições por dimensão e configuração
+estatisticas <- aggregate(
+  Fbest ~ dim + config,
+  data = res,
+  FUN = function(x) c(media = mean(x), n = length(x))
+)
+
+medias <- data.frame(
+  dim    = estatisticas$dim,
+  config = estatisticas$config,
+  media  = estatisticas$Fbest[, "media"],
+  n      = estatisticas$Fbest[, "n"]
+)
+
+media1 <- subset(medias, config == 1, select = c(dim, media, n))
+media2 <- subset(medias, config == 2, select = c(dim, media, n))
+names(media1) <- c("dim", "media1", "n1")
+names(media2) <- c("dim", "media2", "n2")
+
+diferencas <- merge(media1, media2, by = "dim")
+
+# Diferença: Configuração 2 - Configuração 1 (escala original)
+diferencas$psi_bruto <- diferencas$media2 - diferencas$media1
+diferencas <- diferencas[order(diferencas$dim), ]
+```
+
+A Figura \@ref(fig:grafico_diferencas) apresenta as diferenças entre as médias de desempenho das configurações em cada instância avaliada. Observa-se que as diferenças são maiores nas instâncias de maior dimensão. Isso não deve ser interpretado, por si só, como uma diferença maior entre as configurações, pois a ordem de grandeza dos valores da função de Rosenbrock cresce com a dimensão $d$ (Pohlheim, 2005). Assim, diferenças absolutas tendem a crescer com $d$ mesmo que a diferença relativa entre as configurações seja a mesma. Esse comportamento pode ser constatado na Tabela \@ref(tab:tabela_dados), apresentada no Apêndice. A diferença de escala entre as instâncias motivou a verificação da normalidade das diferenças e a avaliação de uma transformação dos dados, descritas nas próximas seções.
+
+```{r grafico_diferencas, echo=FALSE, out.width = "70%",fig.align='center', fig.cap="Diferença de desempenho médio entre as configurações em cada instância, em função da dimensão (escala original)."}
+plot(
+  x = diferencas$dim,
+  y = diferencas$psi_bruto,
+  xlab = "Dimensão da instância",
+  ylab = expression(psi[j]^{bruto} == bar(F)[2*j] - bar(F)[1*j]),
+  pch = 19
+)
+abline(h = 0, lty = 2)
+```
+
+Para compreender melhor o comportamento dos dados, selecionou-se uma subamostra de 9 das 34 instâncias, distribuídas ao longo do intervalo de dimensões para representar instâncias de baixa, média e alta dimensão.
+
+```{r exploracao, echo=FALSE, results='asis'}
+set.seed(1)
+
+dims_expl <- sort(sample(dims, size = 9, replace = FALSE))
+
+
+cat("**Dimensões selecionadas para a análise exploratória:** ",
+    paste(dims_expl, collapse = ", "), ".")
+
+``` 
+
+A Figura \@ref(fig:boxplots) mostra os dados brutos de desempenho de ambas as configurações. Em linhas gerais, os dados indicam que:
+
+- em todas as instâncias do subconjunto, a configuração 1 apresenta melhor desempenho, isto é, valores de `Fbest` menores;
+- nas instâncias de menor dimensão o algoritmo alcança valores menores do que nas de maior dimensão, o que indica que é conveniente tratar os dados para colocar as instâncias em uma escala comparável.
+
+```{r boxplots, echo=FALSE, out.width="100%", fig.align='center', fig.cap="Distribuição do desempenho (Fbest) de cada configuração nas instâncias do subconjunto exploratório."}
+
+library(ggplot2)
+
+res_expl <- subset(res, dim %in% dims_expl)
+
+res_expl$config <- factor(
+  res_expl$config,
+  levels = c(1, 2),
+  labels = c("Configuração 1", "Configuração 2")
+)
+
+ggplot(res_expl, aes(x = config, y = Fbest)) +
+  geom_boxplot() +
+  facet_wrap(~ dim, scales = "free_y") +
+  labs(
+    x = "Configuração",
+    y = expression(F[best])
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 15, hjust = 1)
+  )
+```
+
+### Normalidade das diferenças na escala original
+
+```{r normalidade, echo=FALSE}
+sw_bruto <- shapiro.test(diferencas$psi_bruto)
+```
+
+O teste de Shapiro-Wilk rejeita a normalidade das diferenças $\psi_j^{\text{bruto}}$ ($p = `r format(sw_bruto$p.value, digits = 3)`$). O gráfico quantil-quantil (Figura \@ref(fig:qq_diferencas)) mostra uma curva em forma de S, com um patamar em torno de 2,5 milhões, coerente com o efeito da escala descrito anteriormente.
+
+```{r qq_diferencas, echo=FALSE, out.width="80%", fig.align='center', fig.cap="Gráfico quantil-quantil das diferenças de desempenho na escala original."}
+invisible(
+car::qqPlot(diferencas$psi_bruto / 1e6,
+            id = TRUE,
+            ylab = expression(psi^{bruto}~"(milhões)"),
+            cex = 1.5,
+            pch = 16,
+            las = 1)
 )
 ```
 
-Será que neste caso é interessante fazer uma blpcagem, agrupando um certo numero de instancias? 
+### Transformação logarítmica
 
-### Numero de repeticiones ($n_ij$)
-## Coleta dos dados
+Como a ordem de grandeza de `Fbest` varia fortemente com a dimensão, as diferenças foram calculadas sobre o logaritmo natural do desempenho.  Define-se
 
-Para a execução dos experimentos, instale os pacotes ExpDE (Campelo and Botelho, 2016) e smoof (Bossek, 2017):
+$$\bar{Y}_{ij} = \frac{1}{n_{ij}} \sum_{k=1}^{n_{ij}} \log(F_{best,ijk}), \qquad \psi_j = \bar{Y}_{2j} - \bar{Y}_{1j},$$
 
-A classe de funções de interesse para este teste é composta por funções Rosenbrock (Rosenbrock, 1960) (Pohlheim, 2005) de dimensão entre 2 e 150. Para gerar uma função de Rosenbrock de uma dada dimensão dim, faça:
+em que $F_{best,ijk}$ é o valor obtido na repetição $k$ da configuração $i$ na instância $j$.
 
-# Análise Exploratória dos Dados
+```{r log, echo=FALSE}
+res$log_Fbest <- log(res$Fbest)
 
-A Figura mostra a distribuição dos retornos de cada ação.
+medias_log <- aggregate(log_Fbest ~ dim + config, data = res, FUN = mean)
+
+m1 <- subset(medias_log, config == 1, select = c(dim, log_Fbest))
+m2 <- subset(medias_log, config == 2, select = c(dim, log_Fbest))
+names(m1)[2] <- "Y1"
+names(m2)[2] <- "Y2"
+
+diferencas_log <- merge(m1, m2, by = "dim")
+diferencas_log$psi <- diferencas_log$Y2 - diferencas_log$Y1
+diferencas_log <- diferencas_log[order(diferencas_log$dim), ]
+
+sw_log   <- shapiro.test(diferencas_log$psi)
+extremos <- order(diferencas_log$psi, decreasing = TRUE)[1:3]
+```
+
+Após a transformação, o teste de Shapiro-Wilk ainda rejeita a normalidade ($p = 2.66e−08$). No entanto, como mostra a Figura \@ref(fig:qq_log), a maior parte dos pontos acompanha a reta do gráfico quantil-quantil, e o desvio é provocado principalmente por três instâncias, de dimensões 1,2 e 3, instancias onde a diferença era proxima a zero.
+
+```{r qq_log, echo=FALSE, out.width="80%", fig.align='center', fig.cap="Gráfico quantil-quantil das diferenças de desempenho na escala logarítmica."}
+invisible(
+  car::qqPlot(diferencas_log$psi,
+              id = TRUE,
+              ylab = "psi (escala logarítmica)",
+              cex = 1.5,
+              pch = 16,
+              las = 1)
+)
+```
+
+```{r grafico_diferencas_log, echo=FALSE, out.width="80%", fig.align='center', fig.cap="Diferença de desempenho na escala logarítmica, em função da dimensão."}
+plot(
+  x = diferencas_log$dim,
+  y = diferencas_log$psi,
+  xlab = "Dimensão da instância",
+  ylab = expression(psi[j]),
+  pch = 19
+)
+abline(h = 0, lty = 2)
+```
+
 
 # Análise Estatística
 
 As próximas seções explicam os testes realizados e os resultados obtidos. Os testes seguem Montgomery (2017) e o material da disciplina.
 
-## Modelo ANOVA e validação das premissas
-
-### Normalidade
-
-```{r normalidade}
-
-```
-
-### Homoscedasticidade {#homoscedasticidade}
-
-```{r homoscedasticidade"}
-
-```
-
-### Independência
+## Normalidade
+## Independencia
+## Homocedasticidade
 
 ## Teste ANOVA
 
@@ -171,29 +316,35 @@ As próximas seções explicam os testes realizados e os resultados obtidos. Os 
 
 # Possíveis melhorias do experimento
 
-- Ampliar a janela histórica (mais de 36 meses) e/ou usar retornos semanais, aumentando o número de observações e a potência.
-- Considerar dividendos, custos de transação e impostos.
-- Ajustar o retorno ao risco (índice de Sharpe, com taxa livre de risco) em vez de comparar só médias.
-- Usar bootstrap ou testes de permutação para intervalos e comparações sem hipótese distribucional.
-- Avaliar o desempenho fora da amostra (janela deslizante), já que rentabilidade passada não garante a do mês seguinte.
-- Incluir mais ações e considerar diversificação (carteira) em vez de uma única ação.
-- Definir antes do experimento a margem de equivalência economicamente relevante, para usar testes de equivalência/não inferioridade em vez de depender de $p$-valores marginais.
+- A exploração dos dados com um piloto antes da execução das 34 instancias poderia ter otimizado os recursos computacionais ao fixar um n_0 mais conveniente para o conjunto de instancias.
 
 # Papéis desempenhados pela equipe
 
 | Integrante                   | Papel                  |
 |------------------------------|------------------------|
 | Adonai Arruda                | Relator:               |
-| Alexandra Milaya Soto Aponte | Programadora/Analista: |
+| Alexandra Milaya Soto Aponte | Relatora/ Analista: Responsável pela programação e redação da Introdução e das seções de Planejamento do Experimento e Análise Exploratória dos Dados.|
 | João Paulo Gonçalves Simim   | Analista:              |
 | Yasmim Machado               | Verificador:           |
 
 # Declaração sobre o uso de IA generativa
+Durante a preparação deste trabalho, os autores utilizaram o Claude (Anthropic) para:
+
+- Implementar em R o Psudo-codigo do Algoritmo 1 desenvolvido por Campelo e Takahashi (2019) para determinar o numero de repetições $n_{ij}$ até que o erro padrão da diferença de desempenho $\psi_j$  atinja a precisão desejada.
+- Formatação de gráficos e tabelas
 
 # Referências
 
-- MONTGOMERY, D. C. *Design and Analysis of Experiments*. 9. ed. John Wiley & Sons, 2017.
-- TUKEY, J. W. Comparing individual means in the analysis of variance. *Biometrics*, v. 5, n. 2, p. 99–114, 1949.
-- DUNNETT, C. W. A multiple comparison procedure for comparing several treatments with a control. *Journal of the American Statistical Association*, v. 50, n. 272, p. 1096–1121, 1955.
-- R CORE TEAM. *R: A language and environment for statistical computing*. R Foundation for Statistical Computing, Vienna, Austria, 2025. Pacotes `multcomp` (comparações múltiplas) e `car` (diagnósticos).
 - BESSANI, M. Material da disciplina EEE933 - Planejamento e Análise de Experimentos (notas de aula sobre ANOVA e comparações múltiplas). PPGEE/UFMG, 2026.
+
+# Apêndice: desempenho médio por instância
+
+```{r tabela_dados, echo=FALSE}
+knitr::kable(
+  diferencas,
+  digits = 2,
+  col.names = c("Dimensão", "Média Config. 1", "n1",
+                "Média Config. 2", "n2", "Diferença (psi bruto)"),
+  caption = "Desempenho médio (escala original) e número de repetições por instância."
+)
+```
