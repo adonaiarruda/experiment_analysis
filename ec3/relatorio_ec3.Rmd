@@ -6,10 +6,10 @@ subtitle: "EEE933 - Planejamento e Análise de Experimentos — PPGEE/UFMG"
 lang: "pt-BR"
 
 output:
-  pdf_document:
-    latex_engine: xelatex
-    toc: false
-    number_sections: true
+  # pdf_document:
+  #   latex_engine: xelatex
+  #   toc: false
+  #   number_sections: true
 
   bookdown::pdf_document2:
     latex_engine: xelatex
@@ -17,14 +17,14 @@ output:
     toc: false
     number_sections: true
 
-  bookdown::html_document2:
-    df_print: paged
-    toc: false
-    number_sections: true
-
-  html_document:
-    toc: false
-    df_print: paged
+  # bookdown::html_document2:
+  #   df_print: paged
+  #   toc: false
+  #   number_sections: true
+  # 
+  # html_document:
+  #   toc: false
+  #   df_print: paged
 
 header-includes:
   - \usepackage{float}
@@ -40,7 +40,7 @@ header-includes:
 
 Algoritmos baseados em populações são frequentemente utilizados em problemas de otimização em engenharia. Neles, um conjunto de soluções candidatas é submetido iterativamente a operadores de variação e seleção, explorando o espaço de busca em direção ao mínimo (ou máximo) de uma função objetivo.
 
-Entre esses algoritmos, destaca-se o metodo de **evolução diferencial** (DE, do inglês *Differential Evolution*), proposta por Storn e Price (1997), cujo funcionamento pode ser resumido assim:
+Entre esses algoritmos, destaca-se o método de **evolução diferencial** (DE, do inglês *Differential Evolution*), proposta por Storn e Price (1997), cujo funcionamento pode ser resumido assim:
 
 **Entrada:** $N$ (tamanho da população), $n_{\text{iter}}$ (número de iterações), $\text{recpars}$ e $\text{mutpars}$ (parâmetros de recombinação e mutação).
 
@@ -64,7 +64,7 @@ O objetivo é comparar duas configurações do DE na classe de problemas formada
 
 ## Objetivo e hipóteses
 
-O objeto deste experimento visa responder a três perguntas:
+O objetivo deste experimento é responder a três perguntas:
 
 1.  Existe diferença no desempenho médio das duas configurações na classe de problemas considerada?
 2.  Se existir, qual configuração é melhor e qual a magnitude da diferença?
@@ -76,14 +76,14 @@ $$\psi_j = \bar{Y}_{2j} - \bar{Y}_{1j}$$
 
 Como o desempenho é avaliado pelo valor de `Fbest`, que deve ser minimizado, valores de $\psi_j > 0$ indicam que a configuração 1 apresentou melhor desempenho, enquanto valores de $\psi_j < 0$ favorecem a configuração 2.
 
-Assim, define-se $\mu_D = E[\psi_j]$ como a diferença média esperada de desempenho entre as duas configurações, considerando o conjunto de instâncias avaliadas. Desta forma, as hipoteses a serem testadas afim de responder as pergutas do experiemento são:
+Assim, define-se $\mu_D = E[\psi_j]$ como a diferença média esperada de desempenho entre as duas configurações, considerando o conjunto de instâncias avaliadas. Desta forma, as hipóteses a serem testadas a fim de responder às perguntas do experimento são:
 
 $$\begin{cases}
 H_0: \mu_D = 0 \\
 H_1: \mu_D \neq 0
 \end{cases}$$
 
-Onde, $H_0$ estabelece que não há diferença média de desempenho entre as duas configurações, enquanto $H_1$ admite diferença em qualquer direção. Já, o sinal da estimativa de $\mu_D$ e seu intervalo de confiança indicarão qual configuração é melhor,caso $H_0$ seja rejeitada.
+Onde, $H_0$ estabelece que não há diferença média de desempenho entre as duas configurações, enquanto $H_1$ admite diferença em qualquer direção. Já, o sinal da estimativa de $\mu_D$ e seu intervalo de confiança indicarão qual configuração é melhor, caso $H_0$ seja rejeitada.
 
 ## Coleta dos dados e Tamanho amostral
 
@@ -163,9 +163,9 @@ diferencas$psi_bruto <- diferencas$media2 - diferencas$media1
 diferencas <- diferencas[order(diferencas$dim), ]
 ```
 
-A Figura \@ref(fig:grafico_diferencas) apresenta as diferenças entre as médias de desempenho das configurações em cada instância avaliada. Observa-se que as diferenças são maiores nas instâncias de maior dimensão. Isso não deve ser interpretado, por si só, como uma diferença maior entre as configurações, pois a ordem de grandeza dos valores da função de Rosenbrock cresce com a dimensão $d$ (Pohlheim, 2005). Assim, diferenças absolutas tendem a crescer com $d$ mesmo que a diferença relativa entre as configurações seja a mesma. Esse comportamento pode ser constatado na Tabela \@ref(tab:tabela_dados), apresentada no Apêndice. A diferença de escala entre as instâncias motivou a verificação da normalidade das diferenças e a avaliação de uma transformação dos dados, descritas nas próximas seções.
+A Figura \@ref(fig:grafico-diferencas) apresenta as diferenças entre as médias de desempenho das configurações em cada instância avaliada. Observa-se que as diferenças são maiores nas instâncias de maior dimensão. Isso não deve ser interpretado, por si só, como uma diferença maior entre as configurações, pois a ordem de grandeza dos valores da função de Rosenbrock cresce com a dimensão $d$ (Pohlheim, 2005). Assim, diferenças absolutas tendem a crescer com $d$ mesmo que a diferença relativa entre as configurações seja a mesma. Esse comportamento pode ser constatado na Tabela \@ref(tab:tabela-dados), apresentada no Apêndice. A diferença de escala entre as instâncias motivou a verificação da normalidade das diferenças e a avaliação de uma transformação dos dados, descritas nas próximas seções.
 
-```{r grafico_diferencas, echo=FALSE, out.width = "70%",fig.align='center', fig.cap="Diferença de desempenho médio entre as configurações em cada instância, em função da dimensão (escala original)."}
+```{r grafico-diferencas, echo=FALSE, out.width = "70%",fig.align='center', fig.cap="Diferença de desempenho médio entre as configurações em cada instância, em função da dimensão (escala original)."}
 plot(
   x = diferencas$dim,
   y = diferencas$psi_bruto,
@@ -226,9 +226,9 @@ ggplot(res_expl, aes(x = config, y = Fbest)) +
 sw_bruto <- shapiro.test(diferencas$psi_bruto)
 ```
 
-O teste de Shapiro-Wilk rejeita a normalidade das diferenças $\psi_j^{\text{bruto}}$ ($p = `r format(sw_bruto$p.value, digits = 3)`$). O gráfico quantil-quantil (Figura \@ref(fig:qq_diferencas)) mostra uma curva em forma de S, com um patamar em torno de 2,5 milhões, coerente com o efeito da escala descrito anteriormente.
+O teste de Shapiro-Wilk rejeita a normalidade das diferenças $\psi_j^{\text{bruto}}$ ($p = `r format(sw_bruto$p.value, digits = 3)`$). O gráfico quantil-quantil (Figura \@ref(fig:qq-diferencas)) mostra uma curva em forma de S, com um patamar em torno de 2,5 milhões, coerente com o efeito da escala descrito anteriormente.
 
-```{r qq_diferencas, echo=FALSE, out.width="80%", fig.align='center', fig.cap="Gráfico quantil-quantil das diferenças de desempenho na escala original."}
+```{r qq-diferencas, echo=FALSE, out.width="80%", fig.align='center', fig.cap="Gráfico quantil-quantil das diferenças de desempenho na escala original."}
 invisible(
 car::qqPlot(diferencas$psi_bruto / 1e6,
             id = TRUE,
@@ -265,9 +265,9 @@ sw_log   <- shapiro.test(diferencas_log$psi)
 extremos <- order(diferencas_log$psi, decreasing = TRUE)[1:3]
 ```
 
-Após a transformação, o teste de Shapiro-Wilk ainda rejeita a normalidade ($p = 2.66e−08$). No entanto, como mostra a Figura \@ref(fig:qq_log), a maior parte dos pontos acompanha a reta do gráfico quantil-quantil, e o desvio é provocado principalmente por três instâncias, de dimensões 1,2 e 3, instancias onde a diferença era proxima a zero.
+Após a transformação, o teste de Shapiro-Wilk ainda rejeita a normalidade ($p = 2.66e−08$). No entanto, como mostra a Figura \@ref(fig:qq-log), a maior parte dos pontos acompanha a reta do gráfico quantil-quantil, e o desvio é provocado principalmente por três instâncias, de dimensões 1,2 e 3, instâncias onde a diferença era próxima a zero.
 
-```{r qq_log, echo=FALSE, out.width="80%", fig.align='center', fig.cap="Gráfico quantil-quantil das diferenças de desempenho na escala logarítmica."}
+```{r qq-log, echo=FALSE, out.width="80%", fig.align='center', fig.cap="Gráfico quantil-quantil das diferenças de desempenho na escala logarítmica."}
 invisible(
   car::qqPlot(diferencas_log$psi,
               id = TRUE,
@@ -278,7 +278,7 @@ invisible(
 )
 ```
 
-```{r grafico_diferencas_log, echo=FALSE, out.width="80%", fig.align='center', fig.cap="Diferença de desempenho na escala logarítmica, em função da dimensão."}
+```{r grafico-diferencas-log, echo=FALSE, out.width="80%", fig.align='center', fig.cap="Diferença de desempenho na escala logarítmica, em função da dimensão."}
 plot(
   x = diferencas_log$dim,
   y = diferencas_log$psi,
@@ -292,19 +292,83 @@ abline(h = 0, lty = 2)
 
 # Análise Estatística
 
-As próximas seções explicam os testes realizados e os resultados obtidos. Os testes seguem Montgomery (2017) e o material da disciplina.
+```{r analise-setup, echo=FALSE}
+alpha  <- 0.05
+d_star <- 0.5
 
-## Normalidade
-## Independencia
-## Homocedasticidade
+psi   <- diferencas_log$psi
+N     <- length(psi)
+psi_m <- mean(psi)
+psi_s <- sd(psi)
 
-## Teste ANOVA
+# número com vírgula decimal, para uso em modo matemático
+fm <- function(x, d = 2) gsub(".", "{,}", sprintf(paste0("%.", d, "f"), x), fixed = TRUE)
+# p-valor: "< 0,001" quando muito pequeno
+fp <- function(p) if (p < 0.001) "< 0{,}001" else paste("=", fm(p, 3))
+# porcentagem inteira
+fpct <- function(x) paste0(round(100 * x), "\\%")
+```
 
-## Teste de Tukey {#teste-de-tukey}
+A análise usa as `r N` diferenças $\psi_j$ na escala logarítmica (Seção 4), uma por instância, com $\alpha = 0{,}05$. As repetições servem apenas para estimar cada $\psi_j$; tratá-las como observações independentes seria pseudorreplicação (Campelo e Takahashi, 2019).
 
-## Tamanho do efeito entre V1 e V3 {#teste-t-de-student}
+## Teste de hipóteses
 
-## Critério de desempate: análise de risco e variabilidade {#risco-e-retorno}
+```{r teste-t, echo=FALSE}
+teste_t <- t.test(diferencas_log$Y2, diferencas_log$Y1, paired = TRUE,
+                  alternative = "two.sided", conf.level = 1 - alpha)
+```
+
+As hipóteses definidas na Seção 2 são:
+
+- **Hipótese nula** ($H_0: \mu_D = 0$): as duas configurações têm o mesmo desempenho médio;
+- **Hipótese alternativa** ($H_1: \mu_D \neq 0$): as duas configurações têm desempenho médio diferente.
+
+Para testá-las, usou-se o teste t pareado bilateral, que equivale a um teste t de uma amostra sobre as diferenças $\psi_j$. A estatística do teste é a média das diferenças dividida pelo seu erro padrão, $t_0 = \bar{\psi}/(s_\psi/\sqrt{N})$, em que $\bar{\psi} = `r fm(psi_m, 3)`$ é a média e $s_\psi = `r fm(psi_s, 3)`$ é o desvio padrão das `r N` diferenças. Com esses valores, $t_0 = `r fm(psi_m, 3)`/(`r fm(psi_s, 3)`/\sqrt{`r N`}) = `r fm(teste_t$statistic)`$, com $N - 1 = `r N - 1`$ graus de liberdade.
+
+O p-valor é a chance de observar uma diferença média tão grande quanto essa se $H_0$ fosse verdadeira. Aqui, $p `r fp(teste_t$p.value)`$, bem abaixo de $\alpha = 0{,}05$.
+
+**Resultado:** rejeita-se $H_0$ em favor de $H_1$, ou seja, há diferença no desempenho médio das duas configurações. Como $\bar{\psi} > 0$, a configuração 2 tem, em média, maior $\log(F_{best})$, e portanto a configuração 1 é a melhor. Ela obteve menor média de $\log(F_{best})$ em todas as `r N` instâncias (Figura \@ref(fig:grafico-diferencas-log)).
+
+## Verificação das premissas
+
+O teste t pareado supõe independência entre os $\psi_j$ e normalidade da distribuição amostral de $\bar{\psi}$.
+
+- **Independência:** garantida pelo planejamento. As dimensões foram sorteadas sem reposição e cada instância contribui com um único $\psi_j$.
+- **Normalidade:** o teste de Shapiro-Wilk rejeita a normalidade dos $\psi_j$ ($p `r fp(sw_log$p.value)`$, Seção 4). Como a premissa se refere à média, a distribuição amostral de $\bar{\psi}$ foi estimada por *bootstrap* (Campelo e Takahashi, 2019): os `r N` valores de $\psi_j$ foram reamostrados com reposição 9999 vezes, calculando-se a média de cada reamostra. No gráfico quantil-quantil dessas médias (Figura \@ref(fig:bootstrap)), os pontos acompanham a reta no centro, mas se curvam para cima nas duas extremidades. Isso indica assimetria à direita, causada pelas três instâncias atípicas da Seção 4. Logo, o p-valor e o intervalo de confiança do teste t são aproximados.
+
+```{r bootstrap, echo=FALSE, out.width="70%", fig.align='center', fig.cap="Gráfico quantil-quantil das médias bootstrap das diferenças $\\psi_j$ (9999 reamostragens)."}
+set.seed(2026)
+media_boot <- replicate(9999, mean(sample(psi, N, replace = TRUE)))
+ic_boot    <- quantile(media_boot, c(alpha / 2, 1 - alpha / 2))
+
+qqnorm(media_boot, pch = ".", las = 1, main = "",
+       xlab = "Quantis teóricos", ylab = expression("Média bootstrap de " * psi[j]))
+qqline(media_boot, col = "red", lwd = 2)
+```
+
+```{r teste-sinal, echo=FALSE}
+n_sinal <- sum(psi != 0)
+r_sinal <- sum(psi > 0)
+p_sinal <- min(1, 2 * pbinom(min(r_sinal, n_sinal - r_sinal), n_sinal, prob = 0.5))
+```
+
+Para confirmar a conclusão sem depender da normalidade, aplicou-se o teste do sinal, que exige apenas independência. O teste conta em quantas instâncias a configuração 1 foi melhor ($\psi_j > 0$): foram `r r_sinal` de `r n_sinal`. Se $H_0$ fosse verdadeira, cada instância teria 50% de chance de favorecer cada configuração, como no lançamento de uma moeda. A chance de todas as `r n_sinal` favorecerem a mesma configuração seria de $2 \times 0{,}5^{`r n_sinal`}$, em que o fator 2 conta os dois casos possíveis (todas a favor da configuração 1 ou todas a favor da configuração 2). Esse valor é o p-valor do teste, e $p `r fp(p_sinal)`$. Portanto, o teste do sinal também rejeita $H_0$.
+
+## Magnitude da diferença
+
+```{r magnitude, echo=FALSE}
+ic_t   <- teste_t$conf.int
+t_crit <- qt(1 - alpha / 2, df = N - 1)
+d_hat  <- psi_m / psi_s
+razao    <- exp(psi_m)
+razao_ic <- exp(ic_t)
+```
+
+A diferença média estimada, na escala logarítmica, é $\hat{\mu}_D = `r fm(psi_m)`$. O IC 95% do teste t é calculado por $\bar{\psi} \pm t_{0{,}975;\,`r N - 1`} \cdot s_\psi/\sqrt{N}$, em que $t_{0{,}975;\,`r N - 1`} = `r fm(t_crit, 3)`$ é o valor crítico da distribuição t. Com os dados, $`r fm(psi_m, 3)` \pm `r fm(t_crit, 3)` \times `r fm(psi_s, 3)`/\sqrt{`r N`}$, o intervalo vai de $`r fm(ic_t[1])`$ a $`r fm(ic_t[2])`$. Pelo *bootstrap* percentil, que não supõe normalidade, o IC 95% vai do percentil 2,5% ao 97,5% das 9999 médias bootstrap, de $`r fm(ic_boot[1])`$ a $`r fm(ic_boot[2])`$. Os dois intervalos contêm apenas valores positivos, isto é, favorecem a configuração 1.
+
+O efeito padronizado é a média dividida pelo desvio padrão das diferenças: $\hat{d} = `r fm(psi_m, 3)`/`r fm(psi_s, 3)` = `r fm(d_hat)`$. Esse valor é maior que a mínima diferença de importância prática, $d^* = 0{,}5$, e portanto a diferença também é relevante na prática.
+
+Por fim, para entender a magnitude na escala original do `Fbest`, aplica-se a exponencial, que é o inverso do logaritmo. Como $\psi_j$ é uma diferença de logaritmos, a exponencial de $\bar{\psi}$ é uma razão entre os desempenhos: $e^{`r fm(psi_m, 3)`} = `r fm(razao)`$. Ou seja, em média (geométrica), o `Fbest` da configuração 2 é $`r fm(razao)`$ vezes o da configuração 1. Dito de outra forma, a configuração 1 obtém um `Fbest` cerca de $`r fpct(1 - 1 / razao)`$ menor. Aplicando a exponencial aos limites do IC 95% do teste t, a razão fica entre $`r fm(razao_ic[1])`$ e $`r fm(razao_ic[2])`$, o que corresponde a um `Fbest` de $`r fpct(1 - 1 / razao_ic[1])`$ a $`r fpct(1 - 1 / razao_ic[2])`$ menor com a configuração 1.
 
 # Conclusões e Recomendações {#conclusoes}
 
@@ -316,7 +380,7 @@ As próximas seções explicam os testes realizados e os resultados obtidos. Os 
 
 # Possíveis melhorias do experimento
 
-- A exploração dos dados com um piloto antes da execução das 34 instancias poderia ter otimizado os recursos computacionais ao fixar um n_0 mais conveniente para o conjunto de instancias.
+- A exploração dos dados com um piloto antes da execução das 34 instâncias poderia ter otimizado os recursos computacionais ao fixar um n_0 mais conveniente para o conjunto de instâncias.
 
 # Papéis desempenhados pela equipe
 
@@ -330,7 +394,7 @@ As próximas seções explicam os testes realizados e os resultados obtidos. Os 
 # Declaração sobre o uso de IA generativa
 Durante a preparação deste trabalho, os autores utilizaram o Claude (Anthropic) para:
 
-- Implementar em R o Psudo-codigo do Algoritmo 1 desenvolvido por Campelo e Takahashi (2019) para determinar o numero de repetições $n_{ij}$ até que o erro padrão da diferença de desempenho $\psi_j$  atinja a precisão desejada.
+- Implementar em R o pseudocódigo do Algoritmo 1 desenvolvido por Campelo e Takahashi (2019) para determinar o número de repetições $n_{ij}$ até que o erro padrão da diferença de desempenho $\psi_j$  atinja a precisão desejada.
 - Formatação de gráficos e tabelas
 
 # Referências
@@ -339,7 +403,7 @@ Durante a preparação deste trabalho, os autores utilizaram o Claude (Anthropic
 
 # Apêndice: desempenho médio por instância
 
-```{r tabela_dados, echo=FALSE}
+```{r tabela-dados, echo=FALSE}
 knitr::kable(
   diferencas,
   digits = 2,
