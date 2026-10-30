@@ -33,7 +33,6 @@ header-includes:
   - \restylefloat{table}
 ---
 
-
 # Resumo
 
 # Introdução
@@ -89,8 +88,8 @@ Onde, $H_0$ estabelece que não há diferença média de desempenho entre as dua
 
 O planejamento do experimento exige a definição de dois tamanhos amostrais, seguindo a metodologia de Campelo e Takahashi (2019):
 
-1. o número de instâncias, $N$, suficiente para detectar a diferença de interesse e representativo da classe de problemas, isto é, funções de Rosenbrock com dimensão entre 2 e 150;
-2. o número de repetições de cada configuração em cada instância, $n_{ij}$, que permita estimar com precisão adequada o desempenho médio da configuração $i$ na instância $j$.
+1.  o número de instâncias, $N$, suficiente para detectar a diferença de interesse e representativo da classe de problemas, isto é, funções de Rosenbrock com dimensão entre 2 e 150;
+2.  o número de repetições de cada configuração em cada instância, $n_{ij}$, que permita estimar com precisão adequada o desempenho médio da configuração $i$ na instância $j$.
 
 ### Número de instâncias ($N$)
 
@@ -122,14 +121,14 @@ cat("**Dimensões selecionadas:** ", paste(dims, collapse = ", "), ".")
 
 Para determinar o número de repetições de cada configuração em cada instância, implementou-se o Algoritmo 1 de Campelo e Takahashi (2019). Em cada instância, o algoritmo executa inicialmente $n_0$ repetições de cada configuração e, em seguida, acrescenta uma repetição por vez até que o erro padrão da diferença de desempenho $\psi_j$ atinja a precisão desejada, ou até que um orçamento máximo de execuções, $n_{max}$, seja alcançado. As repetições adicionais são alocadas preferencialmente à configuração de maior variância, de modo que $n_{1j}$ e $n_{2j}$ podem ser diferentes.
 
-Quanto a $n_0$, os autores recomendam basear a escolha na forma da distribuição do desempenho do algoritmo: valores baixos (3 ou 4) para distribuições aproximadamente gaussianas, em torno de 10 para outras distribuições simétricas e 20 ou 30 para distribuições fortemente assimétricas. Adotou-se $n_0 = 20$, valor que atende bem à maioria dos casos. Nas instâncias em que a variabilidade é maior, o algoritmo acrescenta repetições até alcançar a precisão desejada. O orçamento máximo foi fixado em $n_{max} = 200$  execuções por instância, somando as duas configurações.
+Quanto a $n_0$, os autores recomendam basear a escolha na forma da distribuição do desempenho do algoritmo: valores baixos (3 ou 4) para distribuições aproximadamente gaussianas, em torno de 10 para outras distribuições simétricas e 20 ou 30 para distribuições fortemente assimétricas. Adotou-se $n_0 = 20$, valor que atende bem à maioria dos casos. Nas instâncias em que a variabilidade é maior, o algoritmo acrescenta repetições até alcançar a precisão desejada. O orçamento máximo foi fixado em $n_{max} = 200$ execuções por instância, somando as duas configurações.
 
 # Análise exploratória e tratamento dos dados
 
 As inferências deste experimento são realizadas sobre $\psi_j$, a diferença de desempenho médio entre as configurações na instância $j$. Por isso, os dados brutos obtidos das execuções do algoritmo passaram por duas etapas de processamento:
 
-1. para cada dimensão (instância), calculou-se o desempenho médio de cada configuração, $\bar{F}_{1j}$ e $\bar{F}_{2j}$, a partir das $n_{1j}$ e $n_{2j}$ repetições do melhor valor encontrado (`Fbest`);
-2. a partir dessas médias, calculou-se a diferença $\psi_j^{\text{bruto}} = \bar{F}_{2j} - \bar{F}_{1j}$, observação amostral da diferença de desempenho na instância $j$, na escala original.
+1.  para cada dimensão (instância), calculou-se o desempenho médio de cada configuração, $\bar{F}_{1j}$ e $\bar{F}_{2j}$, a partir das $n_{1j}$ e $n_{2j}$ repetições do melhor valor encontrado (`Fbest`);
+2.  a partir dessas médias, calculou-se a diferença $\psi_j^{\text{bruto}} = \bar{F}_{2j} - \bar{F}_{1j}$, observação amostral da diferença de desempenho na instância $j$, na escala original.
 
 ```{r calcular_medias, echo=FALSE}
 
@@ -187,7 +186,7 @@ dims_expl <- sort(sample(dims, size = 9, replace = FALSE))
 cat("**Dimensões selecionadas para a análise exploratória:** ",
     paste(dims_expl, collapse = ", "), ".")
 
-``` 
+```
 
 A Figura \@ref(fig:boxplots) mostra os dados brutos de desempenho de ambas as configurações. Em linhas gerais, os dados indicam que:
 
@@ -226,7 +225,7 @@ ggplot(res_expl, aes(x = config, y = Fbest)) +
 sw_bruto <- shapiro.test(diferencas$psi_bruto)
 ```
 
-O teste de Shapiro-Wilk rejeita a normalidade das diferenças $\psi_j^{\text{bruto}}$ ($p = `r format(sw_bruto$p.value, digits = 3)`$). O gráfico quantil-quantil (Figura \@ref(fig:qq-diferencas)) mostra uma curva em forma de S, com um patamar em torno de 2,5 milhões, coerente com o efeito da escala descrito anteriormente.
+O teste de Shapiro-Wilk rejeita a normalidade das diferenças $\psi_j^{\text{bruto}}$ ($p = `r format(sw_bruto$p.value, digits = 3)\`\$. O gráfico quantil-quantil (Figura \@ref(fig:qq-diferencas)) mostra uma curva em forma de S, com um patamar em torno de 2,5 milhões, coerente com o efeito da escala descrito anteriormente.
 
 ```{r qq-diferencas, echo=FALSE, out.width="80%", fig.align='center', fig.cap="Gráfico quantil-quantil das diferenças de desempenho na escala original."}
 invisible(
@@ -241,7 +240,7 @@ car::qqPlot(diferencas$psi_bruto / 1e6,
 
 ### Transformação logarítmica
 
-Como a ordem de grandeza de `Fbest` varia fortemente com a dimensão, as diferenças foram calculadas sobre o logaritmo natural do desempenho.  Define-se
+Como a ordem de grandeza de `Fbest` varia fortemente com a dimensão, as diferenças foram calculadas sobre o logaritmo natural do desempenho. Define-se
 
 $$\bar{Y}_{ij} = \frac{1}{n_{ij}} \sum_{k=1}^{n_{ij}} \log(F_{best,ijk}), \qquad \psi_j = \bar{Y}_{2j} - \bar{Y}_{1j},$$
 
@@ -289,7 +288,6 @@ plot(
 abline(h = 0, lty = 2)
 ```
 
-
 # Análise Estatística
 
 ```{r analise-setup, echo=FALSE}
@@ -323,9 +321,9 @@ As hipóteses definidas na Seção 2 são:
 - **Hipótese nula** ($H_0: \mu_D = 0$): as duas configurações têm o mesmo desempenho médio;
 - **Hipótese alternativa** ($H_1: \mu_D \neq 0$): as duas configurações têm desempenho médio diferente.
 
-Para testá-las, usou-se o teste t pareado bilateral, que equivale a um teste t de uma amostra sobre as diferenças $\psi_j$. A estatística do teste é a média das diferenças dividida pelo seu erro padrão, $t_0 = \bar{\psi}/(s_\psi/\sqrt{N})$, em que $\bar{\psi} = `r fm(psi_m, 3)`$ é a média e $s_\psi = `r fm(psi_s, 3)`$ é o desvio padrão das `r N` diferenças. Com esses valores, $t_0 = `r fm(psi_m, 3)`/(`r fm(psi_s, 3)`/\sqrt{`r N`}) = `r fm(teste_t$statistic)`$, com $N - 1 = `r N - 1`$ graus de liberdade.
+Para testá-las, usou-se o teste t pareado bilateral, que equivale a um teste t de uma amostra sobre as diferenças $\psi_j$. A estatística do teste é a média das diferenças dividida pelo seu erro padrão, $t_0 = \bar{\psi}/(s_\psi/\sqrt{N})$, em que $\bar{\psi} = `r fm(psi_m, 3)`$ é a média e $s_\psi = `r fm(psi_s, 3)`$ é o desvio padrão das `r N` diferenças. Com esses valores, $t_0 = `r fm(psi_m, 3)`/(`r fm(psi_s, 3)`/\sqrt{`r N`}) = `r fm(teste_t$statistic)`$, com $N - 1 =`r N - 1\`\$ graus de liberdade.
 
-O p-valor é a chance de observar uma diferença média tão grande quanto essa se $H_0$ fosse verdadeira. Aqui, $p `r fp(teste_t$p.value)`$, bem abaixo de $\alpha = 0{,}05$.
+O p-valor é a chance de observar uma diferença média tão grande quanto essa se $H_0$ fosse verdadeira. Aqui, $p `r fp(teste_t$p.value)\`\$, bem abaixo de $\alpha = 0{,}05$.
 
 **Resultado:** rejeita-se $H_0$ em favor de $H_1$, ou seja, há diferença no desempenho médio das duas configurações. Como $\bar{\psi} > 0$, a configuração 2 tem, em média, maior $\log(F_{best})$, e portanto a configuração 1 é a melhor. Ela obteve menor média de $\log(F_{best})$ em todas as `r N` instâncias (Figura \@ref(fig:grafico-diferencas-log)).
 
@@ -334,7 +332,7 @@ O p-valor é a chance de observar uma diferença média tão grande quanto essa 
 O teste t pareado supõe independência entre os $\psi_j$ e normalidade da distribuição amostral de $\bar{\psi}$.
 
 - **Independência:** garantida pelo planejamento. As dimensões foram sorteadas sem reposição e cada instância contribui com um único $\psi_j$.
-- **Normalidade:** o teste de Shapiro-Wilk rejeita a normalidade dos $\psi_j$ ($p `r fp(sw_log$p.value)`$, Seção 4). Como a premissa se refere à média, a distribuição amostral de $\bar{\psi}$ foi estimada por *bootstrap* (Campelo e Takahashi, 2019): os `r N` valores de $\psi_j$ foram reamostrados com reposição 9999 vezes, calculando-se a média de cada reamostra. No gráfico quantil-quantil dessas médias (Figura \@ref(fig:bootstrap)), os pontos acompanham a reta no centro, mas se curvam para cima nas duas extremidades. Isso indica assimetria à direita, causada pelas três instâncias atípicas da Seção 4. Logo, o p-valor e o intervalo de confiança do teste t são aproximados.
+- **Normalidade:** o teste de Shapiro-Wilk rejeita a normalidade dos $\psi_j$ ($p `r fp(sw_log$p.value)`$, Seção 4). Como a premissa se refere à média, a distribuição amostral de $\bar{\psi}$ foi estimada por *bootstrap* (Campelo e Takahashi, 2019): os`r N\` valores de $\psi_j$ foram reamostrados com reposição 9999 vezes, calculando-se a média de cada reamostra. No gráfico quantil-quantil dessas médias (Figura \@ref(fig:bootstrap)), os pontos acompanham a reta no centro, mas se curvam para cima nas duas extremidades. Isso indica assimetria à direita, causada pelas três instâncias atípicas da Seção 4. Logo, o p-valor e o intervalo de confiança do teste t são aproximados.
 
 ```{r bootstrap, echo=FALSE, out.width="70%", fig.align='center', fig.cap="Gráfico quantil-quantil das médias bootstrap das diferenças $\\psi_j$ (9999 reamostragens)."}
 set.seed(2026)
@@ -372,11 +370,41 @@ Por fim, para entender a magnitude na escala original do `Fbest`, aplica-se a ex
 
 # Conclusões e Recomendações {#conclusoes}
 
+```{r conclusoes-calc, echo=FALSE}
+t_sem   <- t.test(psi[-extremos], mu = 0, conf.level = 1 - alpha)
+razao_s <- exp(unname(t_sem$estimate))
+rho     <- cor(diferencas_log$dim, psi, method = "spearman")
+razao_min <- exp(min(psi)); razao_max <- exp(max(psi))
+```
+
+Os resultados respondem às três perguntas do experimento da seguinte forma.
+
+1.  **Existe diferença?** Sim. O teste t pareado rejeitou $H_0: \mu_D = 0$ ($p `r fp(teste_t$p.value)`$), e o teste do sinal, que não exige normalidade, chegou à mesma conclusão: a configuração 1 foi melhor nas`r n_sinal`de`r n_sinal`instâncias ($p`r fp(p_sinal)\`\$).
+
+2.  **Qual é melhor e por quanto?** A configuração 1 (`recombination_lbga`, $F = 4{,}5$) é melhor. A diferença média na escala logarítmica é $\hat{\mu}_D = `r fm(psi_m)`$, com IC 95% de $`r fm(ic_t[1])`$ a $`r fm(ic_t[2])`$ (teste t) e de $`r fm(ic_boot[1])`$ a $`r fm(ic_boot[2])`$ (*bootstrap*). Em média geométrica, o `Fbest` da configuração 2 é cerca de $`r fm(razao)`$ vezes o da configuração 1 (IC 95%: $`r fm(razao_ic[1])`$ a $`r fm(razao_ic[2])`$), ou seja, a configuração 1 obtém um `Fbest` cerca de $`r fpct(1 - 1 / razao)`$ menor. O efeito padronizado estimado, $\hat{d} = `r fm(d_hat)`$, supera a diferença de importância prática $d^* = 0{,}5$, de modo que a diferença é relevante, e não apenas estatisticamente significativa.
+
+3.  **Os resultados justificam uma recomendação?** Sim: recomenda-se a configuração 1 para a classe de funções de Rosenbrock com dimensão entre 2 e 150. A conclusão é robusta: o IC 95% fica inteiramente acima de zero pelos dois métodos, e a configuração 1 venceu em todas as instâncias. Mesmo retirando as três instâncias atípicas (dimensões `r paste(sort(diferencas_log$dim[extremos]), collapse = ", ")`), o resultado se mantém ($p `r fp(t_sem$p.value)`$, razão de $`r fm(razao_s)`$, isto é,`Fbest`cerca de $`r fpct(1 - 1 / razao_s)\`\$ menor).
+
+**Ressalvas.** A magnitude da vantagem não é uniforme. A diferença $\psi_j$ diminui com a dimensão (correlação de Spearman de $`r fm(rho)`$): a razão entre os desempenhos vai de aproximadamente $`r fm(razao_max, 0)`$ vezes na instância mais favorável à configuração 1 até $`r fm(razao_min)`$ vezes na menos favorável. Assim, a razão média de $`r fm(razao)`$ resume bem o conjunto, mas superestima a vantagem em dimensões altas e subestima em dimensões baixas. A recomendação vale para toda a faixa testada, porém o ganho é muito maior em dimensões baixas, e, para dimensões altas, a vantagem, embora presente, é modesta. Além disso, as conclusões se restringem às duas configurações comparadas, ao critério de parada de $5000 \cdot \text{dim}$ avaliações e a funções de Rosenbrock. Não se pode concluir que o `recombination_lbga` seja superior ao `recombination_blxAlphaBeta` em geral, pois os dois fatores (recombinação e $F$) variam simultaneamente entre as configurações e seus efeitos não podem ser separados.
+
 # Discussão da significância e dos riscos do teste {#discussao-riscos}
 
 ## Nível de significância e controle do erro tipo I
 
+O nível de significância adotado foi $\alpha = 0{,}05$, o que significa aceitar uma probabilidade de 5% de rejeitar $H_0$ quando ela é verdadeira (erro tipo I), isto é, de concluir que há diferença quando as configurações são equivalentes. Como o experimento tem uma única hipótese principal, não há problema de comparações múltiplas e não foi necessária correção de $\alpha$. O p-valor obtido ($p `r fp(teste_t$p.value)\`\$) está muito abaixo de 0,05, de modo que o risco de erro tipo I nesta conclusão é pequeno.
+
+Esse risco, porém, depende de o teste t manter seu nível nominal, e isso é só aproximadamente garantido aqui, porque a normalidade dos $\psi_j$ foi rejeitada e a distribuição de $\bar{\psi}$ mostra assimetria à direita (Seção 5.2). Por isso a conclusão não foi baseada apenas no teste t. O teste do sinal, que exige apenas independência, e o IC *bootstrap* levaram à mesma decisão, e o resultado persiste sem as instâncias atípicas. A independência entre os $\psi_j$ é garantida pelo sorteio aleatório das dimensões. Dessa forma, é improvável que a violação da normalidade tenha produzido uma rejeição espúria de $H_0$.
+
 ## Erro tipo II e potência dos testes
+
+```{r potencia, echo=FALSE}
+pot <- power.t.test(n = N, delta = d_star, sd = 1, sig.level = alpha,
+                    type = "paired", alternative = "two.sided")$power
+```
+
+O erro tipo II é deixar de rejeitar $H_0$ quando existe uma diferença real. O experimento foi planejado para que sua probabilidade fosse de no máximo $\beta = 0{,}2$ (potência de 80%) para diferenças de pelo menos $d^* = 0{,}5$, o que levou a $N^* = 34$ instâncias. Com $N = `r N`$, a potência efetiva do teste t pareado nesse cenário é de `r fpct(pot)`.
+
+Como $H_0$ foi rejeitada, o erro tipo II não afeta a conclusão principal: ele só importaria se o resultado tivesse sido não significativo, caso em que não se poderia afirmar que as configurações são equivalentes. A diferença observada ($\hat{d} = `r fm(d_hat)`$) é bem maior que a de planejamento, o que explica a rejeição com p-valor tão pequeno. É preciso lembrar, porém, que essa potência refere-se ao teste t sob normalidade e foi calculada para $d^*$ padronizado sobre os $\psi_j$ na escala logarítmica. Para comparações com configurações mais parecidas entre si, em que se esperaria $d < d^*$, o mesmo $N$ seria insuficiente para garantir a detecção.
 
 # Possíveis melhorias do experimento
 
@@ -384,18 +412,20 @@ Por fim, para entender a magnitude na escala original do `Fbest`, aplica-se a ex
 
 # Papéis desempenhados pela equipe
 
-| Integrante                   | Papel                  |
-|------------------------------|------------------------|
-| Adonai Arruda                | Relator:               |
-| Alexandra Milaya Soto Aponte | Relatora/ Analista: Responsável pela programação e redação da Introdução e das seções de Planejamento do Experimento e Análise Exploratória dos Dados.|
-| João Paulo Gonçalves Simim   | Analista:              |
-| Yasmim Machado               | Verificador:           |
+| Integrante | Papel |
+|------------------------------------|------------------------------------|
+| Adonai Arruda | Relator: |
+| Alexandra Milaya Soto Aponte | Relatora/ Analista: Responsável pela programação e redação da Introdução e das seções de Planejamento do Experimento e Análise Exploratória dos Dados. |
+| João Paulo Gonçalves Simim | Analista: |
+| Yasmim Machado | Redatora e verificadora |
 
 # Declaração sobre o uso de IA generativa
+
 Durante a preparação deste trabalho, os autores utilizaram o Claude (Anthropic) para:
 
-- Implementar em R o pseudocódigo do Algoritmo 1 desenvolvido por Campelo e Takahashi (2019) para determinar o número de repetições $n_{ij}$ até que o erro padrão da diferença de desempenho $\psi_j$  atinja a precisão desejada.
+- Implementar em R o pseudocódigo do Algoritmo 1 desenvolvido por Campelo e Takahashi (2019) para determinar o número de repetições $n_{ij}$ até que o erro padrão da diferença de desempenho $\psi_j$ atinja a precisão desejada.
 - Formatação de gráficos e tabelas
+- Melhoria do texto redigido.
 
 # Referências
 
