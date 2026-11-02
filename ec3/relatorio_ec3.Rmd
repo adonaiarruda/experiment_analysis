@@ -438,16 +438,14 @@ Como $H_0$ foi rejeitada, o erro tipo II não afeta a conclusão principal: ele 
 
 # Papéis desempenhados pela equipe
 
-```{r papeis, echo=FALSE}
-papeis <- data.frame(
-  Integrante = c("Adonai Arruda", "Alexandra Milaya Soto Aponte",
-                 "João Paulo Gonçalves Simim", "Yasmim Machado"),
-  Papel = c("Coordenador e Relator: estruturação do repositório, implementação do algoritmo de amostragem e execução do experimento, redação da análise estatística e integração das contribuições da equipe.",
-            "Programadora/Analista: redação da introdução, do planejamento do experimento e da análise exploratória dos dados, incluindo o cálculo do tamanho amostral.",
-            "Analista/Verificador: revisão metodológica, documentação do estudo piloto, redação do resumo e das sugestões de melhoria, compilação independente do relatório e envio.",
-            "Redatora e Verificadora: redação das conclusões e da discussão de significância e riscos, referências e revisão do texto final."))
-knitr::kable(papeis, caption = "Papéis desempenhados pelos integrantes da equipe.")
-```
+| Integrante | Papel |
+|:---------------------|:-------------------------------------------------------------------|
+| Adonai Arruda | Coordenador e Relator: estruturação do repositório, implementação do algoritmo de amostragem e execução do experimento, redação da análise estatística e integração das contribuições da equipe. |
+| Alexandra Milaya Soto Aponte | Programadora/Analista: redação da introdução, do planejamento do experimento e da análise exploratória dos dados, incluindo o cálculo do tamanho amostral. |
+| João Paulo Gonçalves Simim | Analista/Verificador: revisão metodológica, documentação do estudo piloto, redação do resumo e das sugestões de melhoria, compilação independente do relatório e envio. |
+| Yasmim Machado | Redatora e Verificadora: redação das conclusões e da discussão de significância e riscos, referências e revisão do texto final. |
+
+Table: (\#tab:papeis) Papéis desempenhados pelos integrantes da equipe.
 
 # Declaração sobre o uso de IA generativa
 
@@ -463,6 +461,8 @@ Durante a preparação deste trabalho, os autores utilizaram o Claude (Anthropic
 - POHLHEIM, H. Examples of Objective Functions. GEATbx, 2005. Disponível em: http://www.geatbx.com/download/GEATbx_ObjFunExpl_v37.pdf.
 - ROSENBROCK, H. H. An Automatic Method for Finding the Greatest or Least Value of a Function. *The Computer Journal*, v. 3, n. 3, p. 175–184, 1960.
 - STORN, R.; PRICE, K. Differential Evolution: A Simple and Efficient Heuristic for Global Optimization over Continuous Spaces. *Journal of Global Optimization*, v. 11, n. 4, p. 341–359, 1997.
+
+\newpage
 
 # Apêndice: desempenho médio por instância
 
