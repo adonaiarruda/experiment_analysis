@@ -1,0 +1,1694 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trilha de Estudos EEE933</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&family=STIX+Two+Text:ital@0;1&display=swap">
+<style>
+:root{
+  /* Layout: caderno de laboratório. Trilho de fases à esquerda, coluna de leitura de ~70ch à direita, cabeçalhos sobre papel milimetrado. */
+  --paper:#f4f6fa;
+  --paper-glass:rgba(244,246,250,.88);
+  --card:#ffffff;
+  --ink:#172033;
+  --muted:#586379;
+  --line:#d7dde9;
+  --accent:#2445c4;
+  --accent-ink:#ffffff;
+  --accent-soft:#e6ebfa;
+  --amber:#a35200;
+  --amber-soft:#fcefdc;
+  --good:#1b7246;
+  --good-soft:#e1f2e8;
+  --bad:#ad2a20;
+  --bad-soft:#fae5e2;
+  --code:#ebeef5;
+  --grid:rgba(36,69,196,.075);
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --f-math:"STIX Two Text","Cambria Math","Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0e131d; --paper-glass:rgba(14,19,29,.86); --card:#151c29; --ink:#e4e9f2; --muted:#9aa5b9; --line:#29334a;
+    --accent:#8fa6ff; --accent-ink:#0e131d; --accent-soft:#1b2646;
+    --amber:#f0a24a; --amber-soft:#2c2213; --good:#5fd39a; --good-soft:#11281d; --bad:#ff8b7f; --bad-soft:#331a1a;
+    --code:#1a2232; --grid:rgba(143,166,255,.06);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0e131d; --paper-glass:rgba(14,19,29,.86); --card:#151c29; --ink:#e4e9f2; --muted:#9aa5b9; --line:#29334a;
+  --accent:#8fa6ff; --accent-ink:#0e131d; --accent-soft:#1b2646;
+  --amber:#f0a24a; --amber-soft:#2c2213; --good:#5fd39a; --good-soft:#11281d; --bad:#ff8b7f; --bad-soft:#331a1a;
+  --code:#1a2232; --grid:rgba(143,166,255,.06);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:1.0625rem;line-height:1.62}
+a{color:var(--accent);text-underline-offset:.15em}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* barra superior */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper-glass);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1200px;margin:0 auto;padding:.55rem 16px;display:flex;align-items:center;gap:.8rem 1.2rem;flex-wrap:wrap}
+.brand{font-family:var(--f-display);font-weight:800;font-size:1.06rem;letter-spacing:-.01em;text-decoration:none;color:var(--ink);display:flex;align-items:baseline;gap:.5rem}
+.brand small{font-family:var(--f-mono);font-weight:400;font-size:.7rem;color:var(--muted);letter-spacing:.05em}
+.top-links{display:flex;gap:1rem;font-size:.92rem}
+.top-links a{text-decoration:none;font-weight:700}
+.progress{margin-left:auto;display:flex;align-items:center;gap:.6rem;font-family:var(--f-mono);font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{width:110px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s}
+
+/* tipografia */
+.eyebrow{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);margin:0}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(1.9rem,4.2vw,2.75rem);line-height:1.07;letter-spacing:-.025em;text-wrap:balance;margin:.35rem 0 .7rem}
+h2{font-family:var(--f-display);font-weight:700;font-size:1.48rem;line-height:1.2;letter-spacing:-.012em;margin:2.4rem 0 .6rem;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:700;font-size:1.13rem;line-height:1.3;margin:1.6rem 0 .4rem;text-wrap:balance}
+p{margin:.65rem 0}
+ul,ol{padding-left:1.3rem;margin:.6rem 0}
+li{margin:.28rem 0}
+strong{font-weight:700}
+.lead{font-size:1.2rem;line-height:1.5;max-width:62ch}
+.muted{color:var(--muted)}
+.prose{max-width:72ch}
+.m{font-family:var(--f-math);font-style:italic;font-size:1.1em;white-space:nowrap}
+.formula{font-family:var(--f-math);font-size:1.18rem;line-height:1.5;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.75rem 1rem;margin:.9rem 0;overflow-x:auto;text-align:center}
+.formula small{display:block;font-family:var(--f-body);font-size:.82rem;color:var(--muted);margin-top:.25rem}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--code);padding:.08em .35em;border-radius:4px}
+pre.r{font-family:var(--f-mono);font-size:.82rem;line-height:1.55;background:var(--code);border-radius:10px;padding:.85rem 1rem;margin:.9rem 0;overflow-x:auto;white-space:pre}
+pre.r .c{color:var(--muted)}
+.papel{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px;background-position:-1px -1px}
+
+/* notas */
+.note{border-radius:12px;padding:.85rem 1.1rem;margin:1.1rem 0;background:var(--card);border:1px solid var(--line)}
+.note > .tag{display:inline-block;font-family:var(--f-mono);font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.16rem .55rem;border-radius:999px;margin-bottom:.35rem;background:var(--line);color:var(--ink)}
+.note > p:last-child,.note > ul:last-child,.note > ol:last-child{margin-bottom:0}
+.note.analogia{background:var(--accent-soft);border-color:transparent}
+.note.analogia > .tag{background:var(--accent);color:var(--accent-ink)}
+.note.pegadinha{background:var(--amber-soft);border-color:transparent}
+.note.pegadinha > .tag{background:var(--amber);color:var(--card)}
+.note.ec > .tag{background:var(--ink);color:var(--paper)}
+.note.exemplo > .tag{background:var(--code);color:var(--ink);border:1px solid var(--line)}
+
+/* tabelas */
+.tw{overflow-x:auto;margin:1rem 0;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+table.t{border-collapse:collapse;width:100%;font-size:.9rem;line-height:1.45}
+table.t th,table.t td{padding:.55rem .7rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.t tr:last-child td{border-bottom:0}
+table.t th{font-family:var(--f-mono);font-size:.7rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:var(--paper)}
+table.t td:first-child{font-weight:700}
+table.t.num td{font-variant-numeric:tabular-nums}
+
+/* passos numerados (sequências reais) */
+ol.passos{list-style:none;padding:0;counter-reset:p;display:grid;gap:.55rem;margin:1rem 0}
+ol.passos > li{counter-increment:p;display:grid;grid-template-columns:2rem minmax(0,1fr);gap:.7rem;align-items:start;margin:0}
+ol.passos > li::before{content:counter(p);font-family:var(--f-mono);font-weight:600;font-size:.82rem;width:2rem;height:2rem;border-radius:50%;display:grid;place-items:center;background:var(--card);border:1.5px solid var(--accent);color:var(--accent)}
+ol.passos > li > div{min-width:0;padding-top:.2rem}
+
+/* botões e controles */
+.btn{font:inherit;font-weight:700;font-size:.95rem;border-radius:999px;padding:.5rem 1.05rem;border:1.5px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:hover{filter:brightness(1.07)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;flex-wrap:wrap}
+.seg button{font:inherit;font-size:.86rem;padding:.35rem .8rem;border:0;background:transparent;color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:700}
+input[type=range]{accent-color:var(--accent);width:100%}
+select{font:inherit;font-size:.9rem;padding:.25rem .4rem;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+textarea{font:inherit;font-size:.98rem;line-height:1.5;width:100%;min-height:14rem;padding:.8rem;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);resize:vertical}
+
+/* quiz */
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1rem 1.1rem;margin:.9rem 0}
+.q-n{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.q-text{font-weight:700;margin:.25rem 0 .75rem;line-height:1.45}
+.q-text pre.r{font-weight:400}
+.opts{display:grid;gap:.5rem}
+.opt{display:grid;grid-template-columns:1.7rem minmax(0,1fr);gap:.65rem;align-items:start;text-align:left;width:100%;font:inherit;font-size:.98rem;line-height:1.45;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:.55rem .75rem;cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt .k{font-family:var(--f-mono);font-weight:600;font-size:.78rem;width:1.7rem;height:1.7rem;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--line);background:var(--card)}
+.opt[disabled]{cursor:default}
+.opt.marcada{border-color:var(--accent)}
+.opt.marcada .k{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opt.certa{background:var(--good-soft);border-color:var(--good)}
+.opt.certa .k{background:var(--good);color:var(--card);border-color:var(--good)}
+.opt.errada{background:var(--bad-soft);border-color:var(--bad)}
+.opt.errada .k{background:var(--bad);color:var(--card);border-color:var(--bad)}
+.exp{margin-top:.75rem;padding:.7rem .9rem;border-radius:10px;background:var(--paper);border:1px dashed var(--line);font-size:.96rem}
+.exp .ok{color:var(--good);font-weight:700}
+.exp .no{color:var(--bad);font-weight:700}
+.stars{font-size:1rem;letter-spacing:.1em;color:var(--line);white-space:nowrap}
+.stars b{color:var(--amber);font-weight:400}
+
+/* widgets */
+.widget{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1rem 1.1rem;margin:1.4rem 0}
+.w-head{display:flex;flex-direction:column;gap:.1rem;margin-bottom:.7rem}
+.w-head b{font-family:var(--f-display);font-size:1.05rem}
+.w-head span{font-size:.88rem;color:var(--muted)}
+.ctrl{display:flex;flex-wrap:wrap;gap:.7rem 1.2rem;align-items:center;margin:.5rem 0 .8rem;font-size:.92rem}
+.ctrl label{display:flex;flex-direction:column;gap:.15rem;min-width:9rem;flex:1 1 9rem}
+.ctrl label span{font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
+.ctrl label span b{color:var(--ink);font-weight:600}
+svg.plot{width:100%;height:auto;display:block;overflow:visible}
+svg.plot text{fill:var(--muted);font-family:var(--f-mono);font-size:11px}
+svg.plot .axis{stroke:var(--line);stroke-width:1}
+.w-out{font-family:var(--f-mono);font-size:.84rem;color:var(--ink);margin:.6rem 0 0;font-variant-numeric:tabular-nums}
+.w-out b{color:var(--accent)}
+.readout{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem}
+.readout div{flex:1 1 7.5rem;background:var(--paper);border-radius:9px;padding:.45rem .7rem}
+.readout div span{display:block;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.readout div b{font-family:var(--f-mono);font-size:1.02rem;font-variant-numeric:tabular-nums}
+/* marcas dos gráficos */
+svg.plot .p-bar{fill:var(--accent);fill-opacity:.55}
+svg.plot .p-curve{fill:none;stroke:var(--ink);stroke-width:2}
+svg.plot .p-mu{stroke:var(--ink);stroke-width:1.2;stroke-dasharray:5 4;fill:none}
+svg.plot .p-ok{stroke:var(--good)}
+svg.plot .p-no{stroke:var(--bad)}
+svg.plot .p-okf{fill:var(--good)}
+svg.plot .p-nof{fill:var(--bad)}
+svg.plot .p-h0{fill:none;stroke:var(--muted);stroke-width:2}
+svg.plot .p-h1{fill:none;stroke:var(--accent);stroke-width:2.2}
+svg.plot .p-alpha{fill:var(--bad);fill-opacity:.45}
+svg.plot .p-beta{fill:var(--amber);fill-opacity:.3}
+svg.plot .p-power{fill:var(--good);fill-opacity:.28}
+svg.plot .p-crit{stroke:var(--ink);stroke-width:1.2;stroke-dasharray:3 3}
+svg.plot .p-mean{stroke:var(--ink);stroke-width:2.5}
+svg.plot .g0{fill:var(--accent)}
+svg.plot .g1{fill:var(--amber)}
+svg.plot .g2{fill:var(--good)}
+svg.plot .p-line0{stroke:var(--accent);stroke-width:3}
+svg.plot .p-line1{stroke:var(--amber);stroke-width:3}
+svg.plot text.p-lbl0{fill:var(--accent);font-weight:600}
+svg.plot text.p-lbl1{fill:var(--amber);font-weight:600}
+
+/* --- específico da trilha --- */
+.shell{max-width:1200px;margin:0 auto;padding-inline:16px;padding-block:1.4rem 4rem;display:grid;grid-template-columns:250px minmax(0,1fr);gap:2.6rem}
+@media (max-width:920px){.shell{grid-template-columns:minmax(0,1fr);gap:.6rem}}
+.navbox{position:sticky;top:calc(env(safe-area-inset-top,0px) + 3.6rem);align-self:start;max-height:calc(100vh - 4.8rem);overflow:auto}
+@media (max-width:920px){.navbox{position:static;max-height:none;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:.2rem .6rem}}
+.navbox summary{font-family:var(--f-display);font-weight:700;cursor:pointer;padding:.55rem .2rem;list-style-position:inside}
+@media (min-width:921px){.navbox summary{display:none}}
+.trilho{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.trilho a{display:grid;grid-template-columns:2rem minmax(0,1fr) auto;gap:.4rem;align-items:center;padding:.42rem .5rem;border-radius:8px;text-decoration:none;color:var(--ink);font-size:.92rem;line-height:1.25}
+.trilho a:hover{background:var(--card)}
+.trilho a[aria-current="page"]{background:var(--accent-soft);font-weight:700}
+.trilho .n{font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
+.trilho .stars{font-size:.7rem;letter-spacing:0}
+.trilho .sep{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding:.9rem .5rem .3rem}
+main{min-width:0}
+.fase-head{border-radius:16px;padding:1.4rem 1.3rem 1.2rem;border:1px solid var(--line);background-color:var(--card)}
+.fase-head .lead{margin:0}
+.fase-meta{display:flex;flex-wrap:wrap;gap:.4rem .9rem;margin-top:.9rem;font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
+.fase-meta span{background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:.12rem .6rem}
+.quiz{margin-top:2.8rem;padding-top:1.3rem;border-top:2px solid var(--ink)}
+.quiz-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:.5rem 1rem;justify-content:space-between}
+.quiz-head h2{margin:0}
+.resultado{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem 1.2rem;margin-top:1rem;padding:1rem 1.1rem;border-radius:12px;background:var(--accent-soft)}
+.resultado .big{font-family:var(--f-display);font-weight:800;font-size:2rem;line-height:1;font-variant-numeric:tabular-nums}
+.resultado .stars{font-size:1.4rem}
+.pn{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:2.5rem;padding-top:1rem;border-top:1px solid var(--line)}
+.pn a{text-decoration:none;display:flex;flex-direction:column;gap:.1rem;max-width:48%}
+.pn a span{font-family:var(--f-mono);font-size:.72rem;color:var(--muted)}
+.pn a b{font-family:var(--f-display)}
+.pn a.next{margin-left:auto;text-align:right}
+/* início */
+.hero{border-radius:18px;padding:1.8rem 1.4rem 1.5rem;border:1px solid var(--line);background-color:var(--card)}
+.hero h1{max-width:20ch}
+.hero-row{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:1.1rem}
+.contagem{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.3rem}
+.contagem div{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:.5rem .8rem;min-width:8.5rem}
+.contagem span{display:block;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.contagem b{font-family:var(--f-display);font-size:1.35rem;font-variant-numeric:tabular-nums}
+.mapa{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:.75rem;margin-top:1rem}
+.cartao{display:flex;flex-direction:column;gap:.25rem;padding:.95rem 1rem;border-radius:12px;border:1px solid var(--line);background:var(--card);text-decoration:none;color:var(--ink);min-height:8.4rem}
+.cartao:hover{border-color:var(--accent)}
+.cartao .num{font-family:var(--f-display);font-weight:800;font-size:1.65rem;line-height:1;color:var(--accent)}
+.cartao .tit{font-family:var(--f-display);font-weight:700;font-size:1.04rem;line-height:1.25}
+.cartao .ref{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);margin-top:auto}
+.cartao .stars{font-size:.85rem}
+.cartao.destaque{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.cartao.destaque .num,.cartao.destaque .ref{color:var(--paper)}
+.cartao.destaque .ref{opacity:.75}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#inicio">Trilha EEE933 <small>PLANEJAMENTO E ANÁLISE DE EXPERIMENTOS</small></a>
+    <nav class="top-links" aria-label="Páginas">
+      <a href="#inicio">Mapa</a>
+      <a href="simulado.html">Simulado da prova</a>
+    </nav>
+    <div class="progress" aria-live="polite"><span id="prog-txt">0/13 fases</span><div class="bar" aria-hidden="true"><i id="prog-bar"></i></div></div>
+  </div>
+</header>
+<div class="shell">
+  <details class="navbox" id="navbox">
+    <summary>Todas as fases</summary>
+    <ul class="trilho" id="trilho"></ul>
+  </details>
+  <main id="main" tabindex="-1"></main>
+</div>
+<script>
+const FASES = [];
+FASES.push(
+/* ===================================================== FASE 0 */
+{
+id:'fio', n:0, grupo:'Comece aqui',
+titulo:'O que os 3 estudos de caso têm em comum',
+aula:'EC01 · EC02 · EC03', slides:'ec1/, ec2/, ec3/ + slides 00 e 02',
+tldr:'Os três estudos de caso são o mesmo experimento com roupas diferentes: comparar a média de uma variável de resposta entre os níveis de um fator, com um teste de hipóteses, seguindo sempre o mesmo roteiro de planejamento e análise.',
+html:`
+<h2>A resposta curta</h2>
+<p>IMC de alunos (EC01), retorno de ações (EC02) e desempenho de um algoritmo (EC03) parecem assuntos sem relação. Mas, olhando o <strong>método</strong>, os três relatórios fazem as mesmas coisas, na mesma ordem:</p>
+<ol class="passos">
+<li><div><strong>Transformam uma pergunta técnica em hipóteses sobre médias.</strong> <span class="m">H₀</span> diz “não há diferença”; <span class="m">H₁</span> diz “há diferença”.</div></li>
+<li><div><strong>Fixam os parâmetros do planejamento:</strong> nível de significância <span class="m">α = 0,05</span>, efeito minimamente relevante <span class="m">δ*</span>, poder <span class="m">1 − β</span> e tamanho amostral.</div></li>
+<li><div><strong>Preparam os dados</strong> antes de qualquer teste: filtrar e consolidar arquivos e calcular o IMC (EC01), calcular retornos mensais (EC02), agregar as repetições por instância (EC03).</div></li>
+<li><div><strong>Fazem uma análise exploratória</strong>, sempre com boxplot, para enxergar diferenças, dispersão e outliers.</div></li>
+<li><div><strong>Aplicam um teste paramétrico da família t/F:</strong> t de duas amostras (EC01), ANOVA + comparações múltiplas (EC02), t pareado (EC03).</div></li>
+<li><div><strong>Validam as mesmas três premissas:</strong> normalidade (Shapiro-Wilk + QQ-plot), igualdade de variâncias (Fligner-Killeen) e independência (planejamento + Durbin-Watson).</div></li>
+<li><div><strong>Medem o tamanho do efeito com intervalo de confiança</strong>, e não só o p-valor.</div></li>
+<li><div><strong>Discutem o poder do teste</strong> (<code>power.t.test</code>), tiram conclusões no contexto da pergunta e apontam limitações e melhorias.</div></li>
+</ol>
+<p>E todos são entregues no <strong>mesmo formato de relatório</strong> (template R Markdown do slide 00, p. 8): Resumo → Introdução → Planejamento (hipóteses + coleta) → Análise exploratória → Análise estatística (premissas + resultados) → Conclusões e recomendações, com papéis da equipe e declaração de uso de IA.</p>
+
+<div class="note pegadinha"><span class="tag">Dica de prova</span>
+<p>A sua anotação diz: <em>“na prova cai o que se repete”</em>. O que se repete é exatamente este roteiro. A parte dissertativa (“explique um planejamento” e “faça uma análise”) é este roteiro escrito à mão. Ele está nos slides da <strong>aula 02</strong>, páginas 13, 14, 16 e 21.</p></div>
+
+<h2>Lado a lado</h2>
+<div class="tw"><table class="t">
+<thead><tr><th>Etapa</th><th>EC01 · IMC</th><th>EC02 · Ações</th><th>EC03 · Evolução diferencial</th></tr></thead>
+<tbody>
+<tr><td>Pergunta</td><td>O IMC médio mudou entre 2016-2 e 2017-2?</td><td>Qual ação tem o maior retorno mensal médio?</td><td>Há diferença no desempenho médio das 2 configurações?</td></tr>
+<tr><td>Tipo de estudo</td><td>Retrospectivo (dados já coletados)</td><td>Retrospectivo (36 meses de histórico)</td><td>Experimento planejado (computacional)</td></tr>
+<tr><td>Fator · níveis</td><td>Semestre · 2 níveis (separado por sexo)</td><td>Ação · 5 níveis</td><td>Configuração · 2 níveis; instância = bloco</td></tr>
+<tr><td>Resposta</td><td>IMC = peso / altura²</td><td>Retorno <span class="m">r = Pᵢ / Pᵢ₊₁ − 1</span></td><td>log(Fbest), média por instância</td></tr>
+<tr><td>Hipóteses</td><td><span class="m">H₀: μ₂₀₁₆ = μ₂₀₁₇</span></td><td><span class="m">H₀: τⱼ = 0 ∀j</span></td><td><span class="m">H₀: μ_D = 0</span></td></tr>
+<tr><td>Tamanho amostral</td><td>Dado → poder discutido depois</td><td>Dado (35 retornos) → poder depois</td><td>Calculado antes: N = 34 instâncias</td></tr>
+<tr><td>Teste</td><td>t de duas amostras</td><td>ANOVA → Dunnett (Tukey exploratório)</td><td>t pareado (+ Wilcoxon, sinal, bootstrap)</td></tr>
+<tr><td>Premissas</td><td>Shapiro, QQ, Fligner, Durbin-Watson</td><td>Shapiro, QQ, Fligner, Durbin-Watson</td><td>Shapiro, QQ, bootstrap; independência pelo sorteio</td></tr>
+<tr><td>Efeito</td><td>IC 95% da diferença</td><td>ICs simultâneos (Dunnett)</td><td>IC 95% de <span class="m">μ_D</span></td></tr>
+<tr><td>Aula-base</td><td>06 · comparação simples</td><td>08 · ANOVA e comparações múltiplas</td><td>06 · pareada, 10 · blocagem, 09 · não paramétricos</td></tr>
+</tbody></table></div>
+
+<h2>Um único modelo por trás de tudo</h2>
+<p>Os três testes são casos particulares do mesmo modelo linear de efeitos:</p>
+<div class="formula">y<sub>ij</sub> = μ + τ<sub>i</sub> + (β<sub>j</sub>) + ε<sub>ij</sub>, &nbsp; ε<sub>ij</sub> ~ iid N(0, σ²)<small>μ = média global · τ = efeito do tratamento · β = efeito do bloco (quando existe) · ε = resíduo</small></div>
+<ul>
+<li><strong>EC01:</strong> 2 níveis, sem bloco → teste t de duas amostras.</li>
+<li><strong>EC02:</strong> 5 níveis, sem bloco → ANOVA de um fator.</li>
+<li><strong>EC03:</strong> 2 níveis com bloco (instância). Ao subtrair as duas configurações na mesma instância, <span class="m">β<sub>j</sub></span> se cancela e sobra um teste t pareado.</li>
+</ul>
+<p>É por isso que as premissas são sempre as mesmas: elas são premissas sobre o resíduo <span class="m">ε</span>. Ele deve ser <strong>independente</strong>, <strong>normal</strong> e com <strong>variância constante</strong>.</p>
+
+<h2>O roteiro que você vai escrever na prova</h2>
+<h3>Planejamento (antes de coletar)</h3>
+<ol class="passos">
+<li><div><strong>Questão técnica → hipóteses estatísticas.</strong> Defina a variável de resposta e escreva <span class="m">H₀</span> e <span class="m">H₁</span> sobre o parâmetro (μ, τ, μ<sub>D</sub>). Justifique uni ou bilateral.</div></li>
+<li><div><strong>Fatores, níveis e unidade experimental.</strong> Identifique fatores indesejáveis e decida entre aleatorizar, parear ou bloquear.</div></li>
+<li><div><strong>Nível de confiança e poder:</strong> α, β e o efeito minimamente relevante δ*.</div></li>
+<li><div><strong>Tamanho amostral:</strong> estime σ (histórico, conhecimento do processo ou piloto) e calcule <span class="m">n</span> (fórmula ou <code>power.t.test</code>).</div></li>
+<li><div><strong>Protocolo de coleta:</strong> ordem aleatória, condições homogêneas, sem paradas prematuras e sem espiar os dados.</div></li>
+<li><div><strong>Plano de análise:</strong> qual teste, quais premissas verificar, plano B (transformação ou não paramétrico) e comparações múltiplas planejadas.</div></li>
+</ol>
+<h3>Análise (depois de coletar)</h3>
+<ol class="passos">
+<li><div><strong>Pré-processamento e análise exploratória</strong> (boxplot, médias, dispersão, outliers).</div></li>
+<li><div><strong>Estatística de teste e p-valor</strong> → decisão: rejeitar <span class="m">H₀</span> se <span class="m">p ≤ α</span>.</div></li>
+<li><div><strong>Validação das premissas</strong> nos resíduos: normalidade, homoscedasticidade, independência.</div></li>
+<li><div><strong>Comparações múltiplas</strong>, se houver mais de 2 níveis (Tukey ou Dunnett).</div></li>
+<li><div><strong>Magnitude do efeito com IC</strong>, comparada com δ* (significância prática).</div></li>
+<li><div><strong>Poder</strong>: o experimento tinha sensibilidade para detectar δ*?</div></li>
+<li><div><strong>Conclusões e recomendações</strong> no contexto da pergunta, com limitações e melhorias.</div></li>
+</ol>
+
+<h2>Os comandos R que aparecem nos três</h2>
+<div class="tw"><table class="t">
+<thead><tr><th>Etapa</th><th>Comando</th><th>O que você conclui</th></tr></thead>
+<tbody>
+<tr><td>Exploratória</td><td><code>boxplot(y ~ grupo)</code></td><td>Diferenças aparentes, dispersão, outliers</td></tr>
+<tr><td>Teste</td><td><code>t.test()</code>, <code>aov()</code></td><td>p-valor e IC</td></tr>
+<tr><td>Normalidade</td><td><code>shapiro.test()</code>, <code>car::qqPlot()</code></td><td>p &gt; α → sem evidência contra a normalidade</td></tr>
+<tr><td>Variâncias</td><td><code>fligner.test()</code></td><td>p &gt; α → variâncias homogêneas plausíveis</td></tr>
+<tr><td>Independência</td><td><code>car::durbinWatsonTest()</code></td><td>Só detecta autocorrelação serial; a independência vem do planejamento</td></tr>
+<tr><td>Comparações</td><td><code>glht(..., mcp(f = "Tukey"/"Dunnett"))</code></td><td>Quais níveis diferem, com ICs simultâneos</td></tr>
+<tr><td>Poder</td><td><code>power.t.test()</code></td><td>n necessário, ou poder obtido</td></tr>
+</tbody></table></div>
+
+<div class="note analogia"><span class="tag">Analogia</span>
+<p>Pense numa receita de bolo que você fez três vezes: de cenoura, de chocolate e de fubá. O sabor muda, mas a sequência é a mesma: separar ingredientes, pré-aquecer, misturar, assar, testar com o palito. A prova não vai perguntar o sabor. Vai pedir a receita.</p></div>
+`,
+quiz:[
+{q:'Qual elemento esteve presente nos três estudos de caso?', o:['Verificação das premissas de normalidade, homoscedasticidade e independência','ANOVA seguida de teste de Dunnett','Teste t pareado entre instâncias','Experimento fatorial com interação'], c:0, e:'Os três validaram as mesmas premissas sobre o resíduo. ANOVA só aparece no EC02, o pareado só no EC03 e o fatorial só como sugestão de melhoria no EC03.'},
+{q:'EC01 e EC02 usam dados que já existiam. Qual a consequência para o tamanho amostral?', o:['O estudo é retrospectivo: n já está dado, e o poder é discutido depois (por exemplo, a menor diferença detectável)','O tamanho amostral é calculado antes com power.t.test','Não é possível fazer teste de hipóteses','O tamanho amostral passa a ser infinito'], c:0, e:'Em estudos retrospectivos não controlamos a coleta. Por isso o EC01 discutiu o poder e a menor diferença detectável depois do teste, e o EC02 calculou a potência para a diferença observada.'},
+{q:'Por que o EC01 analisou homens e mulheres separadamente?', o:['Porque o IMC médio difere entre os sexos e a proporção de homens e mulheres em cada turma poderia confundir a comparação entre semestres','Para aumentar o tamanho amostral','Porque o teste t exige grupos de mesmo tamanho','Porque o Shapiro-Wilk não aceita dados misturados'], c:0, e:'Sexo é uma fonte de variação conhecida que não é o foco. Misturar os grupos faria a comparação entre semestres depender da composição de cada turma (confundimento).'},
+{q:'Por que a análise do EC03 foi pareada?', o:['As duas configurações rodaram nas mesmas instâncias, e o pareamento remove a grande variabilidade entre instâncias','Porque havia mais de dois níveis do fator','Porque os dados eram normais','Porque o teste pareado não exige premissas'], c:0, e:'A instância é um fator indesejável conhecido e controlável. Comparando as duas configurações dentro de cada instância, o efeito da instância se cancela na diferença.'},
+{q:'Na “Modelagem Estatística” da aula 02, qual é o último passo depois de decidir se rejeita H₀?', o:['Estimar a magnitude das diferenças, ou seja, a significância prática','Calcular o tamanho amostral','Escolher o nível de significância','Coletar mais dados até o p-valor ficar abaixo de α'], c:0, e:'A ordem é: H₀ e α → validar premissas → P(dados | H₀) → decidir → estimar a magnitude. Coletar até “dar significativo” viola a regra de não espiar.'}
+]
+},
+
+/* ===================================================== FASE 1 */
+{
+id:'ciencia', n:1, grupo:'Fundamentos',
+titulo:'O que é Ciência',
+aula:'Aula 01', slides:'01-O_que_e_ciencia.pdf',
+tldr:'Ciência é um modo sistemático de observar a natureza e avaliar resultados com lógica consistente. Não prova verdades absolutas: acumula evidências, que são revisadas a cada novo experimento.',
+html:`
+<h2>O que a ciência <em>não</em> é</h2>
+<p>A aula começa derrubando concepções comuns. A ciência <strong>não</strong> é:</p>
+<ul>
+<li>apenas um conjunto de fatos, nem apenas a criação de novos dispositivos;</li>
+<li>um corpo de ideias absolutas e imutáveis, nem algo “não confiável” só porque muda;</li>
+<li>um processo em que as observações dão respostas diretamente ao cientista;</li>
+<li>algo que “prova” coisas, nem algo que só sabe refutar;</li>
+<li>o trabalho de alguém que tenta mostrar que a própria teoria está certa.</li>
+</ul>
+<p>Definição prática (Steven Novella, citado no slide): <em>um modo sistemático de observar cuidadosamente a natureza e usar lógica consistente para avaliar os resultados.</em> Não há nada de mágico.</p>
+<p>Lembre-se da distinção entre <strong>fatos</strong> (observações), <strong>hipóteses</strong> (explicações testáveis), <strong>teorias</strong> (explicações amplas e bem sustentadas) e <strong>leis</strong> (descrições de regularidades).</p>
+
+<h2>A “receita” e o processo real</h2>
+<p>A versão de livro escolar tem 5 passos: pergunta → hipótese → experimento → dados → conclusão. O slide avisa que isso é uma <strong>simplificação</strong> de um processo complexo, <strong>iterativo</strong> e <strong>sem etapa final</strong>. O processo real se organiza em 4 grupos de atividades que se retroalimentam:</p>
+<div class="tw"><table class="t">
+<thead><tr><th>Grupo</th><th>O que envolve</th></tr></thead>
+<tbody>
+<tr><td>Explorar e descobrir</td><td>Observar, fazer perguntas, ler a literatura, usar novas tecnologias, achar motivações.</td></tr>
+<tr><td>Testar ideias</td><td>Formular hipóteses, testá-las, confrontar o esperado com o observado, aceitar ou rejeitar ideias pelas evidências, revisar premissas.</td></tr>
+<tr><td>Análise e feedback da comunidade</td><td>Colegas, colaboradores, revisores e “rivais”. Gera críticas, inspiração, atenção e motivação. Inclui a revisão por pares.</td></tr>
+<tr><td>Benefícios e desdobramentos</td><td>Novos conhecimentos, solução de problemas práticos, novas tecnologias, subsídio a políticas públicas, curiosidade satisfeita.</td></tr>
+</tbody></table></div>
+
+<h3>Serendipidade</h3>
+<p>“O acaso só favorece as mentes preparadas” (Pasteur). Exemplos do slide: Kekulé propôs a estrutura do benzeno após sonhar com uma cobra mordendo o próprio rabo; Fleming descobriu a penicilina ao notar que um mofo havia contaminado uma cultura esquecida e separado as bactérias.</p>
+
+<h3>Revisão por pares e reprodutibilidade</h3>
+<ol class="passos">
+<li><div>Realizamos a pesquisa e escrevemos o artigo.</div></li>
+<li><div>O editor recebe o artigo e pode recusá-lo.</div></li>
+<li><div>Os revisores avaliam: recusar, pedir revisão ou aceitar.</div></li>
+<li><div>O artigo é publicado e a comunidade tem acesso a ele.</div></li>
+<li><div>Os resultados são replicados e verificados (<strong>reprodutibilidade</strong>).</div></li>
+</ol>
+
+<div class="note ec"><span class="tag">Nos estudos de caso</span>
+<p>A exigência de entregar o <code>.Rmd</code> que compila sem erros, junto com os dados, é a reprodutibilidade na prática. Qualquer pessoa precisa conseguir refazer sua análise.</p></div>
+
+<div class="note analogia"><span class="tag">Analogia</span>
+<p>A ciência funciona como um mapa feito por exploradores. Cada expedição volta com medições novas e o mapa é corrigido. Ele nunca está “provado”, mas fica cada vez mais confiável, e você não jogaria fora o mapa só porque ele já foi corrigido antes.</p></div>
+
+<div class="note pegadinha"><span class="tag">Pegadinha</span>
+<p>“A ciência prova” e “a ciência só refuta” estão <strong>ambas</strong> na lista de concepções erradas. A mesma ideia volta na aula 02: rejeitar <span class="m">H₀</span> não prova nada, apenas quantifica de forma objetiva a plausibilidade de uma afirmação.</p></div>
+`,
+quiz:[
+{q:'Qual afirmação sobre ciência está de acordo com a aula 01?', o:['É um modo sistemático de observar a natureza e avaliar resultados com lógica consistente, com conclusões que podem ser revisadas','A ciência prova definitivamente as teorias','As ideias científicas são absolutas e imutáveis','O cientista trabalha para mostrar que sua teoria está certa'], c:0, e:'As outras três opções estão listadas no slide 2 como concepções erradas.'},
+{q:'A sequência pergunta → hipótese → experimento → dados → conclusão é:', o:['Uma simplificação de um processo complexo, iterativo e sem etapa final','O processo científico completo, linear e com fim definido','Válida apenas para as ciências naturais','Uma descrição da revisão por pares'], c:0, e:'O slide 4 chama essa receita de simplificação. O processo real se divide em 4 grupos de atividades que se retroalimentam.'},
+{q:'A descoberta da penicilina por Fleming é usada no slide para ilustrar:', o:['Serendipidade: o acaso favorece as mentes preparadas','Reprodutibilidade dos resultados','Estudo retrospectivo','Revisão por pares'], c:0, e:'Fleming notou que o mofo separava as bactérias numa cultura esquecida. Foi acaso, mas só teve valor porque ele estava preparado para perceber.'},
+{q:'Depois da publicação de um artigo, qual etapa aumenta a confiança nos resultados?', o:['Replicação e verificação dos resultados por outros pesquisadores','O aceite do editor','O número de downloads do artigo','A escolha de uma revista com prazo curto'], c:0, e:'Os passos 6 e 7 do slide 12 são o acesso da comunidade e a replicação/verificação, ou seja, a reprodutibilidade.'}
+]
+},
+
+/* ===================================================== FASE 2 */
+{
+id:'experimentacao', n:2, grupo:'Fundamentos',
+titulo:'A Função da Experimentação',
+aula:'Aula 02', slides:'02-Funcao_da_experimentacao.pdf',
+tldr:'Experimentar é forçar mudanças em fatores controláveis e observar o efeito na resposta. Planejar é decidir antes como coletar os dados para que a análise estatística dê conclusões sólidas. Esta é a aula mais importante para a parte dissertativa.',
+html:`
+<h2>Vocabulário que cai em prova</h2>
+<div class="tw"><table class="t">
+<thead><tr><th>Termo</th><th>Definição (slide 4)</th><th>Exemplo: papel (aula 08)</th></tr></thead>
+<tbody>
+<tr><td>Experimento</td><td>Variação forçada de uma ou mais variáveis controláveis de um processo para avaliar o efeito na saída.</td><td>Produzir papel com fibras diferentes e medir a resistência.</td></tr>
+<tr><td>Fator</td><td>Variável controlável cuja influência na saída está sob estudo.</td><td>Tipo de fibra de madeira.</td></tr>
+<tr><td>Nível</td><td>Valores (não necessariamente numéricos) que um fator pode assumir.</td><td>A, B, C, D.</td></tr>
+<tr><td>Tratamento</td><td>Combinação específica dos níveis de <em>todos</em> os fatores.</td><td>Com um único fator, cada fibra é um tratamento.</td></tr>
+<tr><td>Variável de resposta</td><td>A saída medida.</td><td>Resistência à tração (kPa).</td></tr>
+</tbody></table></div>
+<p>Objetivos típicos de um experimento: identificar as variáveis que mais influenciam o processo, determinar o valor necessário de alguma variável e caracterizar o comportamento do sistema.</p>
+
+<div class="note analogia"><span class="tag">Analogia</span>
+<p>No fogão, cada botão é um <strong>fator</strong>, cada posição do botão é um <strong>nível</strong> e a combinação de todas as posições ao mesmo tempo é um <strong>tratamento</strong>. O sabor do prato é a <strong>resposta</strong>.</p></div>
+
+<h2>Três tipos de estudo</h2>
+<div class="tw"><table class="t">
+<thead><tr><th>Tipo</th><th>Característica</th><th>Problemas</th><th>Nos ECs</th></tr></thead>
+<tbody>
+<tr><td>Retrospectivo</td><td>Usa dados históricos; investiga mudanças que já ocorreram.</td><td>Representatividade e disponibilidade dos dados.</td><td>EC01 (IMC), EC02 (ações)</td></tr>
+<tr><td>Observacional</td><td>Mínima interferência; estuda o comportamento usual.</td><td>Poucos eventos extremos (cauda); baixa variabilidade pode esconder efeitos.</td><td></td></tr>
+<tr><td>Planejado</td><td>Interferência deliberada no sistema.</td><td>Exige rigor no planejamento e na análise; geralmente mais caro.</td><td>EC03 (algoritmo)</td></tr>
+</tbody></table></div>
+
+<h2>Estratégias de experimentação</h2>
+<ul>
+<li><strong>Adivinhação educada (educated guess):</strong> testa combinações escolhidas pela experiência de quem conduz. Pode funcionar, mas depende do experimentador.</li>
+<li><strong>Um fator por vez (COST):</strong> parte de um tratamento e varia cada fator isoladamente. Funciona <em>apenas se não houver interação</em> entre fatores.</li>
+<li><strong>Fatorial:</strong> avalia sistematicamente todas as combinações de níveis. Estima efeitos principais <em>e</em> efeitos de interação (aula 11).</li>
+</ul>
+<div class="note analogia"><span class="tag">Analogia</span>
+<p>Você quer o café perfeito e muda só o açúcar (com o leite fixo), depois só o leite (com o açúcar fixo). Se a quantidade ideal de açúcar <em>depende</em> de ter leite ou não, o COST nunca vai encontrar a melhor combinação. Isso é interação.</p></div>
+
+<h2>Planejamento de experimentos</h2>
+<p><strong>Definição (slide 12):</strong> processo de planejar os protocolos de coleta de dados de modo a permitir análises acuradas com ferramentas estatísticas adequadas, possibilitando conclusões sólidas e objetivas. É necessário em sistemas sujeitos a ruído e incerteza, para que as conclusões tenham significado quantificável e para evitar vieses pessoais.</p>
+
+<h3>Etapas do planejamento (slide 13)</h3>
+<ol class="passos">
+<li><div>Definição da questão, técnica ou científica, de interesse.</div></li>
+<li><div>Definição dos fatores e níveis.</div></li>
+<li><div>Definição do nível de confiança desejado.</div></li>
+<li><div>Determinação do protocolo de coleta de dados.</div></li>
+</ol>
+<h3>Análise estatística das observações (slide 14)</h3>
+<ol class="passos">
+<li><div>Cálculo da estatística de teste.</div></li>
+<li><div>Validação das premissas do modelo.</div></li>
+<li><div>Cálculo da magnitude dos efeitos.</div></li>
+<li><div>Elaboração de conclusões e recomendações.</div></li>
+</ol>
+
+<h3>Orientações gerais (slide 16)</h3>
+<ol class="passos">
+<li><div><strong>Pré-experimento:</strong> identificar e definir o problema; selecionar as variáveis experimentais e de resposta. A investigação é relevante? Como se relaciona com a literatura? A tradução <em>questão científica → hipóteses testadas</em> exige atenção especial.</div></li>
+<li><div><strong>Planejamento:</strong> escolher o tipo de experimento; definir fatores e níveis; definir o nível de confiança. Envolve <em>tamanho amostral</em>, <em>ordenação das observações</em> e <em>restrições na aleatorização</em> (blocos, fatores).</div></li>
+<li><div><strong>Coleta:</strong> deve seguir o plano, <strong>sem paradas prematuras</strong> e <strong>sem espiar</strong> (no-peeking), a não ser que isso esteja planejado. Um estudo piloto ajuda a obter informações preliminares e a praticar as condições experimentais.</div></li>
+<li><div><strong>Análise estatística</strong>, preferencialmente com ferramentas como o R.</div></li>
+<li><div><strong>Conclusões e recomendações.</strong></div></li>
+</ol>
+
+<h3>Modelagem estatística (slide 21): o teste de hipóteses em 5 passos</h3>
+<ol class="passos">
+<li><div>Definir a hipótese nula (ausência de efeito) e o nível de significância α.</div></li>
+<li><div>Validar as premissas do teste escolhido.</div></li>
+<li><div>Calcular <span class="m">P(dados | H₀ verdadeira)</span>: a probabilidade de dados tão ou mais extremos que os observados se <span class="m">H₀</span> for verdadeira (o p-valor).</div></li>
+<li><div>Decidir se rejeitamos (ou não) <span class="m">H₀</span>.</div></li>
+<li><div>Estimar a magnitude das diferenças, ou seja, a <strong>significância prática</strong>.</div></li>
+</ol>
+<p class="muted">A rejeição (ou não) de <span class="m">H₀</span> não prova nada. Ela dá uma forma objetiva de quantificar a plausibilidade de certas afirmações.</p>
+
+<h3>Apresentar e concluir</h3>
+<ul>
+<li>Combine texto, números e gráficos para contar a história dos dados. Use notação coerente em figuras, tabelas e texto.</li>
+<li><strong>Sempre apresente intervalos de confiança</strong> e outros indicadores do tamanho do efeito.</li>
+<li>Seja conservador e não generalize demais. Relate o nível de significância e as premissas sob as quais o resultado vale.</li>
+<li>Sugira explicações plausíveis e cuidado com a “busca por anomalias”.</li>
+</ul>
+
+<div class="note pegadinha"><span class="tag">Pegadinha</span>
+<p>“Calcular a estatística de teste” é etapa da <strong>análise</strong>, não do planejamento. E “coletar até o p-valor cair abaixo de 0,05” é exatamente o que a regra de não espiar proíbe.</p></div>
+`,
+quiz:[
+{q:'No experimento do papel (aula 08), “tipo de fibra” e “fibra C” são, respectivamente:', o:['Fator e nível','Nível e fator','Tratamento e fator','Resposta e tratamento'], c:0, e:'O fator é a variável controlada (tipo de fibra). Cada valor que ela assume (A, B, C, D) é um nível.'},
+{q:'Um experimento fatorial completo tem temperatura (2 níveis) e catalisador (3 níveis). Quantos tratamentos existem?', o:['6','5','8','9'], c:0, e:'Tratamento é a combinação de níveis de todos os fatores: 2 × 3 = 6.'},
+{q:'O EC02 analisa 36 meses de preços que já aconteceram. Que tipo de estudo é esse e qual o problema típico?', o:['Retrospectivo; representatividade e disponibilidade dos dados','Planejado; custo elevado','Observacional; interferência excessiva no sistema','Fatorial; excesso de interações'], c:0, e:'Estudos retrospectivos usam dados históricos. O slide 5 lista como problemas a representatividade e a disponibilidade dos dados.'},
+{q:'A estratégia de alterar um fator por vez (COST) pode levar a conclusões erradas quando:', o:['Existe interação entre os fatores','Os fatores têm muitos níveis','O tamanho amostral é grande','A resposta segue distribuição normal'], c:0, e:'Slide 9: o COST dá bons resultados desde que não existam efeitos de interação. O fatorial resolve isso.'},
+{q:'Qual destes itens NÃO faz parte das etapas de planejamento do slide 13?', o:['Cálculo da estatística de teste','Definição da questão de interesse','Definição dos fatores e níveis','Determinação do protocolo de coleta de dados'], c:0, e:'O cálculo da estatística de teste é o primeiro passo da análise (slide 14), depois que os dados existem.'},
+{q:'A regra “sem espiar” (no-peeking) significa:', o:['Não analisar resultados parciais para decidir se paro ou continuo a coleta, a menos que isso esteja planejado','Nunca olhar os dados brutos','Não fazer gráficos exploratórios','Esconder dos participantes qual tratamento receberam'], c:0, e:'Olhar resultados parciais e parar quando “der significativo” infla o erro tipo I. Análises intermediárias só são válidas se previstas no plano.'}
+]
+},
+
+/* ===================================================== FASE 3 */
+{
+id:'distribuicoes', n:3, grupo:'Ferramentas estatísticas',
+titulo:'Distribuições de Probabilidade',
+aula:'Aula 3.0', slides:'3.0_Distribuicoes.pdf',
+tldr:'Distribuições descrevem como uma variável aleatória se comporta. Quatro delas sustentam todos os testes da disciplina: Normal (Z), t de Student, χ² e F.',
+html:`
+<h2>PDF e CDF</h2>
+<p>A <strong>função densidade de probabilidade</strong> (PDF) <span class="m">f(x)</span> dá a probabilidade de um intervalo pela <em>área</em> sob a curva. A <strong>função de distribuição cumulativa</strong> (CDF) acumula essa área até um ponto:</p>
+<div class="formula">P(x₁ &lt; X &lt; x₂) = ∫<sub>x₁</sub><sup>x₂</sup> f(x) dx &nbsp;&nbsp;·&nbsp;&nbsp; F(x) = P(X ≤ x) = ∫<sub>−∞</sub><sup>x</sup> f(t) dt &nbsp;&nbsp;·&nbsp;&nbsp; ∫ f(x) dx = 1</div>
+<div class="note analogia"><span class="tag">Analogia</span>
+<p>A PDF é o relevo de um terreno: a probabilidade de cair num trecho é a área daquele pedaço. A CDF é o odômetro: quanto de área você já percorreu desde o início até o ponto x.</p></div>
+
+<h2>As distribuições da disciplina</h2>
+<div class="tw"><table class="t">
+<thead><tr><th>Distribuição</th><th>Parâmetros</th><th>Ideia</th><th>Onde aparece</th></tr></thead>
+<tbody>
+<tr><td>Uniforme</td><td>a, b</td><td>Mesma probabilidade em [a, b]. <span class="m">μ = (a+b)/2</span>, <span class="m">σ² = (b−a)²/12</span></td><td>Tolerâncias; amostrar outras distribuições; demo do TCL (aula 03)</td></tr>
+<tr><td>Normal</td><td>μ, σ²</td><td>Simétrica, em sino. Base dos ICs e testes.</td><td>IC com σ conhecido; teste z</td></tr>
+<tr><td>t de Student</td><td>ν (graus de liberdade)</td><td>Parecida com a normal padrão, mas com caudas mais pesadas (mais conservadora). Tende à normal quando ν cresce.</td><td>Testes t e IC da média com σ desconhecido; regressão</td></tr>
+<tr><td>χ² (qui-quadrado)</td><td>k (graus de liberdade)</td><td>Soma de k normais padrão ao quadrado. Caso particular da Gama.</td><td>IC e testes para a variância; teste de independência; estatística do Fligner-Killeen</td></tr>
+<tr><td>F</td><td>d₁, d₂</td><td>Razão entre variâncias de duas populações normais.</td><td>Igualdade de variâncias; <strong>ANOVA</strong></td></tr>
+</tbody></table></div>
+<p class="muted">Outras citadas: Beta, Gama, Logística, Rayleigh, Gumbel, Exponencial, GEV, Lognormal, Weibull.</p>
+
+<h2>Normal e padronização</h2>
+<p>Regras empíricas: <span class="m">μ ± σ</span> contém 68,27%; <span class="m">μ ± 2σ</span> contém 95,45%; <span class="m">μ ± 3σ</span> contém 99,73%.</p>
+<div class="formula">Z = (X − μ) / σ &nbsp; ~ N(0, 1), &nbsp; Φ(z) = P(Z ≤ z)</div>
+<div class="note exemplo"><span class="tag">Exemplo do slide 9</span>
+<p><span class="m">X ~ N(10, 4)</span>. Quanto vale <span class="m">P(X &gt; 13)</span>?</p>
+<p>O segundo parâmetro é a <strong>variância</strong>: σ² = 4, logo σ = 2. Então <span class="m">z = (13 − 10)/2 = 1,5</span> e <span class="m">P(X &gt; 13) = 1 − Φ(1,5) ≈ 0,067</span> (tabela da normal padrão). No R: <code>1 - pnorm(13, mean = 10, sd = 2)</code>.</p></div>
+<div class="note pegadinha"><span class="tag">Pegadinha</span>
+<p>Em <span class="m">N(μ, σ²)</span> o segundo número é a variância. Dividir por 4 em vez de 2 é o erro clássico. No R, <code>pnorm</code> e <code>rnorm</code> recebem o <em>desvio-padrão</em> (<code>sd</code>), não a variância.</p></div>
+
+<h2>Graus de liberdade</h2>
+<p>Quantidade de informação disponível na amostra para estimar parâmetros desconhecidos:</p>
+<div class="formula">d = n − p<small>n = número de observações · p = número de parâmetros estimados</small></div>
+<p>Exemplo: a variância amostral <span class="m">s² = Σ(xᵢ − x̄)² / (n − 1)</span> usa <span class="m">n − 1</span> porque a média <span class="m">x̄</span> já foi estimada com os mesmos dados. Isso reaparece em todos os testes: <span class="m">n − 1</span> no t de uma amostra, <span class="m">n₁ + n₂ − 2</span> no t de duas amostras, <span class="m">a(n − 1)</span> no resíduo da ANOVA.</p>
+
+<div class="note analogia"><span class="tag">Analogia</span>
+<p>A t de Student é uma normal “com seguro”. Como você estimou σ a partir da própria amostra, há incerteza extra, e a t paga por isso com caudas mais grossas. Quanto mais dados, menor o seguro necessário, e a t vira a normal.</p></div>
+
+<h3>Quem usa qual distribuição</h3>
+<ul>
+<li><strong>Z</strong> → IC da média com σ conhecido, ou com n grande (n &gt; 30).</li>
+<li><strong>t</strong> → <code>t.test()</code> e ICs da média com σ estimado.</li>
+<li><strong>χ²</strong> → IC da variância: <span class="m">(n − 1)S²/σ² ~ χ²ₙ₋₁</span>.</li>
+<li><strong>F</strong> → <code>aov()</code>: <span class="m">F₀ = MS<sub>níveis</sub> / MS<sub>E</sub></span>.</li>
+</ul>
+`,
+quiz:[
+{q:'X ~ N(10, 4). Qual a padronização correta para calcular P(X > 13)?', o:['z = (13 − 10) / 2','z = (13 − 10) / 4','z = (13 − 10) / 16','z = 13 / 4'], c:0, e:'O 4 é a variância. O desvio-padrão é √4 = 2, então z = 3/2 = 1,5.'},
+{q:'Numa normal, qual a proporção aproximada dos valores no intervalo μ ± 2σ?', o:['95,45%','68,27%','99,73%','50%'], c:0, e:'Os números do slide 10: 68,27% (±1σ), 95,45% (±2σ), 99,73% (±3σ).'},
+{q:'Por que o IC da média usa a t de Student em vez da normal na maioria dos casos?', o:['Porque σ é desconhecido e estimado por s; a t incorpora essa incerteza com caudas mais pesadas','Porque os dados nunca são normais','Porque a t só existe para n > 30','Porque a t é usada para variâncias'], c:0, e:'A estatística (x̄ − μ)/(s/√n) segue t com n − 1 graus de liberdade quando σ é estimado. Com n grande, a t se aproxima da normal.'},
+{q:'A distribuição F aparece principalmente em:', o:['Testes de razão entre variâncias, como a ANOVA','IC para a média com σ conhecido','Teste do sinal','Teorema Central do Limite'], c:0, e:'F descreve a razão entre variâncias de duas populações normais. Na ANOVA, F₀ = MS_níveis / MS_E.'},
+{q:'Quantos graus de liberdade tem a variância amostral de n = 12 observações?', o:['11','12','10','13'], c:0, e:'d = n − p = 12 − 1. Um parâmetro (a média) foi estimado antes.'},
+{q:'Para X ~ Uniforme(2, 6), média e variância são:', o:['μ = 4 e σ² ≈ 1,33','μ = 4 e σ² = 4','μ = 3 e σ² ≈ 1,33','μ = 4 e σ² = 16'], c:0, e:'μ = (2 + 6)/2 = 4 e σ² = (6 − 2)²/12 = 16/12 ≈ 1,33.'}
+]
+}
+);
+FASES.push(
+/* ===================================================== FASE 4 */
+{
+id:'estimacao', n:4, grupo:'Ferramentas estatísticas',
+titulo:'Estimação Pontual e Teorema Central do Limite',
+aula:'Aula 03', slides:'03-Estimacao_pontual.pdf · codigos/03-estimacao_pontual',
+tldr:'Usamos uma amostra iid para estimar parâmetros da população. Um bom estimador é não tendencioso e tem variância pequena. O TCL garante que a média amostral é aproximadamente normal, mesmo quando a população não é.',
+html:`
+<h2>Probabilidade × Estatística</h2>
+<p>O slide 4 usa uma urna de bolinhas. <strong>Probabilidade:</strong> conheço a urna; qual a chance de tirar certa combinação de cores? <strong>Estatística:</strong> vi algumas bolinhas; o que posso dizer sobre a urna? Inferência é fazer o caminho de volta, da amostra para a população.</p>
+
+<h2>Definições</h2>
+<ul>
+<li><strong>População:</strong> conjunto de elementos de natureza similar que constitui o fenômeno de interesse (pode ser físico ou não).</li>
+<li><strong>Amostra:</strong> subconjunto da população usado para inferir sobre ela.</li>
+<li><strong>Observação:</strong> um elemento da amostra.</li>
+<li><strong>Amostra aleatória:</strong> observações <strong>iid</strong>, ou seja, <em>independentes</em> (a próxima não depende das anteriores) e <em>identicamente distribuídas</em> (todas vêm da mesma distribuição).</li>
+<li><strong>Estatística:</strong> qualquer número calculado a partir de uma amostra aleatória. Como cada repetição do experimento gera outra amostra, a estatística é uma variável aleatória. Sua distribuição é a <strong>distribuição amostral</strong>.</li>
+</ul>
+
+<h2>Estimador e estimativa</h2>
+<p>Um <strong>estimador</strong> <span class="m">Θ̂ = h(x)</span> é uma <em>função</em> da amostra. A <strong>estimativa</strong> <span class="m">θ̂</span> é o <em>número</em> que essa função devolve para a amostra que você tem. Exemplos de parâmetros estimados: <span class="m">μ</span>, <span class="m">σ²</span>, uma proporção <span class="m">p</span>, a diferença <span class="m">μ₁ − μ₂</span>.</p>
+<div class="note analogia"><span class="tag">Analogia</span>
+<p>O estimador é a receita; a estimativa é o bolo que saiu hoje. A mesma receita, feita outro dia (outra amostra), dá um bolo um pouco diferente.</p></div>
+
+<h3>Não tendencioso (não enviesado)</h3>
+<div class="formula">E[Θ̂] = θ &nbsp;&nbsp;⇔&nbsp;&nbsp; T = E[Θ̂] − θ = 0<small>T é a tendência (viés) do estimador</small></div>
+<p>A média amostral <span class="m">x̄</span> e a variância amostral <span class="m">s² = Σ(xᵢ − x̄)²/(n − 1)</span> são não tendenciosas. É por causa do <span class="m">n − 1</span> que <span class="m">E[s²] = σ²</span>.</p>
+<p>Se houver mais de um estimador não tendencioso, escolhemos o de menor variância: o <strong>ENTVM</strong> (estimador não tendencioso de variância mínima).</p>
+<div class="note analogia"><span class="tag">Analogia</span>
+<p>Pense em dardos. <strong>Viés</strong> é uma mira descalibrada: os dardos se agrupam fora do centro. <strong>Variância</strong> é a mão trêmula: os dardos se espalham. O ENTVM é a mira calibrada com a mão mais firme.</p></div>
+
+<h3>Erro padrão</h3>
+<p>É o desvio-padrão do estimador, <span class="m">σ<sub>Θ̂</sub> = √Var(Θ̂)</span>. Quando calculado com dados, é o erro padrão estimado. O mais usado:</p>
+<div class="formula">σ̂<sub>x̄</sub> = s / √n</div>
+<p class="muted">Para outros estimadores e distribuições, o erro padrão pode vir de reamostragem (bootstrap, aula 09) ou de resultados assintóticos.</p>
+
+<h2>Teorema Central do Limite</h2>
+<p>Para uma amostra iid de uma população com média μ e variância σ² <strong>finitas</strong>, qualquer que seja a forma da distribuição:</p>
+<div class="formula">Z<sub>n</sub> = (x̄ − μ) / (σ/√n) &nbsp;→&nbsp; N(0, 1) &nbsp; quando n → ∞<small>a média amostral fica aproximadamente N(μ, σ²/n)</small></div>
+<p>Consequência prática: podemos usar técnicas baseadas na normal (ICs, testes t) mesmo que a população não seja normal. Para distribuições bem comportadas (contínuas, simétricas e unimodais), amostras pequenas já bastam.</p>
+<div class="widget" data-widget="tcl"></div>
+<div class="note pegadinha"><span class="tag">Pegadinha</span>
+<p>O TCL fala da distribuição da <strong>média amostral</strong>, não dos dados. Com n grande, os dados continuam com a forma da população (uniforme, exponencial…). Quem fica normal é o histograma das médias.</p></div>
+<div class="note ec"><span class="tag">Nos estudos de caso</span>
+<p>No EC03 a normalidade das diferenças foi rejeitada. O relatório então usou bootstrap para ver se a <em>média</em> das diferenças tinha distribuição aproximadamente normal, que é exatamente a pergunta do TCL.</p></div>
+`,
+quiz:[
+{q:'Uma amostra aleatória, no sentido da aula 03, exige observações:', o:['Independentes e identicamente distribuídas (iid)','Normalmente distribuídas','Em número maior que 30','Ordenadas pelo tempo de coleta'], c:0, e:'Amostra aleatória = observações iid. Normalidade é outra premissa, de alguns testes.'},
+{q:'Qual a diferença entre estimador e estimativa?', o:['Estimador é a função da amostra (uma variável aleatória); estimativa é o valor que ela devolve numa amostra específica','São sinônimos','Estimativa é a função e estimador é o número','Estimador é o próprio parâmetro populacional'], c:0, e:'Θ̂ = h(x) é o estimador. O número θ̂ calculado com os seus dados é a estimativa.'},
+{q:'Por que a variância amostral divide por n − 1?', o:['Para ser não tendenciosa: E[s²] = σ²','Para ter a menor variância possível','Por convenção do R','Para ser robusta a outliers'], c:0, e:'Dividindo por n, o estimador subestima σ² em média. Com n − 1 o viés some.'},
+{q:'Com s = 6 e n = 36, o erro padrão estimado da média é:', o:['1','6','0,167','36'], c:0, e:'s/√n = 6/6 = 1.'},
+{q:'O Teorema Central do Limite afirma que:', o:['A distribuição amostral da média tende à normal com média μ e variância σ²/n, mesmo que a população não seja normal (com variância finita)','Os dados de qualquer população ficam normais quando n é grande','Toda população é aproximadamente normal','O desvio-padrão amostral converge para zero'], c:0, e:'O TCL é sobre a média amostral. Os dados mantêm a forma da população.'},
+{q:'Entre dois estimadores não tendenciosos de θ, qual devemos preferir?', o:['O de menor variância (ENTVM)','O de maior variância, por ser mais conservador','Qualquer um, pois ambos acertam θ','O que usa menos observações'], c:0, e:'Ambos acertam em média. O de menor variância gera estimativas mais próximas de θ com mais frequência.'}
+]
+},
+
+/* ===================================================== FASE 5 */
+{
+id:'intervalos', n:5, grupo:'Ferramentas estatísticas',
+titulo:'Intervalos Estatísticos',
+aula:'Aula 04', slides:'04_Intervalos_Estatisticos.pdf · codigos/04-intervalo_de_confianca',
+tldr:'Uma estimativa pontual quase nunca acerta o parâmetro exato. O intervalo de confiança mostra a estimativa junto com a sua incerteza, e é o que você deve sempre reportar.',
+html:`
+<h2>Por que intervalos?</h2>
+<p>Cada amostra aleatória gera uma estimativa diferente. O exemplo do slide: cabos coaxiais com requisito de 50 Ω e σ conhecido de 2 Ω. Com n = 25, obteve-se <span class="m">x̄ = 48</span>. A média do processo é exatamente 48? Quase certamente não. Precisamos quantificar a incerteza.</p>
+
+<h2>Tipos de intervalo</h2>
+<div class="tw"><table class="t">
+<thead><tr><th>Intervalo</th><th>Responde a</th></tr></thead>
+<tbody>
+<tr><td>Tolerância</td><td>Onde está uma proporção da <em>população</em>? Na engenharia é comum usar μ ± 3σ (≈ 99,7% numa normal), compensando a incerteza quando σ é estimado.</td></tr>
+<tr><td>Predição</td><td>Onde deve cair uma nova observação?</td></tr>
+<tr><td>Maior densidade</td><td>Região de maior densidade de probabilidade.</td></tr>
+<tr><td>Confiança</td><td>Onde está o <em>parâmetro</em> (μ, σ², μ₁ − μ₂…)? É o foco da disciplina.</td></tr>
+</tbody></table></div>
+
+<h2>Intervalo de confiança</h2>
+<p>Os limites <span class="m">L</span> e <span class="m">U</span> são calculados a partir da amostra, então são variáveis aleatórias. Construímos o intervalo de modo que</p>
+<div class="formula">P(L ≤ μ ≤ U) = 1 − α</div>
+<p>Leitura correta: o <strong>procedimento</strong> acerta em 100(1 − α)% das vezes. Se repetíssemos o experimento muitas vezes, cerca de 95% dos ICs de 95% conteriam o verdadeiro μ (ilustração do slide 8 e simulação abaixo, que reproduz o código da aula 04).</p>
+<div class="widget" data-widget="ic"></div>
+
+<h3>As fórmulas</h3>
+<div class="tw"><table class="t">
+<thead><tr><th>Situação</th><th>IC de 100(1 − α)% para μ</th></tr></thead>
+<tbody>
+<tr><td>População normal, σ conhecido</td><td><span class="m">x̄ ± z<sub>α/2</sub> · σ/√n</span></td></tr>
+<tr><td>População normal, σ desconhecido</td><td><span class="m">x̄ ± t<sub>α/2, n−1</sub> · s/√n</span></td></tr>
+<tr><td>Amostra grande (n &gt; 30)</td><td>Pelo TCL, pode-se usar <span class="m">z<sub>α/2</sub></span> no lugar de <span class="m">t</span></td></tr>
+<tr><td>Unilateral</td><td><span class="m">[x̄ − t<sub>α, n−1</sub> s/√n; ∞)</span> ou <span class="m">(−∞; x̄ + t<sub>α, n−1</sub> s/√n]</span></td></tr>
+<tr><td>Variância σ² (pop. normal)</td><td><span class="m">[(n−1)s² / χ²<sub>sup</sub> ; (n−1)s² / χ²<sub>inf</sub>]</span>, com quantis da χ² de n − 1 gl</td></tr>
+</tbody></table></div>
+
+<div class="note exemplo"><span class="tag">Exemplo do slide 12</span>
+<p>Cabos: <span class="m">x̄ = 48</span>, σ = 2, n = 25, α = 0,05.</p>
+<p><span class="m">48 ± 1,96 × 2/√25 = 48 ± 0,784</span> → <strong>IC95%(μ) = [47,22; 48,78]</strong>.</p>
+<p>O requisito de 50 Ω está fora do intervalo. Isso é evidência de que a impedância média do processo está abaixo do requisito.</p></div>
+
+<h3>O que muda a largura do IC</h3>
+<ul>
+<li><strong>n maior → IC mais estreito</strong>, na proporção de 1/√n. Quadruplicar n corta a largura pela metade.</li>
+<li><strong>Confiança maior → IC mais largo</strong> (z ou t maiores).</li>
+<li><strong>σ maior → IC mais largo.</strong></li>
+</ul>
+
+<div class="note analogia"><span class="tag">Analogia</span>
+<p>A estimativa pontual é um arpão: quase sempre erra o peixe por pouco. O IC é uma rede. Uma rede de 95% é construída de modo que, em 95% dos lançamentos, o peixe fica dentro. Rede maior (99%) pega mais vezes, mas diz menos sobre onde exatamente o peixe está.</p></div>
+
+<div class="note pegadinha"><span class="tag">Pegadinha</span>
+<p>IC de confiança ≠ intervalo de tolerância. O IC fala do <strong>parâmetro</strong> (μ). “95% dos dados estão entre 47,22 e 48,78” está errado: isso seria um intervalo de tolerância, e seria muito mais largo.</p></div>
+
+<div class="note ec"><span class="tag">Nos estudos de caso</span>
+<p>Todos os relatórios reportam IC 95% da diferença. No EC01 (homens), o IC <span class="m">[−1,78; 3,09]</span> contém o zero, o que é coerente com <span class="m">p = 0,59</span>: não se rejeitou <span class="m">H₀</span>. Apresentar o IC é sempre melhor que só a estimativa pontual (slide 20).</p></div>
+`,
+quiz:[
+{q:'Cabos: IC95%(μ) = [47,22; 48,78] Ω, com requisito de 50 Ω. Qual a conclusão?', o:['50 Ω está fora do IC; há evidência de que a média do processo está abaixo do requisito','O processo atende ao requisito','Nada se pode concluir sem o p-valor','É preciso aumentar α para incluir o 50'], c:0, e:'Um valor fora do IC de 95% seria rejeitado por um teste bilateral com α = 0,05.'},
+{q:'Qual a interpretação correta de um IC de 95% para μ?', o:['Se repetíssemos o experimento muitas vezes, cerca de 95% dos intervalos construídos assim conteriam o verdadeiro μ','95% das observações da população estão dentro do intervalo','μ varia de amostra para amostra e cai no intervalo 95% das vezes','A média amostral está no intervalo com 95% de probabilidade'], c:0, e:'μ é fixo; quem varia são L e U. A confiança é uma propriedade do procedimento. “95% das observações” descreve um intervalo de tolerância.'},
+{q:'Qual intervalo descreve onde está uma proporção da população, como o μ ± 3σ usado na engenharia?', o:['Intervalo de tolerância','Intervalo de confiança','Intervalo de maior densidade','Intervalo de predição'], c:0, e:'Slide 5: o intervalo de tolerância cobre uma proporção específica da população.'},
+{q:'Mantendo todo o resto igual, multiplicar n por 4 faz a largura do IC da média:', o:['Cair pela metade','Cair a um quarto','Dobrar','Ficar igual'], c:0, e:'A largura é proporcional a 1/√n. √4 = 2.'},
+{q:'Com σ desconhecido e n = 10, o IC de 95% para μ usa o quantil:', o:['t com 9 graus de liberdade','z = 1,96','t com 10 graus de liberdade','χ² com 9 graus de liberdade'], c:0, e:'σ estimado por s → t com n − 1 = 9 gl.'},
+{q:'O IC para a variância de uma população normal usa a distribuição:', o:['χ² com n − 1 graus de liberdade','t com n − 1 graus de liberdade','F com (1, n − 1) graus de liberdade','Normal padrão'], c:0, e:'(n − 1)S²/σ² segue χ² com n − 1 gl (slide 17).'}
+]
+},
+
+/* ===================================================== FASE 6 */
+{
+id:'inferencia', n:6, grupo:'Testes de hipóteses',
+titulo:'Inferência Estatística e Testes de Hipóteses',
+aula:'Aula 05', slides:'codigos/05-inferencia_estatistica (o PDF desta aula não está na pasta Slides) + revisão nos slides 02, 06 e 09',
+tldr:'Um teste de hipóteses mede quão surpreendentes os dados seriam se não houvesse efeito. α controla o falso positivo, β o falso negativo, e o poder (1 − β) é o que o tamanho amostral garante.',
+html:`
+<div class="note"><span class="tag">Sobre esta fase</span>
+<p>O PDF da aula de Inferência Estatística não está na pasta <code>Slides/</code>. Esta fase foi montada com o script <code>05_inferencia_estatistica.R</code> e com as revisões de testes de hipóteses dos slides 02 (p. 21), 06 e 09 (p. 4–6).</p></div>
+
+<h2>As duas hipóteses</h2>
+<p><span class="m">H₀</span> é a hipótese <strong>conservadora</strong>: não há novidade (a especificação é atendida, o novo processo não difere do antigo). <span class="m">H₁</span> representa a novidade:</p>
+<ul>
+<li><strong>Bilateral</strong> (<span class="m">θ ≠ θ₀</span>): interessa qualquer diferença.</li>
+<li><strong>Unilateral</strong> (<span class="m">θ &lt; θ₀</span> ou <span class="m">θ &gt; θ₀</span>): só interessa uma direção, por exemplo “o novo método reduz o erro”.</li>
+</ul>
+<p>A direção é escolhida <strong>antes</strong> de ver os dados, a partir da pergunta técnica. O EC01 usou bilateral porque não havia razão teórica para esperar uma direção.</p>
+
+<h2>Estatística de teste e p-valor</h2>
+<p>Para a média de uma população normal com σ desconhecido:</p>
+<div class="formula">t₀ = (x̄ − μ₀) / (s / √n) &nbsp; ~ &nbsp; t<sub>n−1</sub> &nbsp; sob H₀</div>
+<p>O <strong>p-valor</strong> é a probabilidade de observar uma estatística tão ou mais extrema que a obtida, <strong>supondo <span class="m">H₀</span> verdadeira</strong>. Fixado α, rejeitamos <span class="m">H₀</span> se <span class="m">p ≤ α</span>.</p>
+<pre class="r"><span class="c"># codigos/05: média de uma população normal, variância desconhecida</span>
+t.test(my.sample, alternative = "less", mu = 50, conf.level = 0.99)  <span class="c"># unilateral</span>
+t.test(my.sample, mu = 50, conf.level = 0.99)                        <span class="c"># bilateral</span></pre>
+
+<h2>Os dois erros</h2>
+<div class="tw"><table class="t">
+<thead><tr><th></th><th>H₀ verdadeira</th><th>H₀ falsa</th></tr></thead>
+<tbody>
+<tr><td>Rejeito H₀</td><td>Erro tipo I (falso positivo). Probabilidade α</td><td>Acerto. Probabilidade 1 − β = <strong>poder</strong></td></tr>
+<tr><td>Não rejeito H₀</td><td>Acerto. Probabilidade 1 − α</td><td>Erro tipo II (falso negativo). Probabilidade β</td></tr>
+</tbody></table></div>
+<div class="note analogia"><span class="tag">Analogia</span>
+<p>Um tribunal. <span class="m">H₀</span> é “o réu é inocente”. Erro tipo I é condenar um inocente; erro tipo II é absolver um culpado. O poder é a capacidade de condenar quem é de fato culpado. E “não culpado” não é a mesma coisa que “inocente”: só não houve provas suficientes.</p></div>
+
+<h2>Poder e tamanho amostral</h2>
+<p>O poder depende de quatro coisas. Fixando três, a quarta fica determinada:</p>
+<ul>
+<li><strong>δ*</strong>: efeito minimamente relevante (a menor diferença que importa na prática). Normalizado: <span class="m">d* = δ*/σ</span>;</li>
+<li><strong>σ</strong>: variabilidade (estimada por histórico, conhecimento do processo ou piloto);</li>
+<li><strong>α</strong>: nível de significância;</li>
+<li><strong>n</strong>: tamanho amostral.</li>
+</ul>
+<pre class="r"><span class="c"># codigos/05: poder com n = 10</span>
+power.t.test(n = 10, delta = 0.5, sd = 1, sig.level = 0.01,
+             type = "one.sample", alternative = "one.sided")
+<span class="c"># menor delta detectável com n = 10 e poder 0,85</span>
+power.t.test(power = 0.85, n = 10, sd = 1, sig.level = 0.01,
+             type = "one.sample", alternative = "one.sided")</pre>
+<p>Deixe de fora exatamente o argumento que você quer descobrir: <code>n</code>, <code>delta</code> ou <code>power</code>.</p>
+<div class="widget" data-widget="poder"></div>
+
+<h2>Premissas do teste t</h2>
+<ul>
+<li><strong>Normalidade:</strong> QQ-plot (<code>car::qqPlot</code>) e Shapiro-Wilk (<code>shapiro.test</code>; <span class="m">H₀</span> = os dados são normais). O teste t é robusto a violações leves ou moderadas.</li>
+<li><strong>Independência:</strong> garantida no planejamento. O Durbin-Watson (<code>car::durbinWatsonTest(lm(x ~ 1))</code>) só detecta autocorrelação serial na ordem em que os dados estão.</li>
+</ul>
+
+<h2>Teste e IC andam juntos</h2>
+<p>Um teste bilateral com nível α rejeita <span class="m">H₀: μ = μ₀</span> exatamente quando <span class="m">μ₀</span> fica fora do IC de 100(1 − α)%. Por isso os relatórios dizem “o IC contém o zero e p &gt; α”.</p>
+
+<div class="note pegadinha"><span class="tag">Pegadinhas</span>
+<ul>
+<li><strong>p-valor não é P(H₀ verdadeira).</strong> É P(dados tão extremos | H₀).</li>
+<li><strong>Não rejeitar H₀ não prova H₀.</strong> Pode ser falta de poder (erro tipo II). Para afirmar igualdade é preciso um teste de equivalência (aula 07).</li>
+<li><strong>Significância estatística ≠ relevância prática.</strong> Com n enorme, diferenças irrelevantes ficam significativas. Compare o IC com δ*.</li>
+<li>No Shapiro-Wilk, p &gt; α é a resposta “boa”: não há evidência contra a normalidade.</li>
+</ul></div>
+
+<div class="note ec"><span class="tag">Nos estudos de caso</span>
+<p>EC01: p = 0,086 nas mulheres → não se rejeitou <span class="m">H₀</span>, e o relatório discutiu o poder (amostras de 7 e 4 alunas). EC03: o planejamento fixou α = 0,05, poder 0,8 e d* = 0,5, e daí saiu N = 34 instâncias com <code>power.t.test(type = "paired")</code>.</p></div>
+`,
+quiz:[
+{q:'Um teste retornou p = 0,03 com α = 0,05. Qual leitura é correta?', o:['Se H₀ fosse verdadeira, dados tão ou mais extremos teriam 3% de probabilidade; rejeita-se H₀','A probabilidade de H₀ ser verdadeira é 3%','Há 97% de probabilidade de H₁ ser verdadeira','O efeito é grande e relevante na prática'], c:0, e:'O p-valor é condicional a H₀. Ele não dá a probabilidade de H₀ nem mede o tamanho do efeito.'},
+{q:'O erro tipo II consiste em:', o:['Não rejeitar H₀ quando ela é falsa','Rejeitar H₀ quando ela é verdadeira','Escolher α grande demais','Usar teste bilateral quando deveria ser unilateral'], c:0, e:'Tipo II = falso negativo, com probabilidade β. Tipo I = falso positivo, com probabilidade α.'},
+{q:'O poder de um teste é:', o:['A probabilidade de rejeitar H₀ quando existe um efeito real de tamanho δ*','A probabilidade de não rejeitar H₀ quando ela é verdadeira','O próprio p-valor','A probabilidade de erro tipo I'], c:0, e:'Poder = 1 − β, sempre calculado para um tamanho de efeito específico.'},
+{q:'Mantendo α e δ* fixos, qual ação aumenta o poder?', o:['Aumentar o tamanho amostral','Diminuir α','Aumentar a variabilidade do processo','Trocar um teste unilateral bem justificado por bilateral'], c:0, e:'Mais dados reduzem o erro padrão (s/√n). Diminuir α, aumentar σ ou usar bilateral reduzem o poder.'},
+{q:'Um teste comparando dois processos não rejeitou H₀ (p = 0,40). O que se pode afirmar?', o:['Não há evidência suficiente de diferença; isso não prova que os processos são iguais','Os processos são equivalentes','H₁ é falsa','O teste foi mal feito porque não deu significativo'], c:0, e:'Ausência de evidência não é evidência de ausência. Pode faltar poder. Para afirmar igualdade, use um teste de equivalência.'},
+{q:'Quando é legítimo usar um teste unilateral?', o:['Quando a pergunta técnica, definida antes da coleta, só se interessa por uma direção','Quando os dados já mostram a direção do efeito','Sempre que o bilateral não der significativo','Quando a amostra é pequena'], c:0, e:'Escolher a direção depois de ver os dados é uma forma de HARKing e infla o erro tipo I.'},
+{q:'Como a premissa de independência é garantida?', o:['Principalmente pelo planejamento e protocolo de coleta; o Durbin-Watson só detecta autocorrelação serial','Pelo teste de Shapiro-Wilk','Pelo teste de Fligner-Killeen','Aumentando o tamanho amostral'], c:0, e:'Slide 06, p. 19: não existe teste para garantir independência; isso deve ser assegurado no planejamento.'}
+]
+},
+
+/* ===================================================== FASE 7 */
+{
+id:'comparacoes', n:7, grupo:'Testes de hipóteses',
+titulo:'Comparações Simples e Pareadas',
+aula:'Aula 06', slides:'06_Comparacao_Simples_Pareada.pdf · codigos/06-comparacoes',
+tldr:'Para comparar duas médias, use o teste t de duas amostras (variâncias iguais ou Welch). Quando cada unidade passa pelos dois tratamentos, pareie: a diferença dentro da unidade elimina o efeito da unidade e o teste ganha muito poder.',
+html:`
+<h2>Comparação simples: duas amostras independentes</h2>
+<div class="note exemplo"><span class="tag">Exemplo do slide: hastes de aço</span>
+<p>Um engenheiro quer saber se um novo método de corte reduz o erro de comprimento. Resposta: erro absoluto <span class="m">y = |l − l<sub>nominal</sub>|</span>. Modelo: <span class="m">y<sub>ij</sub> = μ<sub>i</sub> + ε<sub>ij</sub></span>, com <span class="m">i</span> = processo.</p>
+<div class="formula">H₀: μ<sub>novo</sub> − μ<sub>atual</sub> = 0 &nbsp;&nbsp; H₁: μ<sub>novo</sub> − μ<sub>atual</sub> &lt; 0<small>α = 0,05 · poder 0,8 · δ* = 15 cm · σ ≈ 15 cm (manuais + histórico)</small></div></div>
+
+<h3>Planejar: tamanho amostral</h3>
+<p>Com variâncias aproximadamente iguais, o tamanho ótimo é <span class="m">n₁ = n₂ = n</span>:</p>
+<div class="formula">n ≈ 2 · ( (t<sub>α, 2n−2</sub> + t<sub>β, 2n−2</sub>) / d* )², &nbsp; d* = δ*/σ<small>a equação depende de n dos dois lados: comece com z no lugar de t e itere</small></div>
+<p>O problema do ovo e da galinha: para calcular n precisamos de σ, e para estimar σ precisamos de dados. Saídas: conhecimento do processo ou dados históricos, usar o efeito normalizado d*, ou fazer um <strong>estudo piloto</strong>.</p>
+<pre class="r">power.t.test(delta = 15, sd = 15, sig.level = 0.05, power = 0.8,
+             type = "two.sample", alternative = "one.sided")
+<span class="c">#  n = 13.09777   NOTE: n is number in *each* group</span></pre>
+<p>Arredonde <strong>para cima</strong>: 14 hastes por grupo.</p>
+
+<h3>Analisar: variâncias iguais</h3>
+<div class="formula">S<sub>p</sub>² = [(n₁−1)S₁² + (n₂−1)S₂²] / (n₁ + n₂ − 2) &nbsp;&nbsp; t₀ = (ȳ₁ − ȳ₂) / (S<sub>p</sub> √(1/n₁ + 1/n₂)) ~ t<sub>n₁+n₂−2</sub></div>
+<pre class="r">t.test(y$Length.error ~ y$Process, alternative = "less", mu = 0,
+       var.equal = TRUE, conf.level = 0.95)
+<span class="c"># t = -14.312, df = 32, p-value = 9.244e-16</span>
+<span class="c"># 95% CI: -Inf  -7.156884 ;  médias: new 7.78  old 15.90</span></pre>
+<p>Premissas verificadas no slide:</p>
+<ul>
+<li><strong>Normalidade:</strong> Shapiro p = 0,164 (novo) e 0,452 (atual). O teste t é robusto a violações leves e moderadas.</li>
+<li><strong>Igualdade de variâncias:</strong> Fligner-Killeen p = 0,149, mais o gráfico dos resíduos por grupo.</li>
+<li><strong>Independência:</strong> garantida no planejamento; Durbin-Watson só para tendência na ordem de coleta.</li>
+</ul>
+
+<h3>Variâncias diferentes: Welch</h3>
+<div class="formula">t₀* = (ȳ₁ − ȳ₂) / √(s₁²/n₁ + s₂²/n₂) &nbsp; ≈ t<sub>ν</sub><small>ν pela fórmula de Welch-Satterthwaite</small></div>
+<p>O Welch costuma ser a primeira escolha porque remove uma premissa. O preço é um pouco menos de poder. No caso desbalanceado, a alocação ótima segue os desvios-padrão: <span class="m">n₁/n₂ = σ₁/σ₂</span>. No R, é o padrão do <code>t.test</code> (<code>var.equal = FALSE</code>).</p>
+
+<h2>Comparação pareada</h2>
+<div class="note exemplo"><span class="tag">Exemplo do slide: algoritmos A × B</span>
+<p>Um pesquisador compara o tempo de convergência de um algoritmo novo (A) com o estado da arte (B) em N = 7 instâncias de benchmark, com 30 repetições por instância. Interessa detectar diferenças maiores que δ* = 10 s, com poder 0,8 e α = 0,05.</p></div>
+<p>A variabilidade entre instâncias é enorme e controlável. A saída elegante é <strong>parear</strong>: comparar A e B dentro de cada instância.</p>
+<div class="formula">y<sub>ij</sub> = μ + τ<sub>i</sub> + β<sub>j</sub> + ε<sub>ij</sub> &nbsp;⇒&nbsp; d<sub>j</sub> = y<sub>Aj</sub> − y<sub>Bj</sub> = (τ<sub>A</sub> − τ<sub>B</sub>) + ε<sub>j</sub> = μ<sub>D</sub> + ε<sub>j</sub><small>o efeito da instância β<sub>j</sub> se cancela na subtração</small></div>
+<div class="formula">H₀: μ<sub>D</sub> = 0 &nbsp; H₁: μ<sub>D</sub> ≠ 0 &nbsp;&nbsp;·&nbsp;&nbsp; t₀ = D̄ / (S<sub>D</sub>/√N) ~ t<sub>N−1</sub></div>
+<pre class="r"><span class="c"># 1) agregar: média das 30 repetições por instância e algoritmo</span>
+aggdata &lt;- aggregate(Time ~ Problem:Algorithm, data = data, FUN = mean)
+<span class="c"># 2) teste pareado</span>
+t.test(Time ~ Algorithm, paired = TRUE, data = aggdata)
+<span class="c"># t = -9.1585, df = 6, p-value = 9.54e-05</span>
+<span class="c"># 95% CI: -21.85862 -12.64118 ; mean of the differences -17.2499</span></pre>
+<p>Shapiro das diferenças: p = 0,097. Há um ponto atípico; refazendo sem ele, p = 6,2 × 10⁻⁶ e IC [−21,4; −16,5]. A conclusão se mantém.</p>
+
+<h3>O que acontece se ignorar o pareamento</h3>
+<div class="tw"><table class="t num">
+<thead><tr><th>Análise dos mesmos dados</th><th>p-valor</th><th>IC 95% da diferença</th></tr></thead>
+<tbody>
+<tr><td>t pareado</td><td>9,5 × 10⁻⁵</td><td>[−21,9; −12,6]</td></tr>
+<tr><td>Welch (ignorando instâncias)</td><td>0,72</td><td>[−121,4; 86,9]</td></tr>
+</tbody></table></div>
+<p>Sem pareamento, a variação entre instâncias vai para o resíduo e afoga o efeito dos algoritmos.</p>
+
+<h3>Cuidados no pareado (slide 28)</h3>
+<ul>
+<li>δ* se refere ao ganho médio <strong>na classe de problemas</strong>, não a uma instância isolada.</li>
+<li>O tamanho amostral que importa é o <strong>número de instâncias</strong>, não o de repetições.</li>
+<li>As repetições reduzem a incerteza de cada observação (média por instância), e essa incerteza se propaga para a variância residual.</li>
+<li>O pareamento é indicado quando há grande correlação entre as observações, ou seja, condições experimentais heterogêneas.</li>
+</ul>
+
+<div class="note analogia"><span class="tag">Analogia</span>
+<p>Para comparar dois tênis de corrida, você pode dar o tênis A a um grupo e o B a outro grupo. Mas os corredores são muito diferentes entre si. Melhor: cada corredor corre com os dois (em ordem sorteada). Cada pessoa vira o próprio controle e a diferença de condicionamento físico desaparece da comparação.</p></div>
+
+<h2>Comparações múltiplas (prévia)</h2>
+<p>Com três ou mais grupos, fazer vários testes t aos pares exige correção do α (Bonferroni) ou testes específicos (Tukey). Isso é tratado na ANOVA (fase 9).</p>
+
+<div class="note pegadinha"><span class="tag">Pegadinhas</span>
+<ul>
+<li><code>power.t.test</code> devolve n <strong>por grupo</strong>. E arredonda-se para cima.</li>
+<li>No pareado, os graus de liberdade são N − 1 com N = número de pares (instâncias), não o número total de execuções.</li>
+<li>Tratar as 30 repetições como observações independentes é <strong>pseudorreplicação</strong>.</li>
+</ul></div>
+
+<div class="note ec"><span class="tag">Nos estudos de caso</span>
+<p><strong>EC01</strong> é a comparação simples: dois semestres independentes, Fligner sem evidência contra variâncias iguais, <code>t.test(var.equal = TRUE)</code>. As alunas tinham amostras desbalanceadas (7 e 4), e o poder foi calculado com <code>pwr.t2n.test</code>. <strong>EC03</strong> é a pareada: as duas configurações nas mesmas instâncias, N = 34 instâncias, média das repetições por instância.</p></div>
+`,
+quiz:[
+{q:'Nas hastes de aço, o Fligner-Killeen deu p = 0,149 (α = 0,05). O que isso indica?', o:['Não há evidência contra a igualdade das variâncias; a homoscedasticidade é plausível','As variâncias são diferentes e é obrigatório usar Welch','Os dados são normais','Deve-se rejeitar H₀ do teste t'], c:0, e:'No Fligner, H₀ é a igualdade de variâncias. p > α significa não rejeitar H₀.'},
+{q:'Por que o teste de Welch costuma ser uma das primeiras escolhas?', o:['Porque dispensa a premissa de variâncias iguais, ao custo de um pouco menos de poder','Porque dispensa a premissa de normalidade','Porque tem mais poder que o t com variâncias iguais','Porque funciona com dados pareados'], c:0, e:'Slide 22: retirar uma premissa reduz o poder do teste.'},
+{q:'No exemplo dos algoritmos (7 instâncias, 30 repetições cada), quantos graus de liberdade tem o teste t pareado?', o:['6','209','29','12'], c:0, e:'Os pares são as instâncias: N − 1 = 7 − 1 = 6. As repetições viram uma média por instância.'},
+{q:'Com os mesmos dados, o t pareado deu p = 9,5 × 10⁻⁵ e o Welch deu p = 0,72. Por quê?', o:['A grande variabilidade entre instâncias entra no resíduo do teste não pareado e mascara o efeito dos algoritmos','O Welch é um teste com erro','O pareado infla o erro tipo I','Os dados deixaram de ser normais'], c:0, e:'O pareamento remove o efeito β_j da instância. Sem ele, essa variação vai para o erro.'},
+{q:'Em comparações pareadas de algoritmos, o tamanho amostral mais importante é:', o:['O número de instâncias','O número de repetições por instância','O número de execuções no total','O número de algoritmos'], c:0, e:'Slide 28: a inferência é sobre a classe de problemas, representada pelas instâncias.'},
+{q:'power.t.test(delta = 15, sd = 15, power = 0.8, ...) retornou n = 13,1. Quantas hastes coletar?', o:['14 em cada grupo','13 no total','13 em cada grupo','27 no total'], c:0, e:'O n é por grupo e deve ser arredondado para cima: 14 + 14 = 28 hastes.'},
+{q:'Com variâncias diferentes e σ₁ = 2σ₂, qual alocação é ótima no caso desbalanceado?', o:['n₁ = 2 n₂','n₁ = n₂','n₂ = 2 n₁','n₁ = 4 n₂'], c:0, e:'Slide 22: n₁/n₂ = σ₁/σ₂.'}
+]
+}
+);
+FASES.push(
+/* ===================================================== FASE 8 */
+{
+id:'equivalencia', n:8, grupo:'Testes de hipóteses',
+titulo:'Equivalência e Não Inferioridade',
+aula:'Aula 07', slides:'07_Equivalencia_Nao_Inferioridade.pdf · codigos/07-equivalencia',
+tldr:'Quando a novidade que você quer demonstrar é a igualdade, inverta as hipóteses: H₀ passa a ser “há diferença relevante”. A equivalência é demonstrada com dois testes unilaterais (TOST), ou com um IC de nível 1 − 2α contido em ±δ*.',
+html:`
+<h2>Por que inverter?</h2>
+<p>No teste usual, <span class="m">H₁</span> (a decisão forte) é a diferença. Mas em certificação industrial ou em equivalência de medicamentos, a novidade que se quer provar é a <strong>igualdade aproximada</strong>. Como não rejeitar <span class="m">H₀</span> não prova nada, é preciso colocar a igualdade em <span class="m">H₁</span>.</p>
+<p>“Equivalente” não significa idêntico. Significa que a diferença está dentro de uma <strong>margem de equivalência δ*</strong> (o limite de significância prática).</p>
+
+<h2>Teste de equivalência (TOST)</h2>
+<div class="formula">H₀: |μ₁ − μ₂| ≥ δ* &nbsp;&nbsp; H₁: |μ₁ − μ₂| &lt; δ*</div>
+<p>Testado com <strong>dois testes unilaterais</strong>, cada um com nível α:</p>
+<div class="formula">H₀₁: μ₁ − μ₂ = −δ* &nbsp;vs&nbsp; H₁₁: μ₁ − μ₂ &gt; −δ* &nbsp;&nbsp;·&nbsp;&nbsp; H₀₂: μ₁ − μ₂ = δ* &nbsp;vs&nbsp; H₁₂: μ₁ − μ₂ &lt; δ*</div>
+<p>Só se declara equivalência se <strong>as duas</strong> <span class="m">H₀</span> forem rejeitadas.</p>
+<p><strong>Atalho pelo IC:</strong> há equivalência ao nível α se o <strong>IC de 100(1 − 2α)%</strong> da diferença estiver inteiramente dentro de <span class="m">(−δ*, δ*)</span>.</p>
+
+<h2>Não inferioridade</h2>
+<p>Versão unilateral: declarar que um processo novo <em>não é pior</em> que o padrão, ou seja, que ele é no máximo δ* pior. É um único teste unilateral com a margem δ* embutida na <span class="m">H₀</span>.</p>
+
+<div class="note exemplo"><span class="tag">Exemplo do slide: laboratório balístico</span>
+<p>Um laboratório precisa mostrar que a área média do furo do seu procedimento equivale à do equipamento de referência, com tolerância de δ* = 4 mm². Estimativas: σ<sub>Lab</sub> = 5, σ<sub>Ref</sub> = 10 mm². Erros: α = 0,01 e β = 0,1.</p>
+<p><strong>Planejamento:</strong> com Δμ* = 0,5 (fórmula de Zhang, <code>calcN_tost2</code>), n = 144,2 → <strong>145 observações por grupo</strong>.</p>
+<pre class="r">t.test(HoleArea ~ Place, data = data, alternative = "less",    mu =  4, conf.level = 0.99)$p.value
+<span class="c"># 0.00304</span>
+t.test(HoleArea ~ Place, data = data, alternative = "greater", mu = -4, conf.level = 0.99)$p.value
+<span class="c"># 6.59e-10</span>
+t.test(HoleArea ~ Place, data = data, conf.level = 0.98)$conf.int
+<span class="c"># -0.5117627  3.6244386</span></pre>
+<p>Os dois p-valores estão abaixo de 0,01 e o IC de 98% (= 1 − 2 × 0,01) está dentro de (−4, 4). <strong>Equivalência demonstrada.</strong> Premissas: QQ-plots por grupo e Durbin-Watson (DW = 1,81; p = 0,048), com gráfico das observações pela ordem de coleta.</p></div>
+
+<h3>Tamanho amostral</h3>
+<div class="formula">uma amostra: n ≥ ( (t<sub>α</sub> + t<sub>β</sub>) σ̂ / (δ* − Δμ) )²<small>duas amostras: fórmula de Zhang, com graus de liberdade de Welch; iterar começando com z</small></div>
+
+<div class="note analogia"><span class="tag">Analogia</span>
+<p>Uma peça nova precisa encaixar no lugar da antiga com folga máxima de 4 mm. Dizer “não consegui medir diferença” não serve, porque talvez a régua seja ruim. Você precisa mostrar, com confiança, que a diferença inteira cabe na folga. Isso é o IC dentro de ±δ*.</p></div>
+
+<div class="note pegadinha"><span class="tag">Pegadinhas</span>
+<ul>
+<li>IC de nível <strong>1 − 2α</strong> (98% para α = 0,01; 90% para α = 0,05), não 1 − α.</li>
+<li>Precisa rejeitar <strong>as duas</strong> hipóteses nulas.</li>
+<li>Um p-valor alto num teste de diferença <strong>não</strong> demonstra equivalência.</li>
+</ul></div>
+<div class="note ec"><span class="tag">Nos estudos de caso</span>
+<p>No EC02, o Dunnett não distinguiu V3 de V1. O relatório tomou o cuidado de escrever que isso <em>não prova que as médias são iguais</em>, apenas que não há evidência de diferença. Para afirmar igualdade, seria preciso um teste de equivalência com δ* definido antes.</p></div>
+`,
+quiz:[
+{q:'Num teste de equivalência entre duas médias, as hipóteses são:', o:['H₀: |μ₁ − μ₂| ≥ δ*  e  H₁: |μ₁ − μ₂| < δ*','H₀: μ₁ = μ₂  e  H₁: μ₁ ≠ μ₂','H₀: |μ₁ − μ₂| < δ*  e  H₁: |μ₁ − μ₂| ≥ δ*','H₀: μ₁ − μ₂ < 0  e  H₁: μ₁ − μ₂ ≥ 0'], c:0, e:'A equivalência é a novidade, então fica em H₁. H₀ diz que a diferença é relevante.'},
+{q:'Com α = 0,05, qual IC deve estar contido em (−δ*, δ*) para declarar equivalência?', o:['IC de 90%','IC de 95%','IC de 97,5%','IC de 99%'], c:0, e:'Nível 1 − 2α = 0,90, porque são dois testes unilaterais com α cada.'},
+{q:'No laboratório balístico, IC98% = [−0,51; 3,62] e δ* = 4 mm². A conclusão é:', o:['Há equivalência, pois o IC está inteiramente dentro de (−4, 4)','Não há equivalência, pois o IC não contém o zero','Não há equivalência, pois 3,62 é próximo de 4','Nada se conclui sem o teste de Shapiro'], c:0, e:'Para equivalência basta o IC (1 − 2α) caber na margem; ele pode conter ou não o zero.'},
+{q:'Um teste t comparando um método novo e um antigo deu p = 0,40. Isso permite afirmar que são equivalentes?', o:['Não; ausência de evidência de diferença não demonstra equivalência','Sim, pois p > 0,05','Sim, se o poder for maior que 0,8','Sim, desde que as variâncias sejam iguais'], c:0, e:'É preciso definir δ* e testar a equivalência diretamente (TOST ou IC 1 − 2α).'},
+{q:'O teste de não inferioridade serve para mostrar que:', o:['Um processo novo não é pior que o padrão por mais que δ*','Um processo novo é estritamente melhor que o padrão','Dois processos são idênticos','As variâncias de dois processos são iguais'], c:0, e:'É a versão unilateral da equivalência, com a margem δ* incluída na H₀.'}
+]
+},
+
+/* ===================================================== FASE 9 */
+{
+id:'anova', n:9, grupo:'Mais de dois grupos',
+titulo:'Análise de Variância (ANOVA)',
+aula:'Aula 08', slides:'08_ANOVA.pdf · codigos/08-anova',
+tldr:'A ANOVA testa se pelo menos uma de várias médias difere, comparando a variação entre grupos com a variação dentro dos grupos (F = MS_níveis / MS_E). Se rejeitar, use comparações múltiplas (Tukey ou Dunnett) para saber quais diferem.',
+html:`
+<div class="note exemplo"><span class="tag">Exemplo do slide: resistência do papel</span>
+<p>Um engenheiro investiga se o tipo de fibra (A, B, C, D) afeta a resistência à tração do papel. Orçamento: 6 ciclos de produção por fibra. Portanto, um fator com <span class="m">a = 4</span> níveis e <span class="m">n = 6</span> repetições. δ* = 5 kPa, σ̂ = 6 kPa, α = 0,1, β = 0,2.</p>
+<p>O boxplot mostra diferenças entre fibras, variabilidade diferente por nível, assimetria em B e um possível outlier em C. Isso precisa ser ponderado na análise.</p></div>
+
+<h2>Por que não vários testes t?</h2>
+<p>Cada teste tem chance α de falso positivo. Usar o mesmo conjunto de dados para muitos testes aumenta a chance de pelo menos um falso positivo (erro tipo I da família). A ANOVA faz um único teste global.</p>
+
+<h2>Modelo</h2>
+<div class="formula">y<sub>ij</sub> = μ<sub>i</sub> + ε<sub>ij</sub> = μ + τ<sub>i</sub> + ε<sub>ij</sub>, &nbsp; Σ τ<sub>i</sub> = 0, &nbsp; ε<sub>ij</sub> ~ iid N(0, σ²)<small>modelo das médias = modelo dos efeitos · i = 1…a níveis · j = 1…n repetições</small></div>
+<div class="formula">H₀: τ<sub>i</sub> = 0 ∀ i &nbsp;&nbsp; H₁: ∃ τ<sub>i</sub> ≠ 0</div>
+<ul>
+<li><strong>CRD</strong> (experimento completamente aleatorizado): observações em ordem aleatória, condições constantes.</li>
+<li><strong>Efeitos fixos:</strong> os níveis foram escolhidos pelo experimentador. Os resultados <em>não</em> podem ser extrapolados para níveis não testados.</li>
+</ul>
+
+<h2>Decompondo a variabilidade</h2>
+<div class="formula">SS<sub>T</sub> = Σ Σ (y<sub>ij</sub> − ȳ··)² = n Σ (ȳ<sub>i·</sub> − ȳ··)² + Σ Σ (y<sub>ij</sub> − ȳ<sub>i·</sub>)² = SS<sub>níveis</sub> + SS<sub>E</sub></div>
+<div class="tw"><table class="t">
+<thead><tr><th>Fonte</th><th>gl</th><th>Quadrado médio</th><th>Valor esperado</th></tr></thead>
+<tbody>
+<tr><td>Níveis (entre)</td><td>a − 1</td><td>MS<sub>níveis</sub> = SS<sub>níveis</sub>/(a − 1)</td><td>σ² + n Σ τ<sub>i</sub>² / (a − 1)</td></tr>
+<tr><td>Erro (dentro)</td><td>a(n − 1)</td><td>MS<sub>E</sub> = SS<sub>E</sub>/(a(n − 1))</td><td>σ²</td></tr>
+</tbody></table></div>
+<p>Sob <span class="m">H₀</span> os dois quadrados médios estimam σ². Se há efeito, <span class="m">MS<sub>níveis</sub></span> fica maior:</p>
+<div class="formula">F₀ = MS<sub>níveis</sub> / MS<sub>E</sub> &nbsp;~&nbsp; F<sub>(a−1), a(n−1)</sub> sob H₀ &nbsp;·&nbsp; rejeita se f₀ &gt; F<sub>1−α</sub></div>
+<div class="widget" data-widget="anova"></div>
+
+<div class="note analogia"><span class="tag">Analogia</span>
+<p>Uma festa com várias mesas. Se a conversa <em>entre</em> as mesas (cada mesa falando de um assunto diferente) é muito mais alta que o burburinho <em>dentro</em> de cada mesa, as mesas são de fato diferentes. F é essa razão sinal/ruído.</p></div>
+
+<h2>No R</h2>
+<pre class="r">my.model &lt;- aov(TS.kPa ~ Fiber.type, data = paper)
+summary.aov(my.model)
+<span class="c">#             Df Sum Sq Mean Sq F value   Pr(>F)</span>
+<span class="c"># Fiber.type   3 110.77   36.92   13.62 4.56e-05 ***</span>
+<span class="c"># Residuals   20  54.24    2.71</span></pre>
+<p>gl: <span class="m">a − 1 = 3</span> e <span class="m">a(n − 1) = 4 × 5 = 20</span>. <span class="m">F = 36,92/2,71 ≈ 13,6</span>. Com p = 4,56 × 10⁻⁵, rejeita-se <span class="m">H₀</span>: <strong>existe ao menos uma fibra com efeito diferente de zero</strong>. Ainda falta responder: as premissas valem? Quais fibras diferem, e quanto?</p>
+
+<h2>Premissas (nos resíduos)</h2>
+<p>Resíduo: <span class="m">ε̂<sub>ij</sub> = y<sub>ij</sub> − ȳ<sub>i·</sub></span>, no R <code>my.model$residuals</code>.</p>
+<div class="tw"><table class="t">
+<thead><tr><th>Premissa</th><th>Como verificar</th><th>Resultado no papel</th></tr></thead>
+<tbody>
+<tr><td>Normalidade</td><td><code>shapiro.test(my.model$residuals)</code> + <code>qqPlot</code></td><td>W = 0,972; p = 0,72. ANOVA é robusta a violações moderadas.</td></tr>
+<tr><td>Homoscedasticidade</td><td><code>fligner.test(TS.kPa ~ Fiber.type)</code> + resíduos × ajustados</td><td>p = 0,79. Robusta a violações modestas se balanceado.</td></tr>
+<tr><td>Independência</td><td>Planejamento: sem pseudorreplicação, ordem aleatória. DW se houver ordem de coleta.</td><td>A ANOVA é sensível a violações desta premissa.</td></tr>
+</tbody></table></div>
+
+<h2>Comparações múltiplas</h2>
+<p>Planeje as comparações <strong>antes</strong> do experimento, guiado pela pergunta técnica. Hipóteses criadas depois de ver os dados (post-hoc, HARKing) são fonte comum de viés. Quanto menos comparações, mais poder.</p>
+<div class="tw"><table class="t">
+<thead><tr><th>Pergunta</th><th>Método</th><th>Nº de comparações K</th></tr></thead>
+<tbody>
+<tr><td>Quais níveis diferem entre si?</td><td>Tukey (HSD): todos contra todos</td><td>a(a − 1)/2</td></tr>
+<tr><td>Algum nível difere do controle/padrão?</td><td>Dunnett: todos contra um</td><td>a − 1</td></tr>
+<tr><td>Correção genérica</td><td>Bonferroni: α<sub>aj</sub> = α/K (conservador)</td><td>K</td></tr>
+</tbody></table></div>
+<pre class="r">library(multcomp)
+mc1 &lt;- glht(my.model, linfct = mcp(Fiber.type = "Tukey"))
+confint(mc1, level = 0.95)
+<span class="c">#            Estimate     lwr    upr</span>
+<span class="c"># B - A == 0  -1.9867 -4.6478 0.6745</span>
+<span class="c"># C - A == 0   3.6500  0.9889 6.3111   &lt;- não contém 0</span>
+<span class="c"># D - A == 0   2.2333 -0.4278 4.8945</span>
+<span class="c"># C - B == 0   5.6367  2.9755 8.2978   &lt;- não contém 0</span>
+<span class="c"># D - B == 0   4.2200  1.5589 6.8811   &lt;- não contém 0</span>
+<span class="c"># D - C == 0  -1.4167 -4.0778 1.2445</span>
+<span class="c"># Dunnett com B como referência:</span>
+paper$Fiber.type &lt;- relevel(paper$Fiber.type, ref = "B")
+mc2 &lt;- glht(aov(TS.kPa ~ Fiber.type, data = paper), linfct = mcp(Fiber.type = "Dunnett"))</pre>
+<p>Leitura: um IC simultâneo que não contém zero indica diferença significativa. C supera A e B; D supera B; C e D não se distinguem.</p>
+
+<h2>Tamanho amostral</h2>
+<ul>
+<li><strong>Para as comparações:</strong> corrija o α (por exemplo, Bonferroni α/K) e use a fórmula do teste t de duas amostras com <span class="m">α<sub>aj</sub></span>.</li>
+<li><strong>Só para o teste global:</strong> <code>power.anova.test</code>. Exemplo do slide: a = 4, σ = 7, δ* = 12, cenário conservador τ = (−6, 6, 0, 0), poder 0,8 → n = 8,46 → <strong>9 por grupo</strong>.</li>
+</ul>
+
+<div class="note pegadinha"><span class="tag">Pegadinhas</span>
+<ul>
+<li>Rejeitar <span class="m">H₀</span> na ANOVA significa “pelo menos um nível difere”, não “todos diferem”.</li>
+<li>As premissas são sobre os <strong>resíduos</strong> do modelo.</li>
+<li>Tukey com a = 5 faz 10 comparações; Dunnett faz 4. Menos comparações → correção menor → mais poder.</li>
+</ul></div>
+<div class="note ec"><span class="tag">Nos estudos de caso</span>
+<p><strong>EC02</strong> = ANOVA com 5 ações e 35 retornos cada: <code>aov(retorno ~ acao)</code>, rejeitou H₀ (p = 1,32 × 10⁻⁴). A pergunta “qual ação rende mais?” é do tipo todos contra um, então o confirmatório foi Dunnett contra a ação de maior média (V1), e o Tukey ficou como exploratório. O relatório registrou como limitação que a referência foi escolhida depois de ver os dados.</p></div>
+`,
+quiz:[
+{q:'Por que não comparar 4 grupos com vários testes t aos pares, sem correção?', o:['Porque o uso repetido dos mesmos dados infla a probabilidade de pelo menos um falso positivo','Porque o teste t não funciona com mais de 30 observações','Porque a ANOVA não exige premissas','Porque o teste t só compara variâncias'], c:0, e:'Cada teste tem chance α de erro tipo I. Com K testes, o erro da família cresce.'},
+{q:'Papel: a = 4 fibras e n = 6 repetições. Quais os graus de liberdade (níveis, resíduo)?', o:['3 e 20','4 e 24','3 e 23','4 e 20'], c:0, e:'a − 1 = 3 e a(n − 1) = 4 × 5 = 20, como na saída do aov.'},
+{q:'Um valor de F₀ muito maior que 1 indica que:', o:['A variação entre os níveis é grande em relação à variação dentro dos níveis, o que é evidência contra H₀','Os resíduos não são normais','As variâncias dos grupos são diferentes','Há pseudorreplicação'], c:0, e:'Sob H₀, E[MS_níveis] = E[MS_E] = σ², e F fica perto de 1.'},
+{q:'A ANOVA rejeitou H₀: τᵢ = 0 ∀ i. O que se pode afirmar?', o:['Pelo menos um nível tem efeito diferente de zero','Todos os níveis diferem entre si','O nível com maior média é significativamente melhor que todos','As premissas estão validadas'], c:0, e:'Para saber quais diferem, faça comparações múltiplas, depois de validar as premissas.'},
+{q:'O pesquisador quer comparar 5 variantes contra um método padrão. Qual método e quantas comparações?', o:['Dunnett, 5 comparações','Tukey, 15 comparações','Tukey, 10 comparações','Dunnett, 15 comparações'], c:0, e:'São a = 6 níveis (padrão + 5). Todos contra um: K = a − 1 = 5.'},
+{q:'Com Bonferroni, α = 0,05 e K = 6 comparações, o α ajustado é:', o:['≈ 0,0083','0,30','0,05','0,0167'], c:0, e:'α_aj = α/K = 0,05/6 ≈ 0,0083.'},
+{q:'No Tukey do papel, D − A tem IC [−0,43; 4,89]. Conclusão?', o:['Não há diferença significativa entre D e A, pois o IC contém o zero','D é significativamente melhor que A','A é significativamente melhor que D','Nada se conclui com ICs simultâneos'], c:0, e:'O zero dentro do IC simultâneo indica que a diferença não é significativa no nível da família.'}
+]
+},
+
+/* ===================================================== FASE 10 */
+{
+id:'naoparametricos', n:10, grupo:'Mais de dois grupos',
+titulo:'Dados não Normais e Métodos não Paramétricos',
+aula:'Aula 09', slides:'9_NaoNormais.pdf · codigos/09-nao-normalidade',
+tldr:'Quando as premissas do teste paramétrico não valem, há três famílias de alternativas: testes de postos (sinal, Wilcoxon), testes de permutação e bootstrap. Transformar os dados também é uma opção, mas pode não dar certo.',
+html:`
+<h2>Relembrando o teste de hipóteses</h2>
+<p>Num teste z bilateral, o p-valor é <span class="m">P(|Z| ≥ ẑ | H₀)</span>: a probabilidade de uma estatística tão grande quanto a observada se <span class="m">H₀</span> for verdadeira. Se <span class="m">p ≤ α</span>, rejeitamos <span class="m">H₀</span> com confiança 1 − α.</p>
+<p>Métodos <strong>paramétricos</strong> assumem uma distribuição conhecida (normal, ou ao menos simétrica) e inferem sobre parâmetros (média, variância). Só devem ser usados se as premissas forem atendidas. O TCL ajuda para a média quando os dados são contínuos, simétricos, unimodais e n é razoável.</p>
+
+<h2>Quando usar não paramétricos</h2>
+<ul>
+<li>As premissas do paramétrico não são atendidas.</li>
+<li>O teste paramétrico foi inconclusivo.</li>
+<li>Os dados são postos (ordem), contagens de eventos (sim/não) ou contagens por categoria.</li>
+<li>Você quer inferir sobre parâmetros genéricos, como um percentil.</li>
+</ul>
+
+<h2>Testes de postos</h2>
+<h3>Teste do sinal (mediana)</h3>
+<p>Premissas: amostra iid e distribuição contínua. Se a mediana é θ₀, cada observação tem 50% de chance de cair acima dela. Conta-se <span class="m">r₊</span> (diferenças positivas) e compara-se com uma Binomial(n, 0,5).</p>
+<div class="note exemplo"><span class="tag">Exemplo do slide</span>
+<p>Tempo até a falha de um componente (semanas): 49, 58, 75, 110, 112, 132, 151, 276, 281, 362. O fabricante diz que a mediana é 200. <span class="m">H₀: θ = 200</span>, <span class="m">H₁: θ &lt; 200</span>.</p>
+<p>Só 3 valores estão acima de 200: <span class="m">r₊ = 3</span>. p-valor = <span class="m">P(R₊ ≤ 3) = 0,0010 + 0,0098 + 0,0439 + 0,1172 = 0,1719</span> (<code>pbinom(3, 10, 0.5)</code>). <strong>Não rejeita</strong> com α = 0,05.</p>
+<p>Detalhe: os p-valores são discretos. Com n = 10, só rejeitaria se r₊ fosse 0 (p = 0,001) ou 1 (p = 0,0107). O teste também serve para quartis e percentis (Binomial com p = 0,25 ou 0,75).</p></div>
+
+<h3>Wilcoxon dos postos sinalizados</h3>
+<p>Premissas: iid, contínua <strong>e simétrica</strong>. Usa o sinal <em>e</em> a magnitude: ordena as diferenças absolutas, dá postos e soma os postos positivos (<span class="m">S₊</span>) e negativos (<span class="m">S₋</span>). Sob <span class="m">H₀</span>, <span class="m">S₊ ≈ S₋</span>.</p>
+<ul>
+<li>Frequência cardíaca (12 pessoas), <span class="m">H₀: θ = 15</span>: S₊ = 14 e S₋ = 64; <code>wilcox.test</code> deu V = 14, p = 0,052.</li>
+<li><strong>Pareado</strong>, gêmeos (maternal × casa), <span class="m">H₁: θ<sub>D</sub> &gt; 0</span>: V = 32, p = 0,027 → rejeita.</li>
+</ul>
+
+<h2>Teste de permutação</h2>
+<p>Se <span class="m">H₀</span> (mesmo parâmetro nos dois processos) é verdadeira, os rótulos “X” e “Y” são intercambiáveis. Embaralhe os rótulos R vezes, recalcule a estatística em cada embaralhamento e veja quão extremo é o valor observado:</p>
+<div class="formula">p-valor = (1 + #{t*<sub>r</sub> ≥ t̂}) / (R + 1)<small>use R ≥ 99; na prática 999 ou 9999</small></div>
+<p>Exemplo do slide: tempo de processamento de duas versões de software, 10 000 permutações, p ≈ 0,0005.</p>
+<p class="muted">A estatística é escolhida pelo contexto: diferença de médias se as distribuições não forem muito distantes da normal, diferença de medianas se forem assimétricas.</p>
+
+<h2>Bootstrap</h2>
+<p>Reamostragem <strong>com reposição</strong>, de tamanho n, a partir da amostra observada, que precisa ser representativa (experimento bem planejado). Serve para erro padrão, ICs, intervalos de predição, testes e regressão.</p>
+<ul>
+<li><strong>Bootstrap não gera dados novos.</strong> Ele reaproveita os que você tem.</li>
+<li>No teste, a reamostragem deve respeitar <span class="m">H₀</span>. No exemplo do slide (X e Y do mesmo processo), reamostra-se do conjunto unido: R = 999, p = 0,036.</li>
+<li>Paramétrico (reamostra de uma F̂₀ ajustada) ou não paramétrico (só dos dados).</li>
+</ul>
+
+<h2>Outros testes (slide 53)</h2>
+<div class="tw"><table class="t">
+<thead><tr><th>Teste</th><th>Substitui / serve para</th></tr></thead>
+<tbody>
+<tr><td>Mann-Whitney (U)</td><td>Diferença de medianas entre duas populações independentes (alternativa ao t de duas amostras)</td></tr>
+<tr><td>Wilcoxon pareado</td><td>Alternativa ao t pareado</td></tr>
+<tr><td>Kruskal-Wallis</td><td>Alternativa não paramétrica à ANOVA</td></tr>
+<tr><td>Friedman</td><td>Mediana em experimento com blocos (alternativa ao RCBD)</td></tr>
+<tr><td>Kolmogorov-Smirnov</td><td>Ajuste a uma distribuição</td></tr>
+<tr><td>Spearman</td><td>Correlação por postos</td></tr>
+</tbody></table></div>
+
+<div class="note analogia"><span class="tag">Analogias</span>
+<ul>
+<li><strong>Sinal:</strong> cara ou coroa. Se a mediana fosse mesmo 200, cada componente seria uma moeda honesta (acima ou abaixo).</li>
+<li><strong>Permutação:</strong> embaralhar as etiquetas como cartas. Se a etiqueta não importa, o resultado observado não deveria se destacar entre os embaralhados.</li>
+<li><strong>Bootstrap:</strong> “puxar-se pelos próprios cadarços”. Você trata a amostra como se fosse a população e sorteia dela de novo.</li>
+</ul></div>
+<div class="note ec"><span class="tag">Nos estudos de caso</span>
+<p>No EC03 a normalidade das diferenças foi rejeitada mesmo após o log. O relatório confirmou a conclusão com <strong>Wilcoxon pareado</strong>, <strong>teste do sinal</strong> (todas as instâncias favoreceram a configuração 1) e <strong>IC bootstrap</strong>. Os três concordaram com o t pareado. É o roteiro da aula 09 aplicado.</p></div>
+`,
+quiz:[
+{q:'Qual situação NÃO é motivo para usar um método não paramétrico, segundo a aula 09?', o:['Os resíduos são normais e as variâncias homogêneas','As premissas do teste paramétrico foram violadas','Os dados são postos ou contagens por categoria','O teste paramétrico foi inconclusivo'], c:0, e:'Com as premissas atendidas, o teste paramétrico é adequado e costuma ter mais poder.'},
+{q:'No teste do sinal do componente (n = 10, r₊ = 3, H₁: θ < 200), o p-valor foi 0,172. A conclusão com α = 0,05 é:', o:['Não rejeitar H₀: não há evidência de que a mediana seja menor que 200','Rejeitar H₀: a mediana é menor que 200','A mediana é exatamente 200','O teste é inválido com n = 10'], c:0, e:'p > α. E lembre: não rejeitar não prova que a mediana é 200.'},
+{q:'Que premissa o Wilcoxon de postos sinalizados acrescenta em relação ao teste do sinal?', o:['Simetria da distribuição','Normalidade','Igualdade de variâncias','Tamanho amostral acima de 30'], c:0, e:'Sinal: iid + contínua. Wilcoxon: iid + contínua + simétrica, porque também usa a magnitude.'},
+{q:'Num teste de permutação com R = 999, 35 estatísticas permutadas foram ≥ t̂. O p-valor é:', o:['0,036','0,035','0,035035','0,965'], c:0, e:'(1 + 35)/(999 + 1) = 36/1000 = 0,036.'},
+{q:'Sobre o bootstrap, é correto afirmar:', o:['Cada reamostra tem tamanho n e é sorteada com reposição da amostra observada','Gera novos dados a partir de um modelo normal','Cada reamostra é sorteada sem reposição','Dispensa uma amostra representativa'], c:0, e:'Slide 44: tamanho n, com reposição, e bootstrap não significa gerar dados novos.'},
+{q:'Qual é a alternativa não paramétrica à ANOVA de um fator?', o:['Kruskal-Wallis','Friedman','Kolmogorov-Smirnov','Spearman'], c:0, e:'Friedman é a alternativa para experimentos com blocos.'}
+]
+},
+
+/* ===================================================== FASE 11 */
+{
+id:'blocagem', n:11, grupo:'Planejamentos avançados',
+titulo:'Blocagem (RCBD)',
+aula:'Aula 10', slides:'10_Blocagem.pdf · codigos/10-Blocagem',
+tldr:'Blocagem é o pareamento generalizado. Se um fator indesejável é conhecido e controlável, cada bloco recebe todos os tratamentos e o efeito do bloco sai do resíduo. O teste fica mais sensível e pede menos observações.',
+html:`
+<h2>O problema: fatores indesejáveis</h2>
+<p>O CRD da ANOVA supõe condições homogêneas. Mas muitas vezes há fatores que influenciam a resposta sem serem de interesse: os <strong>fatores indesejáveis</strong> (nuisance factors). Eles podem ser:</p>
+<ol class="passos">
+<li><div>Desconhecidos e não controláveis → <strong>aleatorizar</strong>.</div></li>
+<li><div>Conhecidos, mas não controláveis.</div></li>
+<li><div>Conhecidos e controláveis → <strong>bloquear</strong>.</div></li>
+</ol>
+<p class="lead">“Block what you can, randomize what you cannot.” (George Box)</p>
+<p>Exemplos: lotes de matéria-prima ao comparar reações químicas; problemas de benchmark ao comparar algoritmos. Se você estiver interessado no efeito desse fator, ele deixa de ser indesejável e vira um fator experimental.</p>
+
+<div class="note exemplo"><span class="tag">Exemplo do slide: roteamento de veículos</span>
+<p>Um algoritmo padrão é comparado com 6 versões modificadas em 180 instâncias, divididas em 36 grupos homogêneos, com 30 execuções por instância. Cada grupo de instâncias é um <strong>bloco</strong>. Resposta: média das 30 execuções nas 5 instâncias do grupo → uma observação por algoritmo por bloco (36 por algoritmo).</p></div>
+
+<h2>RCBD: premissas do desenho</h2>
+<ul>
+<li>Uma observação por tratamento por bloco (com várias, use GRBD).</li>
+<li>Blocos independentes.</li>
+<li>Aleatorização intra-bloco independente. Em experimentos computacionais ela é dispensável se efeitos de ordem, aquecimento e carga da máquina forem controlados.</li>
+</ul>
+<p>Usar blocos que não são independentes gera <strong>pseudorreplicação</strong>: graus de liberdade errados e aumento do erro tipo I.</p>
+
+<h2>Modelo e teste</h2>
+<div class="formula">y<sub>ij</sub> = μ + τ<sub>i</sub> + β<sub>j</sub> + ε<sub>ij</sub>, &nbsp; Σ τ<sub>i</sub> = Σ β<sub>j</sub> = 0<small>i = 1…a tratamentos · j = 1…b blocos</small></div>
+<div class="formula">H₀: τ<sub>i</sub> = 0 ∀ i &nbsp;&nbsp; H₁: ∃ τ<sub>i</sub> ≠ 0 &nbsp; (testamos só o fator de interesse)</div>
+<div class="formula">SS<sub>T</sub> = SS<sub>níveis</sub> + SS<sub>blocos</sub> + SS<sub>E</sub> &nbsp;·&nbsp; gl: (a − 1), (b − 1), (a − 1)(b − 1)</div>
+<div class="formula">F₀ = MS<sub>níveis</sub> / MS<sub>E</sub> &nbsp;~&nbsp; F<sub>(a−1), (a−1)(b−1)</sub></div>
+<pre class="r">model &lt;- aov(Y ~ Algorithm + Instance_Group, data = aggdata)
+<span class="c">#                 Df   Sum Sq Mean Sq F value Pr(>F)</span>
+<span class="c"># Algorithm        6   359949   59991   41.75 &lt;2e-16</span>
+<span class="c"># Instance_Group  35 60438639 1726818 1201.86 &lt;2e-16</span>
+<span class="c"># Residuals      210   301725    1437</span>
+<span class="c"># diagnóstico ruim -> resposta em log</span>
+model2 &lt;- aov(log(Y) ~ Algorithm + Instance_Group, data = aggdata)
+<span class="c"># Algorithm F = 120.4 ;  R² = 0.998</span></pre>
+<p>Confira os gl: a = 7 algoritmos, b = 36 blocos → resíduo (7 − 1)(36 − 1) = 210. Os gráficos de resíduos do primeiro modelo eram ruins, e o log resolveu.</p>
+
+<h2>Eficiência da blocagem</h2>
+<div class="formula">E = [(b − 1) MS<sub>blocos</sub> + b(a − 1) MS<sub>E</sub>] / [(ab − 1) MS<sub>E</sub>]</div>
+<p>Quanto o CRD precisaria crescer para ter o mesmo poder do RCBD. E = 1,3 → o CRD precisaria de 30% mais observações. No exemplo (modelo em log), E = 431,6.</p>
+
+<h2>Tamanho amostral e comparações</h2>
+<ul>
+<li>Use as mesmas fórmulas do CRD. O n calculado é o <strong>número de blocos</strong>.</li>
+<li>A variância a usar é a <strong>residual</strong>, já sem o efeito do bloco, estimada por piloto ou estudos anteriores.</li>
+<li>Comparações post-hoc: como na ANOVA, com testes t pareados e gl do erro (a − 1)(b − 1). Todos contra um → <strong>Dunnett</strong>, como no exemplo (6 modificações × padrão).</li>
+<li>Dois fatores indesejáveis: quadrado latino. Três ou mais: hipercubo latino.</li>
+</ul>
+<pre class="r">duntest &lt;- glht(model2, linfct = mcp(Algorithm = "Dunnett"))
+plot(confint(duntest), xlab = "Mean difference (log scale)")</pre>
+
+<div class="note analogia"><span class="tag">Analogia</span>
+<p>Você quer comparar 3 adubos, mas tem terrenos muito diferentes (sol, solo, água). Em vez de sortear um terreno para cada adubo, divide cada terreno em 3 faixas e aplica os 3 adubos em todos. A comparação acontece dentro de cada terreno. O terreno é o bloco.</p></div>
+<div class="note pegadinha"><span class="tag">Pegadinhas</span>
+<ul>
+<li>A hipótese testada é só sobre τ. O bloco ser significativo não é a pergunta, apenas mostra que bloquear valeu a pena.</li>
+<li>Pareamento = RCBD com 2 tratamentos.</li>
+<li>O custo de bloquear é pequeno em relação ao CRD. O slide recomenda escolhê-lo sempre que possível.</li>
+</ul></div>
+<div class="note ec"><span class="tag">Nos estudos de caso</span>
+<p><strong>EC03:</strong> a instância é o bloco, e com 2 configurações o RCBD vira o t pareado. <strong>EC02:</strong> o relatório testou se o mês funcionava como bloco (efeito comum de mercado). Não foi significativo, e o modelo sem bloco foi mantido. <strong>EC03, melhorias:</strong> um fatorial 2² mantendo as instâncias como blocos.</p></div>
+`,
+quiz:[
+{q:'Segundo Box (“block what you can, randomize what you cannot”), um fator indesejável conhecido e controlável deve ser:', o:['Bloqueado','Aleatorizado','Ignorado, pois não é de interesse','Incluído como fator principal com interação'], c:0, e:'Os desconhecidos são tratados com aleatorização. Os conhecidos e controláveis, com blocagem.'},
+{q:'RCBD com a = 7 tratamentos e b = 36 blocos. Quantos graus de liberdade tem o resíduo?', o:['210','245','35','251'], c:0, e:'(a − 1)(b − 1) = 6 × 35 = 210, como na saída do slide.'},
+{q:'No RCBD, sobre qual efeito é a hipótese de interesse?', o:['Apenas sobre os efeitos dos tratamentos τᵢ','Sobre os efeitos dos blocos βⱼ','Sobre a interação tratamento × bloco','Sobre τ e β com o mesmo peso'], c:0, e:'O bloco é indesejável. Ele entra no modelo só para tirar sua variação do resíduo.'},
+{q:'Uma eficiência relativa da blocagem E = 1,3 significa que:', o:['Um CRD precisaria de cerca de 30% mais observações para o mesmo poder','O RCBD tem 30% menos poder','O efeito dos blocos é 1,3 vez o do tratamento','Os blocos explicam 30% da variância'], c:0, e:'Slide 31: E quantifica quanto o CRD precisaria crescer para igualar o RCBD.'},
+{q:'Tratar as 30 execuções de cada instância como observações independentes no teste é:', o:['Pseudorreplicação, que distorce os graus de liberdade e aumenta o erro tipo I','A forma correta de aumentar o poder','Um RCBD generalizado sem problemas','Necessário para validar a normalidade'], c:0, e:'A unidade independente é o bloco (instância ou grupo). As repetições são agregadas pela média.'},
+{q:'No cálculo do tamanho amostral de um RCBD, o n obtido pelas fórmulas do CRD corresponde a:', o:['Número de blocos, com uma observação por tratamento por bloco','Número de repetições por bloco','Número total de observações','Número de tratamentos'], c:0, e:'Slide 33. E a variância a usar é a residual, já descontado o efeito do bloco.'}
+]
+},
+
+/* ===================================================== FASE 12 */
+{
+id:'fatorial', n:12, grupo:'Planejamentos avançados',
+titulo:'Experimento Fatorial',
+aula:'Aula 11', slides:'11_ExpFatorial.pdf · codigos/11-Planejamento_Fatorial',
+tldr:'Com mais de um fator de interesse, teste todas as combinações de níveis. Assim você estima os efeitos principais e as interações, ou seja, quando o efeito de um fator depende do nível de outro.',
+html:`
+<h2>Efeito principal e interação</h2>
+<ul>
+<li><strong>Efeito principal:</strong> mudança média na resposta quando um fator muda de nível.</li>
+<li><strong>Interação:</strong> a resposta à mudança de um fator <em>depende</em> do nível de outro fator.</li>
+</ul>
+<p>O gráfico de interação mostra isso direto: <strong>linhas paralelas = sem interação</strong>; linhas não paralelas ou cruzadas = interação. Esse gráfico é útil para interpretar e para explicar o resultado a quem não tem formação estatística.</p>
+<div class="widget" data-widget="interacao"></div>
+<div class="note analogia"><span class="tag">Analogia</span>
+<p>Um remédio e uma bebida alcoólica. Sozinhos, cada um tem um efeito conhecido. Juntos, o efeito pode ser muito diferente da soma. Isso é interação, e só aparece se você testar a combinação.</p></div>
+
+<div class="note exemplo"><span class="tag">Exemplo do slide: corrente de motores</span>
+<p>Fatores: <strong>Fabricante</strong> (A, B, C) e <strong>Estado</strong> (Original, Rebobinado). 40 motores por fabricante (20 originais e 20 rebobinados) → n = 20 por combinação, 120 no total. α = 0,05, β = 0,2, δ* = 0,1 A. O boxplot sugere diferença entre estados, efeito de fabricante pouco claro e interação pequena.</p></div>
+
+<h2>Modelo com dois fatores</h2>
+<div class="formula">y<sub>ijk</sub> = μ + τ<sub>i</sub> + β<sub>j</sub> + (τβ)<sub>ij</sub> + ε<sub>ijk</sub><small>i = 1…a (fator A) · j = 1…b (fator B) · k = 1…n repetições · coleta completamente aleatorizada · efeitos somam zero</small></div>
+<p>Três pares de hipóteses: efeito principal de A (<span class="m">τ<sub>i</sub> = 0 ∀i</span>), efeito principal de B (<span class="m">β<sub>j</sub> = 0 ∀j</span>) e interação AB (<span class="m">(τβ)<sub>ij</sub> = 0 ∀i,j</span>).</p>
+<div class="tw"><table class="t">
+<thead><tr><th>Fonte</th><th>gl</th><th>F₀</th></tr></thead>
+<tbody>
+<tr><td>A</td><td>a − 1</td><td>MS<sub>A</sub>/MS<sub>E</sub></td></tr>
+<tr><td>B</td><td>b − 1</td><td>MS<sub>B</sub>/MS<sub>E</sub></td></tr>
+<tr><td>AB</td><td>(a − 1)(b − 1)</td><td>MS<sub>AB</sub>/MS<sub>E</sub></td></tr>
+<tr><td>Erro</td><td>ab(n − 1)</td><td></td></tr>
+</tbody></table></div>
+<p><strong>É preciso n ≥ 2</strong> repetições por combinação para separar SS<sub>AB</sub> de SS<sub>E</sub>.</p>
+<pre class="r">model &lt;- aov(Current.Amperes ~ State * Manufacturer, data = data)
+<span class="c">#                     Df Sum Sq Mean Sq F value   Pr(>F)</span>
+<span class="c"># State                1 12.956  12.956 2798.41  &lt; 2e-16</span>
+<span class="c"># Manufacturer         2  0.118   0.059   12.71 1.04e-05</span>
+<span class="c"># State:Manufacturer   2  0.114   0.057   12.27 1.49e-05</span>
+<span class="c"># Residuals          114  0.528   0.005          R² = 0.96</span>
+shapiro.test(model$residuals)                                          <span class="c"># p = 0.2392</span>
+fligner.test(Current.Amperes ~ interaction(State, Manufacturer), data) <span class="c"># p = 0.0705</span></pre>
+<p>Confira: resíduo = ab(n − 1) = 2 × 3 × 19 = 114. Os três efeitos são significativos, inclusive a interação. A independência deve ser sustentada pelo planejamento.</p>
+
+<h2>Comparações múltiplas</h2>
+<ul>
+<li><strong>Sem interação significativa:</strong> compare os níveis de cada fator pelos efeitos médios, com <span class="m">t₀ = Δȳ / √(2 MS<sub>E</sub>/n′)</span>, em que n′ é o nº de observações em cada nível. Ajuste o α (Tukey, por exemplo).</li>
+<li><strong>Com interação:</strong> compare as <strong>combinações</strong> de níveis. Crie um meta-fator e refaça o modelo. No slide: todos contra o motor Original.B, com Dunnett.</li>
+</ul>
+<pre class="r">interfac &lt;- with(data, interaction(State, Manufacturer))
+interfac &lt;- relevel(interfac, ref = "Original.B")
+model2   &lt;- aov(Current.Amperes ~ interfac, data = data)
+mcp.inter &lt;- glht(model2, linfct = mcp(interfac = "Dunnett"))</pre>
+<p><strong>Recomendações do slide:</strong> motores rebobinados consomem mais corrente. Possíveis decisões: substituir gradualmente por motores novos do fabricante B, descartar em vez de rebobinar, ou avaliar outra forma de rebobinamento.</p>
+
+<h2>Mais de dois fatores</h2>
+<p>Com fatores A, B, C… e n ≥ 2 repetições, são <span class="m">a·b·c·…·n</span> observações. O modelo de 3 fatores tem efeitos principais, interações de 2ª ordem (AB, AC, BC) e de 3ª ordem (ABC).</p>
+<div class="note exemplo"><span class="tag">Exemplo do slide: lentes intraoculares (2³)</span>
+<p>Três fatores com dois níveis cada (tempo de torno, tempo de polimento, idade da ferramenta), <strong>uma única réplica</strong> (8 lotes de 30 lentes). Resposta: proporção de lentes conformes. Experimento aleatorizado e parcialmente cego.</p>
+<p>Sem repetição não sobram gl para o MS<sub>E</sub>, e o modelo saturado não tem teste. Solução: <strong>princípio da esparsidade</strong> (sistemas são dominados por efeitos principais e de baixa ordem). Remova primeiro as interações de maior ordem, que passam a compor o resíduo. O <strong>gráfico de Daniel</strong> (QQ normal dos efeitos estimados; só para 2<sup>k</sup>) ajuda: efeitos fortes aparecem como pontos fora da reta.</p>
+<pre class="r">model2 &lt;- aov(Conf.rate ~ ., data = data)   <span class="c"># só efeitos principais</span>
+<span class="c"># CNCTime  F = 276.6  p = 7.66e-05</span>
+<span class="c"># PolTime  F =  46.2  p = 0.00244</span>
+<span class="c"># ToolAge  F =   5.6  p = 0.0763      Residuals: 4 gl</span></pre>
+<p>Conclusões: o tempo de torno é o efeito mais forte (conformidade de 0,36 para 0,87); polimento de 5 → 7 dias leva de 0,51 para 0,72. A idade da ferramenta não foi significativa, o que pode ser ausência de efeito ou baixo tamanho amostral.</p></div>
+
+<h3>Blocagem em fatoriais</h3>
+<p>Funciona como no caso de um fator: no RCBD, cada bloco contém uma observação de <em>cada combinação</em> de níveis.</p>
+
+<div class="note pegadinha"><span class="tag">Pegadinhas</span>
+<ul>
+<li>Com interação significativa, interpretar só os efeitos principais pode enganar. Olhe as combinações.</li>
+<li>Uma réplica (n = 1) → não há como estimar MS<sub>E</sub> no modelo completo.</li>
+<li>COST (aula 02) falha justamente quando há interação. O fatorial é a resposta.</li>
+</ul></div>
+<div class="note ec"><span class="tag">Nos estudos de caso</span>
+<p>No EC03 as duas configurações diferiam ao mesmo tempo no operador de recombinação e no parâmetro F, então não dá para atribuir a diferença a um deles. A melhoria proposta é um <strong>fatorial 2²</strong> (recombinação × F) com as instâncias como blocos.</p></div>
+`,
+quiz:[
+{q:'Há interação entre os fatores A e B quando:', o:['O efeito de A na resposta depende do nível de B','A e B têm efeitos principais significativos','A e B têm o mesmo número de níveis','A resposta é a soma dos efeitos de A e B'], c:0, e:'Definição do slide 2. Efeitos puramente aditivos correspondem a ausência de interação.'},
+{q:'Num gráfico de interação, linhas paralelas indicam:', o:['Ausência de interação','Interação forte','Efeito principal nulo de ambos os fatores','Violação de normalidade'], c:0, e:'Paralelas: a diferença entre os níveis de um fator é a mesma em cada nível do outro.'},
+{q:'Motores: 2 estados × 3 fabricantes, n = 20 por combinação. Quantos gl tem o resíduo?', o:['114','119','100','6'], c:0, e:'ab(n − 1) = 2 × 3 × 19 = 114.'},
+{q:'Por que um fatorial precisa de n ≥ 2 repetições por combinação para o teste completo?', o:['Para separar a soma de quadrados da interação da soma de quadrados do erro','Para validar a normalidade','Para que o design seja balanceado','Para estimar os efeitos principais'], c:0, e:'Com n = 1, a variação dentro das células não existe e a interação se confunde com o erro.'},
+{q:'Num 2³ com uma única réplica, qual a estratégia recomendada?', o:['Remover primeiro as interações de maior ordem (princípio da esparsidade), com apoio do gráfico de Daniel','Remover os efeitos principais menos significativos','Fazer testes t entre todos os 8 tratamentos','Aumentar α até haver graus de liberdade'], c:0, e:'Interações de ordem alta tendem a ser desprezíveis e passam a formar o resíduo.'},
+{q:'Se a interação é significativa, as comparações múltiplas devem focar em:', o:['As combinações de níveis (meta-fator da interação)','Apenas o fator com maior F','Apenas os efeitos principais','Nenhuma comparação: a interação encerra a análise'], c:0, e:'Com interação, o efeito de um fator muda conforme o outro. No slide, compara-se todas as combinações contra Original.B (Dunnett).'}
+]
+}
+);
+(function(){
+'use strict';
+/* ---------- utilidades ---------- */
+const LS_KEY = 'pae-eee933-trilha-v1';
+function lerProgresso(){ try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e){ return {}; } }
+function salvarProgresso(v){ try { localStorage.setItem(LS_KEY, JSON.stringify(v)); } catch(e){} }
+let progresso = lerProgresso();
+const $ = (s, r) => (r || document).querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = (x, d) => Number(x).toLocaleString('pt-BR', {minimumFractionDigits: d, maximumFractionDigits: d});
+function embaralhar(a){ a = a.slice(); for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function randn(){ let u = 0, v = 0; while (u === 0) u = Math.random(); while (v === 0) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+function erf(x){ const s = Math.sign(x); x = Math.abs(x); const t = 1 / (1 + 0.3275911 * x);
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return s * y; }
+const Phi = z => 0.5 * (1 + erf(z / Math.SQRT2));
+const LETRAS = 'abcd';
+
+function estrelas(id){
+  const r = progresso[id]; if (!r) return 0;
+  const p = r.best / r.total; return p >= 0.85 ? 3 : p >= 0.6 ? 2 : 1;
+}
+function htmlEstrelas(n){ let s = ''; for (let i = 0; i < 3; i++) s += i < n ? '<b>★</b>' : '★'; return '<span class="stars" aria-label="' + n + ' de 3 estrelas">' + s + '</span>'; }
+
+/* ---------- navegação ---------- */
+const main = $('#main');
+const trilho = $('#trilho');
+const navbox = $('#navbox');
+const mq = window.matchMedia('(min-width: 921px)');
+function ajustarNav(){ navbox.open = mq.matches; }
+ajustarNav();
+if (mq.addEventListener) mq.addEventListener('change', ajustarNav);
+
+function renderNav(atual){
+  let html = '', grupo = '';
+  html += '<li><a href="#inicio"' + (atual === 'inicio' ? ' aria-current="page"' : '') + '><span class="n">◆</span><span>Mapa da trilha</span><span></span></a></li>';
+  FASES.forEach(f => {
+    if (f.grupo !== grupo){ grupo = f.grupo; html += '<li class="sep">' + esc(grupo) + '</li>'; }
+    html += '<li><a href="#' + f.id + '"' + (atual === f.id ? ' aria-current="page"' : '') + '><span class="n">' + String(f.n).padStart(2, '0') + '</span><span>' + esc(f.titulo) + '</span>' + htmlEstrelas(estrelas(f.id)) + '</a></li>';
+  });
+  trilho.innerHTML = html;
+  const feitas = FASES.filter(f => progresso[f.id]).length;
+  $('#prog-txt').textContent = feitas + '/' + FASES.length + ' fases';
+  $('#prog-bar').style.width = (100 * feitas / FASES.length) + '%';
+}
+
+function renderInicio(){
+  const feitas = FASES.filter(f => progresso[f.id]).length;
+  const totalEst = FASES.reduce((s, f) => s + estrelas(f.id), 0);
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const prova = new Date(2026, 10, 24);
+  const dias = Math.round((prova - hoje) / 86400000);
+  const txtDias = dias > 1 ? dias + ' dias' : dias === 1 ? 'amanhã' : dias === 0 ? 'hoje' : 'já foi';
+  let grupo = '', cards = '';
+  FASES.forEach(f => {
+    if (f.grupo !== grupo){
+      if (grupo) cards += '</div>';
+      grupo = f.grupo;
+      cards += '<h2>' + esc(grupo) + '</h2><div class="mapa">';
+    }
+    cards += '<a class="cartao' + (f.n === 0 ? ' destaque' : '') + '" href="#' + f.id + '"><span class="num">' + String(f.n).padStart(2, '0') + '</span><span class="tit">' + esc(f.titulo) + '</span>' + htmlEstrelas(estrelas(f.id)) + '<span class="ref">' + esc(f.aula) + ' · ' + f.quiz.length + ' questões</span></a>';
+  });
+  cards += '</div>';
+  main.innerHTML =
+    '<section class="hero papel">' +
+      '<p class="eyebrow">EEE933 · PPGEE-UFMG · 2026/2</p>' +
+      '<h1>Uma fase por aula, até a prova escrita</h1>' +
+      '<p class="lead">Cada fase traz explicação, exemplos tirados dos slides, analogias, pegadinhas de prova, a ligação com os estudos de caso e um quiz. As estrelas ficam salvas neste navegador.</p>' +
+      '<div class="contagem">' +
+        '<div><span>Prova escrita</span><b>24/11 · 17h</b></div>' +
+        '<div><span>Faltam</span><b>' + txtDias + '</b></div>' +
+        '<div><span>Fases feitas</span><b>' + feitas + '/' + FASES.length + '</b></div>' +
+        '<div><span>Estrelas</span><b>' + totalEst + '/' + (3 * FASES.length) + '</b></div>' +
+      '</div>' +
+      '<div class="hero-row"><a class="btn" href="#fio">Começar pelo que se repete nos ECs</a><a class="btn ghost" href="simulado.html">Ir para o simulado</a></div>' +
+    '</section>' + cards;
+}
+
+function renderFase(f){
+  const i = FASES.indexOf(f);
+  const ant = FASES[i - 1], prox = FASES[i + 1];
+  main.innerHTML =
+    '<header class="fase-head papel">' +
+      '<p class="eyebrow">Fase ' + String(f.n).padStart(2, '0') + ' · ' + esc(f.aula) + '</p>' +
+      '<h1>' + esc(f.titulo) + '</h1>' +
+      '<p class="lead">' + esc(f.tldr) + '</p>' +
+      '<div class="fase-meta"><span>Fonte: ' + esc(f.slides) + '</span><span>Quiz: ' + f.quiz.length + ' questões</span></div>' +
+    '</header>' +
+    '<article class="prose">' + f.html + '</article>' +
+    '<section class="quiz" id="quiz"></section>' +
+    '<nav class="pn" aria-label="Fases vizinhas">' +
+      (ant ? '<a href="#' + ant.id + '"><span>← Fase ' + String(ant.n).padStart(2, '0') + '</span><b>' + esc(ant.titulo) + '</b></a>' : '<a href="#inicio"><span>←</span><b>Mapa da trilha</b></a>') +
+      (prox ? '<a class="next" href="#' + prox.id + '"><span>Fase ' + String(prox.n).padStart(2, '0') + ' →</span><b>' + esc(prox.titulo) + '</b></a>' : '<a class="next" href="simulado.html"><span>Fim da trilha →</span><b>Fazer o simulado</b></a>') +
+    '</nav>';
+  main.querySelectorAll('[data-widget]').forEach(el => { const w = WIDGETS[el.dataset.widget]; if (w) w(el); });
+  montarQuiz(f, $('#quiz'));
+}
+
+/* ---------- quiz ---------- */
+function montarQuiz(f, box){
+  const itens = f.quiz.map(q => ({ q: q, perm: embaralhar([0, 1, 2, 3]) }));
+  const n = itens.length;
+  let acertos = 0, respondidas = 0;
+  const r = progresso[f.id];
+  box.innerHTML =
+    '<div class="quiz-head"><h2>Quiz da fase</h2><span class="muted">' + (r ? 'Melhor resultado: ' + r.best + '/' + r.total : 'Ainda não feito') + '</span></div>' +
+    '<p class="muted">Responda e veja a explicação na hora. A ordem das alternativas muda a cada tentativa.</p>' +
+    itens.map((it, qi) =>
+      '<div class="q" data-q="' + qi + '">' +
+        '<div class="q-n">Questão ' + (qi + 1) + ' de ' + n + '</div>' +
+        '<div class="q-text">' + esc(it.q.q) + '</div>' +
+        '<div class="opts">' + it.perm.map((oi, pos) =>
+          '<button type="button" class="opt" data-o="' + oi + '"><span class="k">' + LETRAS[pos] + '</span><span>' + esc(it.q.o[oi]) + '</span></button>').join('') +
+        '</div><div class="exp" hidden></div>' +
+      '</div>').join('') +
+    '<div class="resultado" id="resultado" hidden></div>';
+
+  box.onclick = ev => {
+    const b = ev.target.closest('.opt');
+    if (b && !b.disabled){
+      const card = b.closest('.q');
+      const it = itens[+card.dataset.q];
+      const escolhida = +b.dataset.o;
+      const certa = it.q.c;
+      card.querySelectorAll('.opt').forEach(o => { o.disabled = true; if (+o.dataset.o === certa) o.classList.add('certa'); });
+      const ok = escolhida === certa;
+      if (!ok) b.classList.add('errada');
+      const letraCerta = LETRAS[it.perm.indexOf(certa)];
+      const exp = card.querySelector('.exp');
+      exp.innerHTML = (ok ? '<span class="ok">Correto.</span> ' : '<span class="no">A certa é a (' + letraCerta + ').</span> ') + esc(it.q.e);
+      exp.hidden = false;
+      respondidas++; if (ok) acertos++;
+      if (respondidas === n) finalizar();
+      return;
+    }
+    if (ev.target.closest('[data-act="refazer"]')){ montarQuiz(f, box); box.scrollIntoView({behavior: 'smooth', block: 'start'}); }
+  };
+
+  function finalizar(){
+    const ant = progresso[f.id];
+    const best = Math.max(acertos, ant ? ant.best : 0);
+    progresso[f.id] = { best: best, total: n, last: acertos };
+    salvarProgresso(progresso);
+    const est = estrelas(f.id);
+    const p = acertos / n;
+    const msg = p === 1 ? 'Gabaritou. Pode seguir para a próxima fase.'
+      : p >= 0.85 ? 'Muito bom. Releia a explicação da questão que errou.'
+      : p >= 0.6 ? 'Bom caminho. Volte às seções ligadas às questões erradas e refaça.'
+      : 'Vale reler a fase com calma antes de seguir. As pegadinhas no texto são as mesmas do quiz.';
+    const res = $('#resultado', box);
+    res.innerHTML = '<span class="big">' + acertos + '/' + n + '</span>' + htmlEstrelas(est) +
+      '<span style="flex:1 1 16rem">' + msg + '</span><button type="button" class="btn ghost" data-act="refazer">Refazer o quiz</button>';
+    res.hidden = false;
+    renderNav(f.id);
+  }
+}
+
+/* ---------- roteador ---------- */
+function idDoHash(){ try { return (location.hash || '#inicio').slice(1); } catch(e){ return 'inicio'; } }
+function ehRota(id){ return id === 'inicio' || FASES.some(x => x.id === id); }
+document.addEventListener('click', ev => {
+  const a = ev.target.closest('a[href^="#"]'); if (!a) return;
+  const id = a.getAttribute('href').slice(1); if (!ehRota(id)) return;
+  ev.preventDefault();
+  try { if (idDoHash() !== id) history.pushState(null, '', '#' + id); } catch(e){}
+  rota(id);
+});
+window.addEventListener('popstate', () => rota());
+function rota(destino){
+  const id = destino || idDoHash();
+  const f = FASES.find(x => x.id === id);
+  if (f){ renderFase(f); renderNav(f.id); document.title = f.titulo + ' · Trilha EEE933'; }
+  else { renderInicio(); renderNav('inicio'); document.title = 'Trilha de Estudos EEE933'; }
+  if (!mq.matches) navbox.open = false;
+  window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', () => rota());
+
+/* ---------- desenho SVG ---------- */
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, txt){ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (txt != null) e.textContent = txt; return e; }
+function limpar(svg){ while (svg.firstChild) svg.removeChild(svg.firstChild); }
+function seg(container, onPick){
+  container.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    container.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    onPick(b);
+  });
+}
+
+const WIDGETS = {};
+
+/* TCL ------------------------------------------------------------ */
+WIDGETS.tcl = function(box){
+  box.innerHTML =
+    '<div class="w-head"><b>Laboratório · Teorema Central do Limite</b><span>Reproduz o script da aula 03: sorteia N = 1000 amostras de tamanho n e desenha o histograma das 1000 médias. A curva é a normal N(μ, σ²/n) prevista pelo TCL.</span></div>' +
+    '<div class="ctrl"><div class="seg" data-k="d" role="group" aria-label="População"><button type="button" data-v="unif" aria-pressed="true">Uniforme(2, 6)</button><button type="button" data-v="exp" aria-pressed="false">Exponencial(taxa 2,2)</button></div>' +
+    '<div class="seg" data-k="n" role="group" aria-label="Tamanho da amostra">' + [1, 2, 5, 30, 100].map(v => '<button type="button" data-v="' + v + '" aria-pressed="' + (v === 1) + '">n = ' + v + '</button>').join('') + '</div>' +
+    '<button type="button" class="btn ghost" data-act="go">Sortear de novo</button></div>' +
+    '<svg class="plot" viewBox="0 0 640 240" role="img" aria-label="Histograma das médias amostrais"></svg><p class="w-out"></p>';
+  const st = { d: 'unif', n: 1 };
+  const svg = $('svg', box), out = $('.w-out', box);
+  seg($('[data-k="d"]', box), b => { st.d = b.dataset.v; draw(); });
+  seg($('[data-k="n"]', box), b => { st.n = +b.dataset.v; draw(); });
+  $('[data-act="go"]', box).onclick = draw;
+  function draw(){
+    const N = 1000, n = st.n, unif = st.d === 'unif';
+    const mu = unif ? 4 : 1 / 2.2, sigma = unif ? 4 / Math.sqrt(12) : 1 / 2.2, se = sigma / Math.sqrt(n);
+    const lo = unif ? 2 : 0, hi = unif ? 6 : 2.5, nb = 40, bw = (hi - lo) / nb;
+    const cont = new Array(nb).fill(0); let soma = 0, soma2 = 0;
+    for (let i = 0; i < N; i++){
+      let s = 0;
+      for (let k = 0; k < n; k++) s += unif ? 2 + 4 * Math.random() : -Math.log(1 - Math.random()) / 2.2;
+      const m = s / n; soma += m; soma2 += m * m;
+      cont[Math.min(nb - 1, Math.max(0, Math.floor((m - lo) / bw)))]++;
+    }
+    const media = soma / N, dp = Math.sqrt((soma2 - N * media * media) / (N - 1));
+    const dens = cont.map(c => c / (N * bw));
+    const pico = 1 / (se * Math.sqrt(2 * Math.PI));
+    const ymax = Math.max(Math.max.apply(null, dens), Math.min(pico, Math.max.apply(null, dens) * 1.6)) * 1.08;
+    const L = 40, R = 628, T = 10, B = 210;
+    const X = x => L + (x - lo) / (hi - lo) * (R - L), Y = y => B - Math.min(y, ymax) / ymax * (B - T);
+    limpar(svg);
+    svg.appendChild(el('line', { x1: L, x2: R, y1: B, y2: B, class: 'axis' }));
+    dens.forEach((d, i) => svg.appendChild(el('rect', { x: X(lo + i * bw) + 0.5, y: Y(d), width: Math.max(0, (R - L) / nb - 1), height: B - Y(d), class: 'p-bar' })));
+    let path = '';
+    for (let k = 0; k <= 200; k++){ const x = lo + (hi - lo) * k / 200; const y = Math.exp(-0.5 * ((x - mu) / se) ** 2) / (se * Math.sqrt(2 * Math.PI)); path += (k ? 'L' : 'M') + X(x).toFixed(1) + ' ' + Y(y).toFixed(1); }
+    svg.appendChild(el('path', { d: path, class: 'p-curve' }));
+    svg.appendChild(el('line', { x1: X(mu), x2: X(mu), y1: T, y2: B, class: 'p-mu' }));
+    const ticks = unif ? [2, 3, 4, 5, 6] : [0, 0.5, 1, 1.5, 2, 2.5];
+    ticks.forEach(t => svg.appendChild(el('text', { x: X(t), y: B + 16, 'text-anchor': 'middle' }, fmt(t, t % 1 ? 1 : 0))));
+    svg.appendChild(el('text', { x: X(mu) + 5, y: T + 10 }, 'μ'));
+    out.innerHTML = 'média das médias = <b>' + fmt(media, 3) + '</b> (μ = ' + fmt(mu, 3) + ') · dp das médias = <b>' + fmt(dp, 3) + '</b> (σ/√n = ' + fmt(se, 3) + ')' +
+      (n === 1 ? '<br>Com n = 1 o histograma é a própria população. Aumente n e veja a forma de sino aparecer.' : n >= 30 ? '<br>Com n = ' + n + ' a distribuição das médias já é praticamente normal, e bem mais estreita.' : '');
+  }
+  draw();
+};
+
+/* IC --------------------------------------------------------------- */
+WIDGETS.ic = function(box){
+  box.innerHTML =
+    '<div class="w-head"><b>Laboratório · O que significa “95% de confiança”</b><span>Reproduz o script da aula 04: amostras de N(50, 5²), IC com t de Student. Verde contém μ = 50; vermelho não contém.</span></div>' +
+    '<div class="ctrl"><div class="seg" data-k="c" role="group" aria-label="Nível de confiança">' + [90, 95, 99].map(v => '<button type="button" data-v="' + v + '" aria-pressed="' + (v === 95) + '">' + v + '%</button>').join('') + '</div>' +
+    '<div class="seg" data-k="n" role="group" aria-label="Tamanho da amostra"><button type="button" data-v="5" aria-pressed="true">n = 5</button><button type="button" data-v="25" aria-pressed="false">n = 25</button></div>' +
+    '<button type="button" class="btn" data-act="20">Gerar 20 intervalos</button><button type="button" class="btn ghost" data-act="100">Gerar 100</button></div>' +
+    '<svg class="plot" viewBox="0 0 640 260" role="img" aria-label="Intervalos de confiança simulados"></svg><p class="w-out"></p>';
+  const T = { 5: { 90: 2.132, 95: 2.776, 99: 4.604 }, 25: { 90: 1.711, 95: 2.064, 99: 2.797 } };
+  const st = { c: 95, n: 5, k: 20 }, acum = { dentro: 0, total: 0 };
+  const svg = $('svg', box), out = $('.w-out', box);
+  seg($('[data-k="c"]', box), b => { st.c = +b.dataset.v; acum.dentro = acum.total = 0; draw(); });
+  seg($('[data-k="n"]', box), b => { st.n = +b.dataset.v; acum.dentro = acum.total = 0; draw(); });
+  $('[data-act="20"]', box).onclick = () => { st.k = 20; draw(); };
+  $('[data-act="100"]', box).onclick = () => { st.k = 100; draw(); };
+  function draw(){
+    const k = st.k, n = st.n, t = T[n][st.c];
+    const rowH = k === 20 ? 11 : 2.4, top = 8, H = top + k * rowH + 30;
+    svg.setAttribute('viewBox', '0 0 640 ' + H);
+    const lo = 36, hi = 64, L = 20, R = 620, X = x => L + (Math.min(hi, Math.max(lo, x)) - lo) / (hi - lo) * (R - L);
+    limpar(svg);
+    let dentro = 0;
+    for (let i = 0; i < k; i++){
+      let s = 0, s2 = 0; const xs = [];
+      for (let j = 0; j < n; j++){ const x = 50 + 5 * randn(); xs.push(x); s += x; }
+      const m = s / n; xs.forEach(x => s2 += (x - m) ** 2);
+      const h = t * Math.sqrt(s2 / (n - 1)) / Math.sqrt(n);
+      const ok = Math.abs(m - 50) <= h; if (ok) dentro++;
+      const y = top + i * rowH + rowH / 2;
+      svg.appendChild(el('line', { x1: X(m - h), x2: X(m + h), y1: y, y2: y, class: ok ? 'p-ok' : 'p-no', 'stroke-width': k === 20 ? 2.5 : 1.4 }));
+      if (k === 20) svg.appendChild(el('circle', { cx: X(m), cy: y, r: 2.6, class: ok ? 'p-okf' : 'p-nof' }));
+    }
+    const yb = top + k * rowH + 4;
+    svg.appendChild(el('line', { x1: X(50), x2: X(50), y1: 2, y2: yb, class: 'p-mu' }));
+    svg.appendChild(el('line', { x1: L, x2: R, y1: yb, y2: yb, class: 'axis' }));
+    [40, 45, 50, 55, 60].forEach(v => svg.appendChild(el('text', { x: X(v), y: yb + 16, 'text-anchor': 'middle' }, v === 50 ? 'μ = 50' : String(v))));
+    acum.dentro += dentro; acum.total += k;
+    out.innerHTML = 'Nesta rodada: <b>' + dentro + ' de ' + k + '</b> contêm μ. Acumulado: <b>' + acum.dentro + ' de ' + acum.total + '</b> (' + fmt(100 * acum.dentro / acum.total, 1) + '%; o procedimento promete ' + st.c + '%). Quantil usado: t = ' + fmt(t, 3) + ' com ' + (n - 1) + ' gl.';
+  }
+  draw();
+};
+
+/* PODER ------------------------------------------------------------ */
+WIDGETS.poder = function(box){
+  box.innerHTML =
+    '<div class="w-head"><b>Laboratório · α, β e poder</b><span>Distribuição da média amostral sob H₀ (cinza) e sob H₁ (azul), em unidades de σ. Teste unilateral com aproximação normal, apenas para visualizar o comportamento.</span></div>' +
+    '<div class="ctrl">' +
+      '<label for="pw-d"><span>efeito real δ/σ = <b data-o="d"></b></span><input type="range" id="pw-d" min="0" max="1.5" step="0.05" value="0.5"></label>' +
+      '<label for="pw-n"><span>tamanho amostral n = <b data-o="n"></b></span><input type="range" id="pw-n" min="2" max="80" step="1" value="10"></label>' +
+      '<div class="seg" data-k="a" role="group" aria-label="Nível de significância">' + ['0.01', '0.05', '0.10'].map(v => '<button type="button" data-v="' + v + '" aria-pressed="' + (v === '0.05') + '">α = ' + v.replace('.', ',') + '</button>').join('') + '</div>' +
+    '</div>' +
+    '<svg class="plot" viewBox="0 0 640 230" role="img" aria-label="Curvas de H0 e H1 com áreas de alfa, beta e poder"></svg>' +
+    '<div class="readout"><div><span>α (falso positivo)</span><b data-o="alfa"></b></div><div><span>β (falso negativo)</span><b data-o="beta"></b></div><div><span>Poder 1 − β</span><b data-o="poder"></b></div><div><span>Rejeita H₀ se x̄ &gt;</span><b data-o="c"></b></div></div>';
+  const Z = { '0.01': 2.326, '0.05': 1.645, '0.10': 1.282 };
+  const st = { a: '0.05' };
+  const svg = $('svg', box), id = $('#pw-d', box), inn = $('#pw-n', box), o = k => $('[data-o="' + k + '"]', box);
+  seg($('[data-k="a"]', box), b => { st.a = b.dataset.v; draw(); });
+  id.oninput = inn.oninput = draw;
+  function draw(){
+    const d = +id.value, n = +inn.value, se = 1 / Math.sqrt(n), z = Z[st.a], c = z * se;
+    const pw = 1 - Phi((c - d) / se);
+    const lo = -2.2, hi = 3.2, L = 20, R = 620, T = 12, B = 196;
+    const pico = 1 / (se * Math.sqrt(2 * Math.PI)), ymax = pico * 1.12;
+    const X = x => L + (x - lo) / (hi - lo) * (R - L), Y = y => B - y / ymax * (B - T);
+    const pdf = (x, m) => Math.exp(-0.5 * ((x - m) / se) ** 2) / (se * Math.sqrt(2 * Math.PI));
+    function area(m, a, b, cls){ a = Math.max(lo, a); b = Math.min(hi, b); if (b <= a) return; let p = 'M' + X(a) + ' ' + B; for (let k = 0; k <= 120; k++){ const x = a + (b - a) * k / 120; p += 'L' + X(x).toFixed(1) + ' ' + Y(pdf(x, m)).toFixed(1); } p += 'L' + X(b) + ' ' + B + 'Z'; svg.appendChild(el('path', { d: p, class: cls })); }
+    function curva(m, cls){ let p = ''; for (let k = 0; k <= 240; k++){ const x = lo + (hi - lo) * k / 240; p += (k ? 'L' : 'M') + X(x).toFixed(1) + ' ' + Y(pdf(x, m)).toFixed(1); } svg.appendChild(el('path', { d: p, class: cls })); }
+    limpar(svg);
+    area(d, c, hi, 'p-power'); area(d, lo, c, 'p-beta'); area(0, c, hi, 'p-alpha');
+    curva(0, 'p-h0'); curva(d, 'p-h1');
+    svg.appendChild(el('line', { x1: L, x2: R, y1: B, y2: B, class: 'axis' }));
+    svg.appendChild(el('line', { x1: X(c), x2: X(c), y1: T, y2: B, class: 'p-crit' }));
+    [-2, -1, 0, 1, 2, 3].forEach(v => svg.appendChild(el('text', { x: X(v), y: B + 16, 'text-anchor': 'middle' }, String(v))));
+    svg.appendChild(el('text', { x: X(0), y: Y(pico) - 4, 'text-anchor': 'middle' }, 'H₀'));
+    if (d >= 0.15) svg.appendChild(el('text', { x: X(d), y: Y(pico) - 4, 'text-anchor': 'middle', class: 'p-lbl0' }, 'H₁'));
+    o('d').textContent = fmt(d, 2); o('n').textContent = n;
+    o('alfa').textContent = fmt(100 * (+st.a), 0) + '%';
+    o('beta').textContent = fmt(100 * (1 - pw), 1) + '%';
+    o('poder').textContent = fmt(100 * pw, 1) + '%';
+    o('c').textContent = fmt(c, 2) + 'σ';
+  }
+  draw();
+};
+
+/* ANOVA ------------------------------------------------------------ */
+WIDGETS.anova = function(box){
+  box.innerHTML =
+    '<div class="w-head"><b>Laboratório · F = variação entre ÷ variação dentro</b><span>Três grupos com 8 observações cada (dados sintéticos). Afaste as médias ou aumente o ruído e veja F₀ mudar. F crítico de F(2, 21) a 5%: 3,47 (tabela).</span></div>' +
+    '<div class="ctrl">' +
+      '<label for="av-d"><span>distância entre as médias = <b data-o="d"></b></span><input type="range" id="av-d" min="0" max="2.5" step="0.1" value="1"></label>' +
+      '<label for="av-s"><span>dispersão dentro dos grupos σ = <b data-o="s"></b></span><input type="range" id="av-s" min="0.3" max="2.5" step="0.1" value="1"></label>' +
+      '<button type="button" class="btn ghost" data-act="novo">Novos dados</button>' +
+    '</div>' +
+    '<svg class="plot" viewBox="0 0 640 230" role="img" aria-label="Pontos de três grupos com suas médias"></svg>' +
+    '<div class="readout"><div><span>MS entre (gl 2)</span><b data-o="msb"></b></div><div><span>MS dentro (gl 21)</span><b data-o="mse"></b></div><div><span>F₀</span><b data-o="f"></b></div><div><span>Decisão (α = 5%)</span><b data-o="dec"></b></div></div>';
+  let Zs, jit;
+  function novo(){ Zs = [0, 1, 2].map(() => Array.from({ length: 8 }, randn)); jit = [0, 1, 2].map(() => Array.from({ length: 8 }, () => (Math.random() - 0.5) * 70)); }
+  novo();
+  const svg = $('svg', box), id = $('#av-d', box), is = $('#av-s', box), o = k => $('[data-o="' + k + '"]', box);
+  id.oninput = is.oninput = draw;
+  $('[data-act="novo"]', box).onclick = () => { novo(); draw(); };
+  function draw(){
+    const d = +id.value, s = +is.value, mus = [-d, 0, d];
+    const Ys = Zs.map((g, i) => g.map(z => mus[i] + s * z));
+    const medias = Ys.map(g => g.reduce((a, b) => a + b, 0) / g.length);
+    const geral = medias.reduce((a, b) => a + b, 0) / 3;
+    const ssb = 8 * medias.reduce((a, m) => a + (m - geral) ** 2, 0);
+    const sse = Ys.reduce((a, g, i) => a + g.reduce((b, y) => b + (y - medias[i]) ** 2, 0), 0);
+    const msb = ssb / 2, mse = sse / 21, F = msb / mse;
+    const L = 30, R = 630, T = 10, B = 205, lo = -8, hi = 8, Y = y => B - (Math.min(hi, Math.max(lo, y)) - lo) / (hi - lo) * (B - T);
+    const xs = [130, 330, 530];
+    limpar(svg);
+    svg.appendChild(el('line', { x1: L, x2: R, y1: Y(geral), y2: Y(geral), class: 'p-mu' }));
+    svg.appendChild(el('text', { x: R, y: Y(geral) - 5, 'text-anchor': 'end' }, 'média geral'));
+    Ys.forEach((g, i) => {
+      g.forEach((y, j) => svg.appendChild(el('circle', { cx: xs[i] + jit[i][j], cy: Y(y), r: 4.5, class: 'g' + i })));
+      svg.appendChild(el('line', { x1: xs[i] - 55, x2: xs[i] + 55, y1: Y(medias[i]), y2: Y(medias[i]), class: 'p-mean' }));
+      svg.appendChild(el('text', { x: xs[i], y: B + 18, 'text-anchor': 'middle' }, 'Grupo ' + 'ABC'[i]));
+    });
+    o('d').textContent = fmt(d, 1); o('s').textContent = fmt(s, 1);
+    o('msb').textContent = fmt(msb, 2); o('mse').textContent = fmt(mse, 2); o('f').textContent = fmt(F, 2);
+    o('dec').textContent = F > 3.47 ? 'rejeita H₀' : 'não rejeita';
+  }
+  draw();
+};
+
+/* INTERAÇÃO -------------------------------------------------------- */
+WIDGETS.interacao = function(box){
+  box.innerHTML =
+    '<div class="w-head"><b>Laboratório · Gráfico de interação 2 × 2</b><span>Médias de cada combinação de níveis. Mexa no termo de interação (τβ) e veja as linhas deixarem de ser paralelas.</span></div>' +
+    '<div class="ctrl">' +
+      '<label for="it-a"><span>efeito principal de A = <b data-o="a"></b></span><input type="range" id="it-a" min="-3" max="3" step="0.1" value="2"></label>' +
+      '<label for="it-b"><span>efeito principal de B = <b data-o="b"></b></span><input type="range" id="it-b" min="-3" max="3" step="0.1" value="1"></label>' +
+      '<label for="it-ab"><span>interação AB = <b data-o="ab"></b></span><input type="range" id="it-ab" min="-3" max="3" step="0.1" value="0"></label>' +
+    '</div>' +
+    '<div class="ctrl"><div class="seg" data-k="p" role="group" aria-label="Exemplos prontos"><button type="button" data-v="0" aria-pressed="true">Sem interação</button><button type="button" data-v="1" aria-pressed="false">Interação moderada</button><button type="button" data-v="2" aria-pressed="false">Linhas cruzadas</button></div></div>' +
+    '<svg class="plot" viewBox="0 0 640 240" role="img" aria-label="Gráfico de interação"></svg><p class="w-out"></p>';
+  const PRE = [[2, 1, 0], [2, 1, 1.2], [0.4, 0.5, 2.6]];
+  const svg = $('svg', box), ia = $('#it-a', box), ib = $('#it-b', box), iab = $('#it-ab', box), out = $('.w-out', box), o = k => $('[data-o="' + k + '"]', box);
+  seg($('[data-k="p"]', box), b => { const p = PRE[+b.dataset.v]; ia.value = p[0]; ib.value = p[1]; iab.value = p[2]; draw(); });
+  ia.oninput = ib.oninput = iab.oninput = draw;
+  function draw(){
+    const a = +ia.value, b = +ib.value, ab = +iab.value;
+    const cel = (xa, xb) => 5 + a * xa / 2 + b * xb / 2 + ab * xa * xb / 2;
+    const L = 60, R = 600, T = 14, B = 200, Y = y => B - Math.min(10, Math.max(0, y)) / 10 * (B - T), xs = [170, 470];
+    limpar(svg);
+    svg.appendChild(el('line', { x1: L, x2: R, y1: B, y2: B, class: 'axis' }));
+    svg.appendChild(el('line', { x1: L, x2: L, y1: T, y2: B, class: 'axis' }));
+    [0, 2.5, 5, 7.5, 10].forEach(v => svg.appendChild(el('text', { x: L - 8, y: Y(v) + 4, 'text-anchor': 'end' }, fmt(v, v % 1 ? 1 : 0))));
+    svg.appendChild(el('text', { x: xs[0], y: B + 18, 'text-anchor': 'middle' }, 'A no nível 1'));
+    svg.appendChild(el('text', { x: xs[1], y: B + 18, 'text-anchor': 'middle' }, 'A no nível 2'));
+    [-1, 1].forEach((xb, k) => {
+      const y1 = cel(-1, xb), y2 = cel(1, xb);
+      svg.appendChild(el('line', { x1: xs[0], x2: xs[1], y1: Y(y1), y2: Y(y2), class: 'p-line' + k }));
+      svg.appendChild(el('circle', { cx: xs[0], cy: Y(y1), r: 6, class: 'g' + k }));
+      svg.appendChild(el('circle', { cx: xs[1], cy: Y(y2), r: 6, class: 'g' + k }));
+      svg.appendChild(el('text', { x: xs[1] + 12, y: Y(y2) + 4, class: 'p-lbl' + k }, 'B' + (k + 1)));
+    });
+    o('a').textContent = fmt(a, 1); o('b').textContent = fmt(b, 1); o('ab').textContent = fmt(ab, 1);
+    const eB1 = a - ab, eB2 = a + ab;
+    out.innerHTML = Math.abs(ab) < 0.05
+      ? 'Linhas <b>paralelas</b>: sem interação. Mudar A de 1 para 2 altera a resposta em ' + fmt(a, 1) + ' tanto em B1 quanto em B2.'
+      : 'Linhas <b>não paralelas</b>: há interação. Mudar A de 1 para 2 altera a resposta em <b>' + fmt(eB1, 1) + '</b> quando B está em B1 e em <b>' + fmt(eB2, 1) + '</b> quando está em B2. O efeito de A depende de B.';
+  }
+  draw();
+};
+
+rota();
+})();
+
+</script>
+</body>
+</html>

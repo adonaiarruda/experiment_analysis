@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simulado da Prova EEE933</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&family=STIX+Two+Text:ital@0;1&display=swap">
+<style>
+:root{
+  /* Layout: caderno de laboratório. Trilho de fases à esquerda, coluna de leitura de ~70ch à direita, cabeçalhos sobre papel milimetrado. */
+  --paper:#f4f6fa;
+  --paper-glass:rgba(244,246,250,.88);
+  --card:#ffffff;
+  --ink:#172033;
+  --muted:#586379;
+  --line:#d7dde9;
+  --accent:#2445c4;
+  --accent-ink:#ffffff;
+  --accent-soft:#e6ebfa;
+  --amber:#a35200;
+  --amber-soft:#fcefdc;
+  --good:#1b7246;
+  --good-soft:#e1f2e8;
+  --bad:#ad2a20;
+  --bad-soft:#fae5e2;
+  --code:#ebeef5;
+  --grid:rgba(36,69,196,.075);
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --f-math:"STIX Two Text","Cambria Math","Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0e131d; --paper-glass:rgba(14,19,29,.86); --card:#151c29; --ink:#e4e9f2; --muted:#9aa5b9; --line:#29334a;
+    --accent:#8fa6ff; --accent-ink:#0e131d; --accent-soft:#1b2646;
+    --amber:#f0a24a; --amber-soft:#2c2213; --good:#5fd39a; --good-soft:#11281d; --bad:#ff8b7f; --bad-soft:#331a1a;
+    --code:#1a2232; --grid:rgba(143,166,255,.06);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0e131d; --paper-glass:rgba(14,19,29,.86); --card:#151c29; --ink:#e4e9f2; --muted:#9aa5b9; --line:#29334a;
+  --accent:#8fa6ff; --accent-ink:#0e131d; --accent-soft:#1b2646;
+  --amber:#f0a24a; --amber-soft:#2c2213; --good:#5fd39a; --good-soft:#11281d; --bad:#ff8b7f; --bad-soft:#331a1a;
+  --code:#1a2232; --grid:rgba(143,166,255,.06);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:1.0625rem;line-height:1.62}
+a{color:var(--accent);text-underline-offset:.15em}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* barra superior */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper-glass);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1200px;margin:0 auto;padding:.55rem 16px;display:flex;align-items:center;gap:.8rem 1.2rem;flex-wrap:wrap}
+.brand{font-family:var(--f-display);font-weight:800;font-size:1.06rem;letter-spacing:-.01em;text-decoration:none;color:var(--ink);display:flex;align-items:baseline;gap:.5rem}
+.brand small{font-family:var(--f-mono);font-weight:400;font-size:.7rem;color:var(--muted);letter-spacing:.05em}
+.top-links{display:flex;gap:1rem;font-size:.92rem}
+.top-links a{text-decoration:none;font-weight:700}
+.progress{margin-left:auto;display:flex;align-items:center;gap:.6rem;font-family:var(--f-mono);font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{width:110px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s}
+
+/* tipografia */
+.eyebrow{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);margin:0}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(1.9rem,4.2vw,2.75rem);line-height:1.07;letter-spacing:-.025em;text-wrap:balance;margin:.35rem 0 .7rem}
+h2{font-family:var(--f-display);font-weight:700;font-size:1.48rem;line-height:1.2;letter-spacing:-.012em;margin:2.4rem 0 .6rem;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:700;font-size:1.13rem;line-height:1.3;margin:1.6rem 0 .4rem;text-wrap:balance}
+p{margin:.65rem 0}
+ul,ol{padding-left:1.3rem;margin:.6rem 0}
+li{margin:.28rem 0}
+strong{font-weight:700}
+.lead{font-size:1.2rem;line-height:1.5;max-width:62ch}
+.muted{color:var(--muted)}
+.prose{max-width:72ch}
+.m{font-family:var(--f-math);font-style:italic;font-size:1.1em;white-space:nowrap}
+.formula{font-family:var(--f-math);font-size:1.18rem;line-height:1.5;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.75rem 1rem;margin:.9rem 0;overflow-x:auto;text-align:center}
+.formula small{display:block;font-family:var(--f-body);font-size:.82rem;color:var(--muted);margin-top:.25rem}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--code);padding:.08em .35em;border-radius:4px}
+pre.r{font-family:var(--f-mono);font-size:.82rem;line-height:1.55;background:var(--code);border-radius:10px;padding:.85rem 1rem;margin:.9rem 0;overflow-x:auto;white-space:pre}
+pre.r .c{color:var(--muted)}
+.papel{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px;background-position:-1px -1px}
+
+/* notas */
+.note{border-radius:12px;padding:.85rem 1.1rem;margin:1.1rem 0;background:var(--card);border:1px solid var(--line)}
+.note > .tag{display:inline-block;font-family:var(--f-mono);font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.16rem .55rem;border-radius:999px;margin-bottom:.35rem;background:var(--line);color:var(--ink)}
+.note > p:last-child,.note > ul:last-child,.note > ol:last-child{margin-bottom:0}
+.note.analogia{background:var(--accent-soft);border-color:transparent}
+.note.analogia > .tag{background:var(--accent);color:var(--accent-ink)}
+.note.pegadinha{background:var(--amber-soft);border-color:transparent}
+.note.pegadinha > .tag{background:var(--amber);color:var(--card)}
+.note.ec > .tag{background:var(--ink);color:var(--paper)}
+.note.exemplo > .tag{background:var(--code);color:var(--ink);border:1px solid var(--line)}
+
+/* tabelas */
+.tw{overflow-x:auto;margin:1rem 0;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+table.t{border-collapse:collapse;width:100%;font-size:.9rem;line-height:1.45}
+table.t th,table.t td{padding:.55rem .7rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.t tr:last-child td{border-bottom:0}
+table.t th{font-family:var(--f-mono);font-size:.7rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:var(--paper)}
+table.t td:first-child{font-weight:700}
+table.t.num td{font-variant-numeric:tabular-nums}
+
+/* passos numerados (sequências reais) */
+ol.passos{list-style:none;padding:0;counter-reset:p;display:grid;gap:.55rem;margin:1rem 0}
+ol.passos > li{counter-increment:p;display:grid;grid-template-columns:2rem minmax(0,1fr);gap:.7rem;align-items:start;margin:0}
+ol.passos > li::before{content:counter(p);font-family:var(--f-mono);font-weight:600;font-size:.82rem;width:2rem;height:2rem;border-radius:50%;display:grid;place-items:center;background:var(--card);border:1.5px solid var(--accent);color:var(--accent)}
+ol.passos > li > div{min-width:0;padding-top:.2rem}
+
+/* botões e controles */
+.btn{font:inherit;font-weight:700;font-size:.95rem;border-radius:999px;padding:.5rem 1.05rem;border:1.5px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:hover{filter:brightness(1.07)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;flex-wrap:wrap}
+.seg button{font:inherit;font-size:.86rem;padding:.35rem .8rem;border:0;background:transparent;color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:700}
+input[type=range]{accent-color:var(--accent);width:100%}
+select{font:inherit;font-size:.9rem;padding:.25rem .4rem;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+textarea{font:inherit;font-size:.98rem;line-height:1.5;width:100%;min-height:14rem;padding:.8rem;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);resize:vertical}
+
+/* quiz */
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1rem 1.1rem;margin:.9rem 0}
+.q-n{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.q-text{font-weight:700;margin:.25rem 0 .75rem;line-height:1.45}
+.q-text pre.r{font-weight:400}
+.opts{display:grid;gap:.5rem}
+.opt{display:grid;grid-template-columns:1.7rem minmax(0,1fr);gap:.65rem;align-items:start;text-align:left;width:100%;font:inherit;font-size:.98rem;line-height:1.45;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:.55rem .75rem;cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt .k{font-family:var(--f-mono);font-weight:600;font-size:.78rem;width:1.7rem;height:1.7rem;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--line);background:var(--card)}
+.opt[disabled]{cursor:default}
+.opt.marcada{border-color:var(--accent)}
+.opt.marcada .k{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opt.certa{background:var(--good-soft);border-color:var(--good)}
+.opt.certa .k{background:var(--good);color:var(--card);border-color:var(--good)}
+.opt.errada{background:var(--bad-soft);border-color:var(--bad)}
+.opt.errada .k{background:var(--bad);color:var(--card);border-color:var(--bad)}
+.exp{margin-top:.75rem;padding:.7rem .9rem;border-radius:10px;background:var(--paper);border:1px dashed var(--line);font-size:.96rem}
+.exp .ok{color:var(--good);font-weight:700}
+.exp .no{color:var(--bad);font-weight:700}
+.stars{font-size:1rem;letter-spacing:.1em;color:var(--line);white-space:nowrap}
+.stars b{color:var(--amber);font-weight:400}
+
+/* widgets */
+.widget{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1rem 1.1rem;margin:1.4rem 0}
+.w-head{display:flex;flex-direction:column;gap:.1rem;margin-bottom:.7rem}
+.w-head b{font-family:var(--f-display);font-size:1.05rem}
+.w-head span{font-size:.88rem;color:var(--muted)}
+.ctrl{display:flex;flex-wrap:wrap;gap:.7rem 1.2rem;align-items:center;margin:.5rem 0 .8rem;font-size:.92rem}
+.ctrl label{display:flex;flex-direction:column;gap:.15rem;min-width:9rem;flex:1 1 9rem}
+.ctrl label span{font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
+.ctrl label span b{color:var(--ink);font-weight:600}
+svg.plot{width:100%;height:auto;display:block;overflow:visible}
+svg.plot text{fill:var(--muted);font-family:var(--f-mono);font-size:11px}
+svg.plot .axis{stroke:var(--line);stroke-width:1}
+.w-out{font-family:var(--f-mono);font-size:.84rem;color:var(--ink);margin:.6rem 0 0;font-variant-numeric:tabular-nums}
+.w-out b{color:var(--accent)}
+.readout{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem}
+.readout div{flex:1 1 7.5rem;background:var(--paper);border-radius:9px;padding:.45rem .7rem}
+.readout div span{display:block;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.readout div b{font-family:var(--f-mono);font-size:1.02rem;font-variant-numeric:tabular-nums}
+/* marcas dos gráficos */
+svg.plot .p-bar{fill:var(--accent);fill-opacity:.55}
+svg.plot .p-curve{fill:none;stroke:var(--ink);stroke-width:2}
+svg.plot .p-mu{stroke:var(--ink);stroke-width:1.2;stroke-dasharray:5 4;fill:none}
+svg.plot .p-ok{stroke:var(--good)}
+svg.plot .p-no{stroke:var(--bad)}
+svg.plot .p-okf{fill:var(--good)}
+svg.plot .p-nof{fill:var(--bad)}
+svg.plot .p-h0{fill:none;stroke:var(--muted);stroke-width:2}
+svg.plot .p-h1{fill:none;stroke:var(--accent);stroke-width:2.2}
+svg.plot .p-alpha{fill:var(--bad);fill-opacity:.45}
+svg.plot .p-beta{fill:var(--amber);fill-opacity:.3}
+svg.plot .p-power{fill:var(--good);fill-opacity:.28}
+svg.plot .p-crit{stroke:var(--ink);stroke-width:1.2;stroke-dasharray:3 3}
+svg.plot .p-mean{stroke:var(--ink);stroke-width:2.5}
+svg.plot .g0{fill:var(--accent)}
+svg.plot .g1{fill:var(--amber)}
+svg.plot .g2{fill:var(--good)}
+svg.plot .p-line0{stroke:var(--accent);stroke-width:3}
+svg.plot .p-line1{stroke:var(--amber);stroke-width:3}
+svg.plot text.p-lbl0{fill:var(--accent);font-weight:600}
+svg.plot text.p-lbl1{fill:var(--amber);font-weight:600}
+
+/* --- específico do simulado --- */
+.wrap{max-width:900px;margin:0 auto;padding-inline:16px;padding-block:1.4rem 5rem}
+.hero{border-radius:18px;padding:1.7rem 1.4rem 1.4rem;border:1px solid var(--line);background-color:var(--card)}
+.hero h1{max-width:18ch}
+.estrutura{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.6rem;margin-top:1.2rem}
+.estrutura a{display:flex;flex-direction:column;gap:.15rem;text-decoration:none;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:.75rem .9rem}
+.estrutura a:hover{border-color:var(--accent)}
+.estrutura span{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.estrutura b{font-family:var(--f-display);font-size:1.05rem;line-height:1.25}
+.estrutura small{color:var(--muted);font-size:.86rem}
+.timer{display:flex;align-items:center;gap:.5rem;margin-left:auto;flex-wrap:wrap}
+.timer select{font-size:.8rem;padding:.15rem .3rem}
+.relogio{font-family:var(--f-mono);font-weight:600;font-size:.95rem;font-variant-numeric:tabular-nums;min-width:4.2rem;text-align:right}
+.relogio.fim{color:var(--bad)}
+.timer .btn{font-size:.8rem;padding:.3rem .75rem}
+.parte{margin-top:3rem}
+.parte-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.4rem 1rem;border-bottom:2px solid var(--ink);padding-bottom:.45rem;margin-bottom:1rem}
+.parte-head h2{margin:0}
+.parte-head .muted{font-family:var(--f-mono);font-size:.78rem}
+.acoes{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:1.2rem 0}
+.placar{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem 1.4rem;padding:1rem 1.1rem;border-radius:12px;background:var(--accent-soft);margin:1rem 0}
+.placar .big{font-family:var(--f-display);font-weight:800;font-size:2.1rem;line-height:1;font-variant-numeric:tabular-nums}
+.placar ul{margin:.2rem 0 0;padding-left:1.1rem}
+.revise{display:inline-block;margin-top:.4rem;font-family:var(--f-mono);font-size:.76rem}
+.cenario{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1rem 1.15rem;margin:.9rem 0}
+.cenario > p:first-child{margin-top:0}
+.gabarito{margin-top:1rem}
+.checklist{list-style:none;padding:0;margin:.6rem 0;display:grid;gap:.35rem}
+.checklist label{display:grid;grid-template-columns:1.3rem minmax(0,1fr);gap:.6rem;align-items:start;padding:.45rem .6rem;border-radius:9px;background:var(--paper);cursor:pointer;line-height:1.45}
+.checklist input{width:1.05rem;height:1.05rem;margin-top:.2rem;accent-color:var(--good)}
+.nota-auto{font-family:var(--f-mono);font-size:.85rem}
+.resumo{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.7rem}
+.resumo div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.8rem 1rem}
+.resumo span{display:block;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.resumo b{font-family:var(--f-display);font-size:1.6rem;font-variant-numeric:tabular-nums}
+.contador{font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#topo">Simulado EEE933 <small>AVALIAÇÃO ESCRITA</small></a>
+    <nav class="top-links" aria-label="Páginas"><a href="aulas.html#inicio">Trilha de estudos</a></nav>
+    <div class="timer" aria-live="polite">
+      <label for="dur" class="contador">Tempo</label>
+      <select id="dur"><option value="60">60 min</option><option value="90" selected>90 min</option><option value="120">120 min</option></select>
+      <span class="relogio" id="relogio">90:00</span>
+      <button type="button" class="btn" id="btn-timer">Iniciar</button>
+      <button type="button" class="btn ghost" id="btn-zerar">Zerar</button>
+    </div>
+  </div>
+</header>
+<div class="wrap" id="topo">
+  <section class="hero papel">
+    <p class="eyebrow">EEE933 · Avaliação escrita · 24/11/2026 · 20 pontos</p>
+    <h1>Simulado no formato esperado da prova</h1>
+    <p class="lead">Parte objetiva com 20 questões sorteadas de um banco de 37, e parte dissertativa com um planejamento e uma análise, cada uma com roteiro de correção e resposta modelo. Os pesos reais das partes não foram divulgados, então o placar mostra cada parte separada.</p>
+    <div class="estrutura">
+      <a href="#parte-a"><span>Parte A</span><b>Objetiva (a, b, c, d)</b><small>20 questões, correção no final</small></a>
+      <a href="#parte-b1"><span>Parte B1</span><b>Explique um planejamento</b><small>2 cenários para escolher</small></a>
+      <a href="#parte-b2"><span>Parte B2</span><b>Faça uma análise</b><small>3 cenários com saídas do R</small></a>
+    </div>
+  </section>
+
+  <section class="parte" id="parte-a">
+    <div class="parte-head"><h2>Parte A · Objetiva</h2><span class="muted" id="cont-a">0/20 respondidas</span></div>
+    <p class="muted">Marque uma alternativa por questão. Você pode trocar a resposta até clicar em “Corrigir Parte A”.</p>
+    <div id="lista-a"></div>
+    <div class="placar" id="placar-a" hidden></div>
+    <div class="acoes"><button type="button" class="btn" id="btn-corrigir">Corrigir Parte A</button><button type="button" class="btn ghost" id="btn-sortear">Sortear outras 20 questões</button></div>
+  </section>
+
+  <section class="parte" id="parte-b1">
+    <div class="parte-head"><h2>Parte B1 · Planejamento</h2><span class="muted">Escreva antes de abrir o gabarito</span></div>
+    <div id="bloco-b1"></div>
+  </section>
+
+  <section class="parte" id="parte-b2">
+    <div class="parte-head"><h2>Parte B2 · Análise</h2><span class="muted">Escreva antes de abrir o gabarito</span></div>
+    <div id="bloco-b2"></div>
+  </section>
+
+  <section class="parte" id="resultado">
+    <div class="parte-head"><h2>Resultado do simulado</h2></div>
+    <div class="resumo">
+      <div><span>Parte A</span><b id="res-a">–</b></div>
+      <div><span>B1 · itens do roteiro</span><b id="res-b1">–</b></div>
+      <div><span>B2 · itens do roteiro</span><b id="res-b2">–</b></div>
+    </div>
+    <p class="muted">Na parte dissertativa, marque no roteiro só o que você realmente escreveu. A resposta modelo segue a mesma ordem dos slides 13, 14, 16 e 21 da aula 02.</p>
+  </section>
+</div>
+<script>
+const FASE_NOME = {
+  fio:'00 · O que os ECs têm em comum', ciencia:'01 · O que é Ciência', experimentacao:'02 · Função da Experimentação',
+  distribuicoes:'03 · Distribuições', estimacao:'04 · Estimação e TCL', intervalos:'05 · Intervalos', inferencia:'06 · Inferência',
+  comparacoes:'07 · Comparações simples e pareadas', equivalencia:'08 · Equivalência', anova:'09 · ANOVA',
+  naoparametricos:'10 · Não paramétricos', blocagem:'11 · Blocagem', fatorial:'12 · Fatorial'
+};
+const ORDEM_FASE = Object.keys(FASE_NOME);
+
+const BANCO = [
+{f:'experimentacao', q:'Em um experimento, “combinação específica dos níveis adotados para todos os fatores sob estudo” é a definição de:', o:['Tratamento','Fator','Nível','Variável de resposta'], c:0, e:'Definição do slide 4 da aula 02. Fator é a variável controlada; nível é cada valor que ela assume.'},
+{f:'experimentacao', q:'Um engenheiro registra a corrente de 30 motores em operação normal, sem alterar nada no sistema, para entender o comportamento usual. Esse estudo é:', o:['Observacional','Experimento planejado','Retrospectivo','Fatorial'], c:0, e:'Mínima interferência e comportamento usual. Problemas típicos: poucos eventos extremos e baixa variabilidade, que pode esconder efeitos.'},
+{f:'experimentacao', q:'A estratégia de alterar um fator por vez (COST) pode levar a conclusões erradas porque:', o:['Não detecta interações entre fatores','Exige amostras muito grandes','Só funciona com fatores numéricos','Não permite calcular p-valores'], c:0, e:'Slide 9 da aula 02: o COST só dá bons resultados se não houver interação.'},
+{f:'experimentacao', q:'Qual atitude é recomendada ao apresentar conclusões (aula 02)?', o:['Ser conservador e relatar o nível de significância e as premissas sob as quais o resultado vale','Generalizar o resultado para condições não testadas','Reportar apenas o p-valor','Omitir premissas violadas para não confundir o leitor'], c:0, e:'Slide 23: seja conservador, relate α e premissas, sugira explicações plausíveis e cuidado com a busca por anomalias.'},
+{f:'inferencia', q:'O p-valor de um teste é:', o:['A probabilidade de obter uma estatística tão ou mais extrema que a observada, supondo H₀ verdadeira','A probabilidade de H₀ ser verdadeira','A probabilidade de H₁ ser verdadeira','O nível de significância escolhido'], c:0, e:'É P(dados tão extremos | H₀). Não é a probabilidade de nenhuma hipótese.'},
+{f:'inferencia', q:'Com α = 0,05, um teste bilateral retornou p = 0,08. A conclusão adequada é:', o:['Não rejeitar H₀: não há evidência suficiente de diferença ao nível de 5%','Aceitar H₀: as médias são iguais','Rejeitar H₀, pois 0,08 está perto de 0,05','Trocar para teste unilateral para obter significância'], c:0, e:'Não rejeitar não prova H₀. Trocar a direção depois de ver os dados infla o erro tipo I.'},
+{f:'inferencia', q:'Mantendo α e o efeito δ* fixos, qual medida aumenta o poder do teste?', o:['Aumentar o tamanho amostral','Reduzir α para 0,01','Usar um instrumento de medição menos preciso','Usar teste bilateral quando a pergunta é unilateral'], c:0, e:'Mais dados reduzem o erro padrão. As outras opções reduzem o poder.'},
+{f:'inferencia', q:'Sobre a premissa de independência, é correto afirmar:', o:['Ela deve ser garantida no planejamento; o Durbin-Watson só detecta autocorrelação serial na ordem das observações','O Shapiro-Wilk verifica a independência','Ela é garantida automaticamente quando n > 30','Ela só importa em testes não paramétricos'], c:0, e:'Slide 19 da aula 06: não existe teste que garanta independência.'},
+{f:'inferencia', q:'O efeito minimamente relevante δ* é:', o:['A menor diferença com importância prática que o experimento deve ser capaz de detectar','A diferença observada nos dados','O desvio-padrão do processo','O limite inferior do intervalo de confiança'], c:0, e:'É definido antes da coleta e entra no cálculo do tamanho amostral junto com α, β e σ.'},
+{f:'comparacoes', q:'Um teste t de duas amostras independentes com variâncias iguais tem n₁ = n₂ = 17. Quantos graus de liberdade tem a estatística?', o:['32','34','16','33'], c:0, e:'n₁ + n₂ − 2 = 32, como no exemplo das hastes de aço.'},
+{f:'comparacoes', q:'Qual teste a disciplina usou para verificar a igualdade de variâncias entre grupos?', o:['Fligner-Killeen','Shapiro-Wilk','Durbin-Watson','Kolmogorov-Smirnov'], c:0, e:'Shapiro: normalidade. Durbin-Watson: autocorrelação. Kolmogorov-Smirnov: ajuste a uma distribuição.'},
+{f:'comparacoes', q:'O pareamento é mais vantajoso quando:', o:['Há grande variabilidade entre as unidades experimentais em relação ao erro dentro delas','As unidades experimentais são muito homogêneas','Os dados não são normais','Há mais de dois tratamentos'], c:0, e:'O pareamento remove a variação entre unidades (instâncias, sujeitos). Com unidades homogêneas o ganho é pequeno.'},
+{f:'comparacoes', q:'power.t.test(delta = 15, sd = 15, sig.level = 0.05, power = 0.8, type = "two.sample") devolveu n = 13,1. O que fazer?', o:['Coletar 14 observações em cada grupo','Coletar 13 observações no total','Coletar 13 observações em cada grupo','Coletar 7 observações em cada grupo'], c:0, e:'O n é por grupo e deve ser arredondado para cima.'},
+{f:'anova', q:'O Shapiro-Wilk sobre os resíduos de uma ANOVA deu p = 0,72. A leitura correta é:', o:['Não há evidência contra a normalidade dos resíduos','Os resíduos não são normais','As variâncias são iguais','O efeito do fator é significativo'], c:0, e:'No Shapiro-Wilk, H₀ é a normalidade. p > α → não rejeita.'},
+{f:'anova', q:'Uma ANOVA compara 5 ações com 35 retornos mensais cada. Os graus de liberdade (fator, resíduo) são:', o:['4 e 170','5 e 175','4 e 175','5 e 170'], c:0, e:'a − 1 = 4 e a(n − 1) = 5 × 34 = 170.'},
+{f:'anova', q:'Após rejeitar H₀ na ANOVA, a pergunta é “alguma variante difere do método padrão?”. O procedimento mais adequado é:', o:['Dunnett (todos contra um)','Tukey (todos contra todos)','Vários testes t sem correção','Repetir a ANOVA só com as duas maiores médias'], c:0, e:'Dunnett faz a − 1 comparações e tem mais poder para essa pergunta.'},
+{f:'anova', q:'Quantas comparações o teste de Tukey faz com a = 5 níveis?', o:['10','5','4','20'], c:0, e:'a(a − 1)/2 = 5 × 4 / 2 = 10.'},
+{f:'anova', q:'Com correção de Bonferroni para K = 4 comparações e α global = 0,05, cada comparação usa:', o:['α = 0,0125','α = 0,05','α = 0,20','α = 0,0167'], c:0, e:'α_aj = α/K = 0,05/4.'},
+{f:'anova', q:'Definir as comparações de interesse só depois de olhar os resultados da ANOVA:', o:['É fonte comum de viés (HARKing); as comparações devem ser planejadas antes','É recomendado para aumentar o poder','Não tem consequência se usar Tukey','É obrigatório no RCBD'], c:0, e:'Slides 27–28 da aula 08. O EC02 registrou como limitação ter escolhido a referência do Dunnett depois de ver os dados.'},
+{f:'anova', q:'Num modelo de efeitos fixos, os resultados:', o:['Valem para os níveis testados e não podem ser extrapolados para níveis não testados','Valem para qualquer nível do fator','Exigem que os níveis sejam sorteados de uma população','Dispensam a verificação de premissas'], c:0, e:'Slide 13 da aula 08.'},
+{f:'distribuicoes', q:'Sob H₀, a estatística F₀ = MS_níveis / MS_E da ANOVA segue:', o:['F com (a − 1) e a(n − 1) graus de liberdade','t com a − 1 graus de liberdade','χ² com a − 1 graus de liberdade','Normal padrão'], c:0, e:'Razão de dois quadrados médios que estimam σ² sob H₀.'},
+{f:'blocagem', q:'Qual é o modelo de um RCBD com um fator de interesse e um fator de blocagem?', o:['yᵢⱼ = μ + τᵢ + βⱼ + εᵢⱼ','yᵢⱼ = μ + τᵢ + εᵢⱼ','yᵢⱼₖ = μ + τᵢ + βⱼ + (τβ)ᵢⱼ + εᵢⱼₖ','yᵢⱼ = μᵢ + βⱼ'], c:0, e:'O segundo é o CRD (ANOVA de um fator). O terceiro é o fatorial de dois fatores.'},
+{f:'blocagem', q:'Lotes de matéria-prima influenciam a resposta, são conhecidos e controláveis, mas não são de interesse. A estratégia recomendada é:', o:['Usar os lotes como blocos','Aleatorizar e ignorar os lotes','Tratar os lotes como o fator principal','Usar um único lote e generalizar para todos'], c:0, e:'“Block what you can, randomize what you cannot.”'},
+{f:'blocagem', q:'Tratar várias execuções do mesmo algoritmo na mesma instância como observações independentes:', o:['É pseudorreplicação: os graus de liberdade ficam errados e o erro tipo I aumenta','Aumenta o poder de forma legítima','É a definição de RCBD','Só é problema em testes não paramétricos'], c:0, e:'As repetições são agregadas pela média; a unidade independente é a instância (ou o bloco).'},
+{f:'fatorial', q:'Um fatorial 3 × 4 com n = 2 réplicas por combinação tem quantas observações e quantos gl no resíduo?', o:['24 observações e 12 gl','24 observações e 23 gl','12 observações e 12 gl','24 observações e 6 gl'], c:0, e:'3 × 4 × 2 = 24 observações; ab(n − 1) = 12 × 1 = 12 gl.'},
+{f:'fatorial', q:'Há interação entre dois fatores quando:', o:['O efeito de um fator depende do nível do outro','Os dois fatores têm efeito principal significativo','Os dois fatores têm o mesmo número de níveis','As linhas do gráfico de interação são paralelas'], c:0, e:'Linhas paralelas indicam justamente ausência de interação.'},
+{f:'fatorial', q:'Num fatorial 2³ com uma única réplica, o modelo completo não tem teste porque:', o:['Não sobram graus de liberdade para estimar o quadrado médio do erro','A distribuição F não se aplica a fatores com dois níveis','Os efeitos principais são sempre nulos','Não é possível calcular as somas de quadrados'], c:0, e:'Saída: remover as interações de maior ordem (princípio da esparsidade), com apoio do gráfico de Daniel.'},
+{f:'equivalencia', q:'Num teste de equivalência por TOST, conclui-se pela equivalência quando:', o:['As duas hipóteses nulas unilaterais são rejeitadas','Pelo menos uma hipótese nula unilateral é rejeitada','O teste t bilateral não rejeita H₀','O IC de 1 − α contém o zero'], c:0, e:'Equivalentemente, o IC de 1 − 2α fica inteiro dentro de (−δ*, δ*).'},
+{f:'naoparametricos', q:'Qual é a alternativa não paramétrica ao teste t pareado?', o:['Wilcoxon dos postos sinalizados','Kruskal-Wallis','Mann-Whitney','Fligner-Killeen'], c:0, e:'Kruskal-Wallis substitui a ANOVA; Mann-Whitney, o t de duas amostras independentes.'},
+{f:'naoparametricos', q:'Num teste por bootstrap com R = 999 reamostragens, 35 estatísticas foram maiores ou iguais a t̂. O p-valor é:', o:['0,036','0,035','0,965','0,0035'], c:0, e:'(1 + 35)/(999 + 1) = 0,036, o valor do exemplo do slide.'},
+{f:'naoparametricos', q:'Os resíduos de um modelo violam fortemente a normalidade. Segundo a aula 09, uma alternativa válida é:', o:['Transformar a resposta (por exemplo, log) ou usar um método não paramétrico','Remover observações até o Shapiro-Wilk não rejeitar','Aumentar α para 0,10','Ignorar, pois a ANOVA não tem premissas'], c:0, e:'Transformar é uma opção (pode não dar certo). O EC03 usou log e confirmou com Wilcoxon, sinal e bootstrap.'},
+{f:'estimacao', q:'Pelo Teorema Central do Limite, a média amostral de n observações iid (média μ e variância σ² finitas) tem distribuição aproximadamente:', o:['N(μ, σ²/n)','N(μ, σ²)','N(0, 1)','Uniforme'], c:0, e:'A variância da média cai com n. N(0, 1) é a da versão padronizada.'},
+{f:'estimacao', q:'Com s = 10 e n = 25, o erro padrão estimado da média é:', o:['2','0,4','10','50'], c:0, e:'s/√n = 10/5 = 2.'},
+{f:'intervalos', q:'Com σ desconhecido, população normal e n = 8, o IC de 95% para μ usa:', o:['t com 7 graus de liberdade','z = 1,96','t com 8 graus de liberdade','χ² com 7 graus de liberdade'], c:0, e:'σ estimado por s → t com n − 1 gl.'},
+{f:'intervalos', q:'Um relatório informa IC 95% para μ₁ − μ₂ = [−1,78; 3,09]. Num teste bilateral com α = 0,05, H₀: μ₁ = μ₂ seria:', o:['Não rejeitada, pois o zero está no intervalo','Rejeitada, pois o intervalo é largo','Rejeitada, pois o limite superior é positivo','Indeterminada sem o tamanho amostral'], c:0, e:'É o resultado do EC01 para os homens (p = 0,59).'},
+{f:'intervalos', q:'Um IC de 95% para a impedância média foi [47,22; 48,78] Ω. Qual afirmação é correta?', o:['O procedimento gera intervalos que contêm μ em cerca de 95% das repetições do experimento','95% dos cabos produzidos têm impedância nesse intervalo','A média amostral tem 95% de chance de estar no intervalo','Esse é o intervalo de tolerância do processo'], c:0, e:'A confiança é do procedimento. “95% dos cabos” descreveria um intervalo de tolerância.'},
+{f:'fio', q:'Num estudo retrospectivo, como o EC01 e o EC02, como o poder deve ser tratado?', o:['Discutido após o teste, por exemplo com a menor diferença detectável para o n disponível','Calculado antes para decidir quantos dados coletar','Ignorado, pois os dados já existem','Substituído pelo p-valor'], c:0, e:'Os dados já existem; o que se pode fazer é avaliar a sensibilidade do teste com o n que se tem.'}
+];
+
+const CHECK_PLANO = [
+  'Pergunta técnica clara e variável de resposta definida (unidade e forma de medir)',
+  'Unidade experimental, fator(es) de interesse e níveis; tipo de estudo (planejado, retrospectivo…)',
+  'Hipóteses H₀ e H₁ sobre o parâmetro certo, com escolha uni ou bilateral justificada',
+  'Nível de significância α (e correção se houver várias comparações)',
+  'Efeito minimamente relevante δ* e poder 1 − β',
+  'Origem da estimativa de σ (histórico, conhecimento ou piloto) e cálculo do tamanho amostral, arredondado para cima',
+  'Controle dos fatores indesejáveis: aleatorização, pareamento ou blocos',
+  'Protocolo de coleta: condições homogêneas, ordem aleatória, sem parar antes nem espiar, repetições agregadas (sem pseudorreplicação)',
+  'Plano de análise: teste escolhido, premissas a verificar e plano B (transformação ou não paramétrico)',
+  'Como apresentar: IC, tamanho do efeito comparado a δ*, conclusões e limitações'
+];
+const CHECK_ANALISE = [
+  'Pré-processamento/agregação dos dados e análise exploratória (boxplot, médias, dispersão, outliers)',
+  'Modelo estatístico e hipóteses H₀ e H₁ escritos',
+  'Estatística de teste e p-valor interpretados, com decisão explícita frente a α',
+  'Normalidade dos resíduos (Shapiro-Wilk + QQ-plot) com leitura correta do p-valor',
+  'Homoscedasticidade (Fligner-Killeen, resíduos × ajustados), quando se aplica',
+  'Independência discutida (vem do planejamento; Durbin-Watson só para autocorrelação serial)',
+  'Quais níveis diferem (comparações múltiplas com correção), ou justificativa de por que não é preciso',
+  'Magnitude do efeito com IC, comparada com δ* (significância prática)',
+  'Poder, tamanho amostral ou robustez (análise de sensibilidade, teste não paramétrico)',
+  'Conclusão no contexto da pergunta técnica, com recomendações e limitações'
+];
+
+const PLANOS = [
+{ id:'p1', titulo:'Firmware de sensor IoT',
+  enunciado:`<p>Uma empresa desenvolveu um novo firmware (F2) para um sensor IoT e quer saber se ele <strong>reduz o consumo médio de energia</strong> em relação ao firmware atual (F1). Há 40 sensores disponíveis, vindos de 4 lotes de fabricação, e sabe-se que o consumo varia bastante de sensor para sensor. Cada sensor pode rodar os dois firmwares, um de cada vez.</p>
+<p>A equipe considera relevante uma redução de 0,5 mW. Testes anteriores indicam desvio-padrão das diferenças de consumo de cerca de 1 mW.</p>
+<p><strong>Descreva, passo a passo, como você planejaria este experimento.</strong></p>`,
+  modelo:`<ol class="passos">
+<li><div><strong>Pergunta e resposta.</strong> “O firmware F2 reduz o consumo médio do sensor em relação a F1?” Resposta: consumo médio (mW) numa janela fixa de operação, com a mesma carga de trabalho. Unidade experimental: o sensor.</div></li>
+<li><div><strong>Tipo, fator e fatores indesejáveis.</strong> Experimento planejado. Fator de interesse: firmware (F1, F2). A variação entre sensores (e lotes) é um fator indesejável conhecido e controlável → <strong>pareamento</strong>: cada sensor roda os dois firmwares. A ordem (F1→F2 ou F2→F1) é sorteada em cada sensor para não confundir firmware com ordem de uso. Temperatura e carga ficam constantes.</div></li>
+<li><div><strong>Hipóteses.</strong> <span class="m">d<sub>j</sub> = consumo(F2) − consumo(F1)</span> no sensor j; <span class="m">μ<sub>D</sub> = E[d<sub>j</sub>]</span>. <span class="m">H₀: μ<sub>D</sub> = 0</span> e <span class="m">H₁: μ<sub>D</sub> &lt; 0</span>. Unilateral porque a pergunta, definida antes, é “reduz”. Se a empresa também precisar detectar aumento, usar bilateral.</div></li>
+<li><div><strong>Parâmetros.</strong> α = 0,05; poder 0,8; δ* = 0,5 mW; σ<sub>D</sub> ≈ 1 mW (histórico) → d* = 0,5. Sem histórico confiável: estudo piloto com sensores fora da amostra.</div></li>
+<li><div><strong>Tamanho amostral.</strong> <code>power.t.test(delta = 0.5, sd = 1, sig.level = 0.05, power = 0.8, type = "paired", alternative = "one.sided")</code> e arredondar n para cima. Referência: no EC03, com d* = 0,5 e teste bilateral, deu N = 34; o unilateral pede menos. Conferir se cabe nos 40 sensores e sortear quais usar.</div></li>
+<li><div><strong>Protocolo de coleta.</strong> Mesmo medidor calibrado, mesma carga, aquecimento padronizado; registrar lote e ordem de coleta; seguir o plano sem interromper e sem olhar resultados parciais. Várias medições do mesmo sensor/firmware são agregadas pela média (evita pseudorreplicação). Piloto para treinar o procedimento e validar a medição.</div></li>
+<li><div><strong>Plano de análise.</strong> Exploratória (boxplot das diferenças, por lote). Teste t pareado unilateral. Premissas: normalidade das diferenças (Shapiro-Wilk + QQ-plot); independência garantida pelo planejamento (sensores distintos, ordem sorteada; Durbin-Watson na ordem de coleta). Plano B: Wilcoxon pareado, teste do sinal ou bootstrap.</div></li>
+<li><div><strong>Apresentação e conclusão.</strong> Estimativa de μ<sub>D</sub> com IC de 95%, comparada a δ* = 0,5 mW. Recomendar F2 só se houver redução significativa e relevante. Se não rejeitar, discutir o poder. Limitações: um modelo de sensor, condições de laboratório.</div></li>
+</ol>` },
+{ id:'p2', titulo:'Três algoritmos de roteamento',
+  enunciado:`<p>Um grupo quer comparar um algoritmo padrão de roteamento de veículos (A) com duas variantes (B e C) quanto ao <strong>custo médio da solução</strong> (menor é melhor), para a classe de problemas com 50 a 500 clientes. O desempenho varia muito de instância para instância, e os algoritmos são estocásticos (cada execução dá um resultado diferente).</p>
+<p>O grupo quer α = 0,05, poder 0,8 e considera relevante uma diferença padronizada d* = 0,5.</p>
+<p><strong>Descreva, passo a passo, como você planejaria este experimento.</strong></p>`,
+  modelo:`<ol class="passos">
+<li><div><strong>Pergunta e resposta.</strong> “Alguma variante (B ou C) tem custo médio diferente do padrão A na classe de problemas de 50 a 500 clientes?” Resposta: custo da melhor solução encontrada.</div></li>
+<li><div><strong>Fator e blocos.</strong> Fator de interesse: algoritmo (A, B, C), efeitos fixos. A instância é um fator indesejável conhecido e controlável → <strong>blocos (RCBD)</strong>: os três algoritmos rodam em todas as instâncias. Resposta do bloco: média das repetições de cada algoritmo naquela instância, ou seja, uma observação por tratamento por bloco.</div></li>
+<li><div><strong>Hipóteses.</strong> Global: <span class="m">H₀: τ<sub>A</sub> = τ<sub>B</sub> = τ<sub>C</sub> = 0</span> contra <span class="m">H₁: ∃ τ<sub>i</sub> ≠ 0</span>. Comparações planejadas antes da coleta: todos contra um (Dunnett), com A como referência: <span class="m">μ<sub>B</sub> = μ<sub>A</sub></span> e <span class="m">μ<sub>C</sub> = μ<sub>A</sub></span>, K = 2.</div></li>
+<li><div><strong>Parâmetros.</strong> α = 0,05 para a família; poder 0,8; d* = 0,5.</div></li>
+<li><div><strong>Número de instâncias (blocos).</strong> Fórmula do t pareado com α corrigido (Bonferroni: 0,05/2 = 0,025): <code>power.t.test(delta = 0.5, sd = 1, sig.level = 0.025, power = 0.8, type = "paired")</code>, arredondando para cima. As instâncias são sorteadas na classe (tamanhos entre 50 e 500) para serem representativas.</div></li>
+<li><div><strong>Repetições por instância.</strong> Suficientes para que a média de cada algoritmo em cada instância seja precisa. Definidas por estudo piloto (por exemplo, um erro padrão alvo, como no EC03 com Campelo e Takahashi). O que conta como tamanho amostral é o número de instâncias, não o de repetições.</div></li>
+<li><div><strong>Protocolo.</strong> Mesma máquina, mesmo critério de parada e orçamento de avaliações; sementes registradas; ordem das execuções aleatorizada ou com efeitos de ordem, aquecimento e carga controlados; sem espiar resultados parciais.</div></li>
+<li><div><strong>Plano de análise.</strong> Agregar; gráfico por instância; <code>aov(Y ~ Algoritmo + Instancia)</code>; premissas nos resíduos (Shapiro + QQ, resíduos × ajustados ou Fligner, independência pelo sorteio). Se o diagnóstico for ruim, log da resposta (como no slide de blocagem). Dunnett com <code>glht</code> e ICs simultâneos; eficiência da blocagem. Alternativa não paramétrica: Friedman.</div></li>
+<li><div><strong>Conclusão.</strong> Recomendar uma variante só se ela for significativamente melhor que A com efeito relevante. Limitações: vale para a classe e os parâmetros testados.</div></li>
+</ol>` }
+];
+
+const ANALISES = [
+{ id:'a1', titulo:'Fibras de papel (ANOVA)',
+  enunciado:`<p>Um engenheiro testou 4 tipos de fibra de madeira (A, B, C, D) com 6 ciclos de produção cada, em ordem aleatória, e mediu a resistência à tração do papel (kPa). Diferença relevante: δ* = 5 kPa. Considere α = 0,05. O boxplot mostrou diferenças entre fibras, variabilidade diferente por nível, assimetria em B e um possível outlier em C. Saídas do R:</p>
+<pre class="r">&gt; summary.aov(my.model &lt;- aov(TS.kPa ~ Fiber.type, data = paper))
+            Df Sum Sq Mean Sq F value   Pr(>F)
+Fiber.type   3 110.77   36.92   13.62 4.56e-05 ***
+Residuals   20  54.24    2.71
+&gt; shapiro.test(my.model$residuals)
+W = 0.9722, p-value = 0.7225
+&gt; fligner.test(TS.kPa ~ Fiber.type, data = paper)
+Fligner-Killeen:med chi-squared = 1.0622, df = 3, p-value = 0.7862
+&gt; confint(glht(my.model, linfct = mcp(Fiber.type = "Tukey")))
+           Estimate     lwr    upr
+B - A == 0  -1.9867 -4.6478 0.6745
+C - A == 0   3.6500  0.9889 6.3111
+D - A == 0   2.2333 -0.4278 4.8945
+C - B == 0   5.6367  2.9755 8.2978
+D - B == 0   4.2200  1.5589 6.8811
+D - C == 0  -1.4167 -4.0778 1.2445</pre>
+<p><strong>Conduza a análise passo a passo e conclua.</strong></p>`,
+  modelo:`<ol class="passos">
+<li><div><strong>Exploratória.</strong> O boxplot sugere diferença entre fibras. Assimetria em B, possível outlier em C e variâncias aparentemente diferentes ficam anotados para checar nas premissas.</div></li>
+<li><div><strong>Modelo e hipóteses.</strong> CRD com efeitos fixos: <span class="m">y<sub>ij</sub> = μ + τ<sub>i</sub> + ε<sub>ij</sub></span>, <span class="m">ε ~ iid N(0, σ²)</span>. <span class="m">H₀: τ<sub>i</sub> = 0 ∀i</span>; <span class="m">H₁: ∃ τ<sub>i</sub> ≠ 0</span>.</div></li>
+<li><div><strong>Teste.</strong> <span class="m">F₀ = 36,92/2,71 = 13,62</span> com (3, 20) gl; p = 4,56 × 10⁻⁵ &lt; 0,05 → <strong>rejeita-se H₀</strong>: ao menos um tipo de fibra tem resistência média diferente.</div></li>
+<li><div><strong>Normalidade.</strong> Shapiro-Wilk nos resíduos: p = 0,72 → sem evidência contra a normalidade (confirmar com QQ-plot). A ANOVA também é robusta a desvios moderados.</div></li>
+<li><div><strong>Homoscedasticidade.</strong> Fligner-Killeen: p = 0,79 → sem evidência de variâncias diferentes, apesar da impressão do boxplot. O desenho balanceado (6 por nível) dá robustez extra.</div></li>
+<li><div><strong>Independência.</strong> Vem do planejamento: ciclos em ordem aleatória, cada ciclo é uma observação (sem pseudorreplicação). Se a ordem de coleta estiver registrada, Durbin-Watson nos resíduos.</div></li>
+<li><div><strong>Comparações múltiplas (Tukey, 6 comparações, 95% para a família).</strong> ICs sem o zero: C − A [0,99; 6,31], C − B [2,98; 8,30], D − B [1,56; 6,88]. As demais contêm o zero. C supera A e B; D supera B; C e D não se distinguem.</div></li>
+<li><div><strong>Magnitude.</strong> A maior diferença estimada (C − B ≈ 5,6 kPa) é da ordem de δ*, mas o IC vai de 3,0 a 8,3, então não dá para garantir que supere 5 kPa. C − A (3,65) está abaixo de δ*.</div></li>
+<li><div><strong>Poder.</strong> O planejamento supôs σ̂ = 6 kPa; o resíduo estimado é bem menor (√2,71 ≈ 1,65 kPa), o que indica que o experimento ficou mais sensível que o planejado.</div></li>
+<li><div><strong>Conclusão.</strong> As fibras C e D são as recomendadas para maior resistência; entre elas a escolha pode considerar custo. Limitações: 6 ciclos por fibra, possível outlier em C (vale análise de sensibilidade) e resultados válidos só para as 4 fibras testadas (efeitos fixos).</div></li>
+</ol>` },
+{ id:'a2', titulo:'Algoritmos A × B (pareado)',
+  enunciado:`<p>Um pesquisador comparou o tempo de convergência de um algoritmo novo (A) com o estado da arte (B) em 7 instâncias de benchmark, com 30 repetições de cada algoritmo por instância, partindo de condições iniciais aleatórias. Interessa detectar diferenças maiores que δ* = 10 s, com α = 0,05. Saídas do R:</p>
+<pre class="r">&gt; aggdata &lt;- aggregate(Time ~ Problem:Algorithm, data = data, FUN = mean)
+&gt; t.test(Time ~ Algorithm, paired = TRUE, data = aggdata)
+t = -9.1585, df = 6, p-value = 9.54e-05
+95 percent confidence interval: -21.85862 -12.64118
+mean of the differences: -17.2499
+&gt; shapiro.test(difTimes)
+W = 0.83866, p-value = 0.09655
+&gt; t.test(difTimes[-indx])$p.value       # sem o ponto atípico
+[1] 6.179743e-06
+&gt; t.test(difTimes[-indx])$conf.int
+[1] -21.41856 -16.48037
+&gt; t.test(Time ~ Algorithm, data = aggdata)   # ignorando o pareamento
+t = -0.36088, df = 11.993, p-value = 0.7245
+95 percent confidence interval: -121.40320  86.90341</pre>
+<p><strong>Conduza a análise passo a passo, explique o papel do pareamento e conclua.</strong></p>`,
+  modelo:`<ol class="passos">
+<li><div><strong>Pré-processamento.</strong> As 30 repetições de cada algoritmo em cada instância viram uma média → 7 pares. As repetições não são observações independentes da classe; tratá-las assim seria pseudorreplicação.</div></li>
+<li><div><strong>Modelo e hipóteses.</strong> <span class="m">y<sub>ij</sub> = μ + τ<sub>i</sub> + β<sub>j</sub> + ε<sub>ij</sub></span>; a diferença <span class="m">d<sub>j</sub> = y<sub>Aj</sub> − y<sub>Bj</sub> = μ<sub>D</sub> + ε<sub>j</sub></span> elimina o efeito da instância. <span class="m">H₀: μ<sub>D</sub> = 0</span>; <span class="m">H₁: μ<sub>D</sub> ≠ 0</span>.</div></li>
+<li><div><strong>Teste.</strong> t pareado: t = −9,16 com 6 gl, p = 9,5 × 10⁻⁵ &lt; 0,05 → <strong>rejeita-se H₀</strong>. A é mais rápido que B.</div></li>
+<li><div><strong>Normalidade das diferenças.</strong> Shapiro p = 0,097: não rejeita a 5%, mas está perto do limite e o QQ-plot mostra um ponto atípico. Análise de sensibilidade sem ele: p = 6,2 × 10⁻⁶, IC [−21,4; −16,5]. A conclusão não muda. Alternativa: Wilcoxon pareado.</div></li>
+<li><div><strong>Independência.</strong> Instâncias distintas, condições iniciais aleatórias, mesma máquina e condições homogêneas. Igualdade de variâncias não se aplica: o pareado trabalha com uma única amostra de diferenças.</div></li>
+<li><div><strong>Magnitude.</strong> Diferença média de −17,2 s, IC 95% [−21,9; −12,6]. O intervalo inteiro está abaixo de −10 s, ou seja, a vantagem supera δ* com confiança: é relevante na prática.</div></li>
+<li><div><strong>Papel do pareamento.</strong> Ignorando as instâncias (Welch), p = 0,72 e IC [−121; 87]: a enorme variação entre instâncias vai para o resíduo e esconde o efeito. O pareamento remove essa fonte de variação e torna o teste muito mais sensível.</div></li>
+<li><div><strong>Poder e limitações.</strong> Só 7 instâncias: o efeito foi grande o bastante para ser detectado, mas a representatividade da classe é limitada. Em um novo estudo, calcular N (instâncias) com <code>power.t.test(type = "paired")</code> a partir de δ* e de σ<sub>D</sub>.</div></li>
+<li><div><strong>Conclusão.</strong> Para a família de problemas representada pelo benchmark, recomenda-se A, que converge em média cerca de 17 s mais rápido que B.</div></li>
+</ol>` },
+{ id:'a3', titulo:'Corrente de motores (fatorial)',
+  enunciado:`<p>Engenheiros mediram a corrente (A) de motores de ventilação de 3 fabricantes (A, B, C) em 2 estados (Original, Rebobinado), com 20 motores por combinação. α = 0,05 e δ* = 0,1 A. O boxplot sugere diferença entre estados, pouca evidência de efeito do fabricante e uma interação pequena. Saídas do R:</p>
+<pre class="r">&gt; model &lt;- aov(Current.Amperes ~ State * Manufacturer, data = data)
+&gt; summary(model)
+                    Df Sum Sq Mean Sq F value   Pr(>F)
+State                1 12.956  12.956 2798.41  &lt; 2e-16 ***
+Manufacturer         2  0.118   0.059   12.71 1.04e-05 ***
+State:Manufacturer   2  0.114   0.057   12.27 1.49e-05 ***
+Residuals          114  0.528   0.005
+&gt; summary.lm(model)$r.squared
+[1] 0.9615174
+&gt; shapiro.test(model$residuals)
+W = 0.9857, p-value = 0.2392
+&gt; fligner.test(Current.Amperes ~ interaction(State, Manufacturer), data = data)
+med chi-squared = 10.1721, df = 5, p-value = 0.0705</pre>
+<p><strong>Conduza a análise passo a passo e conclua.</strong></p>`,
+  modelo:`<ol class="passos">
+<li><div><strong>Exploratória.</strong> Boxplot por fabricante e estado: estado parece dominar; fabricante e interação parecem pequenos.</div></li>
+<li><div><strong>Modelo e hipóteses.</strong> Fatorial 2 × 3 balanceado, efeitos fixos: <span class="m">y<sub>ijk</sub> = μ + τ<sub>i</sub> + β<sub>j</sub> + (τβ)<sub>ij</sub> + ε<sub>ijk</sub></span>. Três pares de hipóteses: efeito do estado, efeito do fabricante e interação.</div></li>
+<li><div><strong>Graus de liberdade.</strong> Estado 1, fabricante 2, interação (1)(2) = 2, resíduo ab(n − 1) = 6 × 19 = 114.</div></li>
+<li><div><strong>Testes.</strong> Os três F têm p &lt; 0,05: estado (F = 2798), fabricante (F = 12,7) e interação (F = 12,3, p = 1,5 × 10⁻⁵). R² = 0,96.</div></li>
+<li><div><strong>Premissas.</strong> Normalidade: Shapiro p = 0,24 → ok. Homoscedasticidade entre os 6 grupos: Fligner p = 0,07 → não rejeita a 5%, mas perto do limite; vale olhar resíduos × ajustados. Independência: sustentada pelo planejamento (amostragem dos motores).</div></li>
+<li><div><strong>Interpretação.</strong> Como a interação é significativa, o efeito do fabricante depende do estado do motor. Interpretar só os efeitos principais pode enganar. A comparação deve ser feita entre as <strong>combinações</strong>: criar o meta-fator <code>interaction(State, Manufacturer)</code> e comparar, por exemplo, todas contra Original.B com Dunnett (ICs simultâneos).</div></li>
+<li><div><strong>Magnitude.</strong> O estado responde pela maior parte da variação (SS = 12,96 contra 0,12 e 0,11). Fabricante e interação, embora significativos, são bem menores; comparar as diferenças estimadas com δ* = 0,1 A para julgar a relevância prática.</div></li>
+<li><div><strong>Conclusões e recomendações (slide 26).</strong> Motores rebobinados consomem mais corrente, o que pode exigir instalação elétrica e proteção mais caras. Opções: substituir gradualmente por motores novos do fabricante B; descartar em vez de rebobinar; avaliar outras formas de rebobinamento. Decidir junto com fatores econômicos e operacionais.</div></li>
+</ol>` }
+];
+(function(){
+'use strict';
+const LS_KEY = 'pae-eee933-simulado-v1';
+function ler(){ try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e){ return {}; } }
+function gravar(){ try { localStorage.setItem(LS_KEY, JSON.stringify(mem)); } catch(e){} }
+const mem = ler(); mem.textos = mem.textos || {}; mem.checks = mem.checks || {}; mem.cen = mem.cen || {};
+const $ = (s, r) => (r || document).querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function embaralhar(a){ a = a.slice(); for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const LETRAS = 'abcd';
+const N_A = 20;
+
+/* ---------- Parte A ---------- */
+let prova = [], respostas = {}, corrigido = false, notaA = null;
+function sortear(){
+  prova = embaralhar(BANCO.map((q, i) => i)).slice(0, N_A)
+    .sort((x, y) => ORDEM_FASE.indexOf(BANCO[x].f) - ORDEM_FASE.indexOf(BANCO[y].f))
+    .map(i => ({ q: BANCO[i], perm: embaralhar([0, 1, 2, 3]) }));
+  respostas = {}; corrigido = false; notaA = null;
+  renderA();
+}
+function renderA(){
+  $('#lista-a').innerHTML = prova.map((it, qi) =>
+    '<div class="q" data-q="' + qi + '"><div class="q-n">Questão ' + (qi + 1) + '</div><div class="q-text">' + esc(it.q.q) + '</div><div class="opts">' +
+    it.perm.map((oi, pos) => '<button type="button" class="opt" data-o="' + oi + '" aria-pressed="false"><span class="k">' + LETRAS[pos] + '</span><span>' + esc(it.q.o[oi]) + '</span></button>').join('') +
+    '</div><div class="exp" hidden></div></div>').join('');
+  $('#placar-a').hidden = true;
+  $('#btn-corrigir').disabled = false;
+  contarA(); resumo();
+}
+function contarA(){ $('#cont-a').textContent = Object.keys(respostas).length + '/' + N_A + ' respondidas'; }
+$('#lista-a').addEventListener('click', ev => {
+  const b = ev.target.closest('.opt'); if (!b || corrigido) return;
+  const card = b.closest('.q'), qi = +card.dataset.q;
+  card.querySelectorAll('.opt').forEach(o => { const on = o === b; o.classList.toggle('marcada', on); o.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  respostas[qi] = +b.dataset.o; contarA();
+});
+$('#btn-corrigir').onclick = () => {
+  if (corrigido) return;
+  corrigido = true; let acertos = 0; const erros = {};
+  prova.forEach((it, qi) => {
+    const card = $('.q[data-q="' + qi + '"]'), r = respostas[qi], c = it.q.c;
+    card.querySelectorAll('.opt').forEach(o => { o.disabled = true; o.classList.remove('marcada'); if (+o.dataset.o === c) o.classList.add('certa'); else if (+o.dataset.o === r) o.classList.add('errada'); });
+    const ok = r === c; if (ok) acertos++; else erros[it.q.f] = (erros[it.q.f] || 0) + 1;
+    const exp = $('.exp', card);
+    exp.innerHTML = (ok ? '<span class="ok">Correto.</span> ' : (r == null ? '<span class="no">Em branco. A certa é a (' + LETRAS[it.perm.indexOf(c)] + ').</span> ' : '<span class="no">A certa é a (' + LETRAS[it.perm.indexOf(c)] + ').</span> ')) + esc(it.q.e) +
+      '<br><a class="revise" href="aulas.html#' + it.q.f + '">Revisar: Fase ' + esc(FASE_NOME[it.q.f]) + ' →</a>';
+    exp.hidden = false;
+  });
+  notaA = acertos;
+  const lista = Object.keys(erros).sort((a, b) => erros[b] - erros[a]).map(f => '<li><a href="aulas.html#' + f + '">Fase ' + esc(FASE_NOME[f]) + '</a> · ' + erros[f] + ' erro' + (erros[f] > 1 ? 's' : '') + '</li>').join('');
+  const p = $('#placar-a');
+  p.innerHTML = '<span class="big">' + acertos + '/' + N_A + '</span><div style="flex:1 1 18rem;min-width:0">' +
+    (acertos === N_A ? 'Gabaritou a parte objetiva.' : '<b>Onde revisar:</b><ul>' + lista + '</ul>') + '</div>';
+  p.hidden = false;
+  $('#btn-corrigir').disabled = true;
+  resumo();
+  p.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+$('#btn-sortear').onclick = () => { sortear(); $('#parte-a').scrollIntoView({ behavior: 'smooth' }); };
+
+/* ---------- Parte B ---------- */
+function montarB(alvo, cenarios, checklist, chave){
+  const box = $(alvo);
+  let atual = mem.cen[chave] && cenarios.some(c => c.id === mem.cen[chave]) ? mem.cen[chave] : cenarios[0].id;
+  box.innerHTML = '<div class="seg" role="group" aria-label="Cenário">' + cenarios.map(c => '<button type="button" data-id="' + c.id + '" aria-pressed="' + (c.id === atual) + '">' + esc(c.titulo) + '</button>').join('') + '</div><div class="corpo"></div>';
+  box.querySelector('.seg').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    atual = b.dataset.id; mem.cen[chave] = atual; gravar();
+    box.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    corpo();
+  });
+  function corpo(){
+    const c = cenarios.find(x => x.id === atual);
+    const marc = mem.checks[c.id] || [];
+    const alvoCorpo = box.querySelector('.corpo');
+    alvoCorpo.innerHTML =
+      '<div class="cenario">' + c.enunciado + '</div>' +
+      '<label for="txt-' + c.id + '" class="contador">Sua resposta (fica salva neste navegador)</label>' +
+      '<textarea id="txt-' + c.id + '" placeholder="Escreva os passos como faria na prova: hipóteses, parâmetros, tamanho amostral, protocolo, premissas, conclusão…"></textarea>' +
+      '<div class="acoes"><button type="button" class="btn" data-act="gab">Mostrar roteiro de correção</button><span class="contador" data-o="pal"></span></div>' +
+      '<div class="gabarito" hidden>' +
+        '<h3>Roteiro de correção</h3><p class="muted">Marque cada item que a sua resposta cobre.</p>' +
+        '<ul class="checklist">' + checklist.map((t, i) => '<li><label><input type="checkbox" data-i="' + i + '"' + (marc[i] ? ' checked' : '') + '><span>' + esc(t) + '</span></label></li>').join('') + '</ul>' +
+        '<p class="nota-auto" data-o="nota"></p>' +
+        '<div class="note analogia"><span class="tag">Resposta modelo</span>' + c.modelo + '</div>' +
+      '</div>';
+    const ta = alvoCorpo.querySelector('textarea'), pal = alvoCorpo.querySelector('[data-o="pal"]');
+    ta.value = mem.textos[c.id] || '';
+    const conta = () => { const n = (ta.value.trim().match(/\S+/g) || []).length; pal.textContent = n + (n === 1 ? ' palavra' : ' palavras'); };
+    conta();
+    ta.addEventListener('input', () => { mem.textos[c.id] = ta.value; gravar(); conta(); });
+    const gab = alvoCorpo.querySelector('.gabarito');
+    alvoCorpo.querySelector('[data-act="gab"]').onclick = ev => { gab.hidden = !gab.hidden; ev.target.textContent = gab.hidden ? 'Mostrar roteiro de correção' : 'Esconder roteiro de correção'; };
+    const nota = () => {
+      const v = Array.from(alvoCorpo.querySelectorAll('.checklist input')).map(x => x.checked);
+      mem.checks[c.id] = v; gravar();
+      const n = v.filter(Boolean).length;
+      alvoCorpo.querySelector('[data-o="nota"]').textContent = 'Cobertura: ' + n + '/' + checklist.length + ' itens';
+      resumo();
+    };
+    alvoCorpo.querySelectorAll('.checklist input').forEach(x => x.addEventListener('change', nota));
+    alvoCorpo.querySelector('[data-o="nota"]').textContent = 'Cobertura: ' + marc.filter(Boolean).length + '/' + checklist.length + ' itens';
+    resumo();
+  }
+  corpo();
+}
+function notaB(chave, cenarios, total){
+  const id = mem.cen[chave] && cenarios.some(c => c.id === mem.cen[chave]) ? mem.cen[chave] : cenarios[0].id;
+  const v = mem.checks[id]; if (!v) return '–';
+  return v.filter(Boolean).length + '/' + total;
+}
+function resumo(){
+  $('#res-a').textContent = notaA == null ? '–' : notaA + '/' + N_A;
+  $('#res-b1').textContent = notaB('b1', PLANOS, CHECK_PLANO.length);
+  $('#res-b2').textContent = notaB('b2', ANALISES, CHECK_ANALISE.length);
+}
+
+/* ---------- cronômetro ---------- */
+let restante = 90 * 60, rodando = false, tique = null;
+const rel = $('#relogio'), bt = $('#btn-timer'), dur = $('#dur');
+function mostrar(){ const m = Math.floor(restante / 60), s = restante % 60; rel.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0'); rel.classList.toggle('fim', restante === 0); if (restante === 0) rel.textContent = 'Tempo esgotado'; }
+function parar(){ rodando = false; clearInterval(tique); bt.textContent = restante > 0 ? 'Continuar' : 'Iniciar'; }
+bt.onclick = () => {
+  if (rodando){ parar(); return; }
+  if (restante === 0) restante = +dur.value * 60;
+  rodando = true; bt.textContent = 'Pausar';
+  tique = setInterval(() => { restante = Math.max(0, restante - 1); mostrar(); if (restante === 0) parar(); }, 1000);
+};
+$('#btn-zerar').onclick = () => { parar(); restante = +dur.value * 60; bt.textContent = 'Iniciar'; mostrar(); };
+dur.onchange = () => { if (!rodando){ restante = +dur.value * 60; mostrar(); } };
+mostrar();
+
+sortear();
+montarB('#bloco-b1', PLANOS, CHECK_PLANO, 'b1');
+montarB('#bloco-b2', ANALISES, CHECK_ANALISE, 'b2');
+})();
+
+</script>
+</body>
+</html>
