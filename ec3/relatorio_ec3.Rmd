@@ -33,6 +33,10 @@ header-includes:
   - \restylefloat{table}
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
+```
+
 # Resumo {-}
 
 Este estudo compara duas configurações do algoritmo de evolução diferencial na classe de funções de Rosenbrock com dimensão entre 2 e 150. Sortearam-se 34 instâncias, número definido para potência de 0,8 na detecção de uma diferença padronizada $d^* = 0{,}5$ com $\alpha = 0{,}05$. Em cada instância, cada configuração foi executada ao menos 20 vezes, com o número de repetições ajustado por um critério de precisão (Campelo e Takahashi, 2019). A diferença de desempenho médio, em escala logarítmica, foi avaliada por um teste t pareado e confirmada por testes não paramétricos. A configuração 1 (`recombination_lbga`, $F = 4{,}5$) obteve melhor desempenho em todas as 34 instâncias ($p < 0{,}001$), com `Fbest` em média 2,5 vezes menor (IC 95\%: 1,8 a 3,6) e efeito padronizado $\hat{d} = 0{,}92$, superior a $d^*$. Recomenda-se a configuração 1 para a classe estudada, com a ressalva de que a vantagem diminui com a dimensão do problema.
@@ -84,7 +88,7 @@ H_0: \mu_D = 0 \\
 H_1: \mu_D \neq 0
 \end{cases}$$
 
-Onde, $H_0$ estabelece que não há diferença média de desempenho entre as duas configurações, enquanto $H_1$ admite diferença em qualquer direção. Já, o sinal da estimativa de $\mu_D$ e seu intervalo de confiança indicarão qual configuração é melhor, caso $H_0$ seja rejeitada.
+Nelas, $H_0$ estabelece que não há diferença média de desempenho entre as duas configurações, enquanto $H_1$ admite diferença em qualquer direção. Já o sinal da estimativa de $\mu_D$ e seu intervalo de confiança indicarão qual configuração é melhor, caso $H_0$ seja rejeitada.
 
 ## Coleta dos dados e Tamanho amostral
 
@@ -95,7 +99,7 @@ O planejamento do experimento exige a definição de dois tamanhos amostrais, se
 
 ### Número de instâncias ($N$)
 
-O enunciado do estudo de caso (referência) estabelece os seguintes parâmetros experimentais:
+O enunciado do estudo de caso (Bessani, 2026) estabelece os seguintes parâmetros experimentais:
 
 - Mínima diferença de importância prática (padronizada): $d^* = \delta^*/\sigma = 0{,}5$
 - Nível de significância: $\alpha = 0{,}05$
@@ -104,11 +108,11 @@ O enunciado do estudo de caso (referência) estabelece os seguintes parâmetros 
 Com base nesses valores, realizou-se uma análise de potência para o teste t pareado bilateral, a fim de determinar o menor número de instâncias capaz de detectar uma diferença de importância prática com o nível de significância e a potência especificados. Como $d^*$ já é uma quantidade padronizada, utilizaram-se `delta = 0.5` e `sd = 1`.
 
 ```{r tamanho_amostral, echo=FALSE}
-power.t.test(delta = 0.5, sd = 1, sig.level = 0.05, power = 0.8,
-             type = "paired", alternative = "two.sided")
+ss <- power.t.test(delta = 0.5, sd = 1, sig.level = 0.05, power = 0.8,
+                   type = "paired", alternative = "two.sided")
 ```
 
-O resultado foi $n = 33{,}4$, que, arredondado para cima, corresponde a $N^* = 34$ instâncias. As duas configurações são avaliadas nas mesmas instâncias, o que garante o pareamento dos dados.
+O resultado (`power.t.test`, tipo pareado, bilateral) foi $n = `r gsub(".", "{,}", sprintf("%.1f", ss$n), fixed = TRUE)`$, que, arredondado para cima, corresponde a $N^* = `r ceiling(ss$n)`$ instâncias. As duas configurações são avaliadas nas mesmas instâncias, o que garante o pareamento dos dados.
 
 Para que as instâncias constituam uma amostra representativa da classe de problemas, as $N^* = 34$ dimensões foram sorteadas aleatoriamente, sem reposição, entre os inteiros de 2 a 150, com semente fixa para garantir a reprodutibilidade. As instâncias avaliadas são apresentadas a seguir:
 
@@ -116,7 +120,7 @@ Para que as instâncias constituam uma amostra representativa da classe de probl
 # Sorteio feito em ec03_experimento.R com set.seed(2026) e salvo em dims_ec03.csv
 dims <- sort(read.csv("dims_ec03.csv")$dim)
 
-cat("**Dimensões selecionadas:** ", paste(dims, collapse = ", "), ".")
+cat("**Dimensões selecionadas:** ", paste(dims, collapse = ", "), ".", sep = "")
 ```
 
 ### Número de repetições ($n_{ij}$)
@@ -195,7 +199,7 @@ dims_expl <- sort(sample(dims, size = 9, replace = FALSE))
 
 
 cat("**Dimensões selecionadas para a análise exploratória:** ",
-    paste(dims_expl, collapse = ", "), ".")
+    paste(dims_expl, collapse = ", "), ".", sep = "")
 
 ```
 
@@ -226,7 +230,7 @@ ggplot(res_expl, aes(x = config, y = Fbest)) +
   theme_minimal() +
   theme(
     strip.text = element_text(face = "bold"),
-    axis.text.x = element_text(angle = 15, hjust = 1)
+    axis.text.x = element_text(angle = 0)
   )
 ```
 
@@ -412,7 +416,7 @@ Os resultados respondem às três perguntas do experimento da seguinte forma.
 
 O nível de significância adotado foi $\alpha = 0{,}05$, o que significa aceitar uma probabilidade de 5% de rejeitar $H_0$ quando ela é verdadeira (erro tipo I), isto é, de concluir que há diferença quando as configurações são equivalentes. Como o experimento tem uma única hipótese principal, não há problema de comparações múltiplas e não foi necessária correção de $\alpha$. O p-valor obtido ($p `r fp(teste_t$p.value)`$) está muito abaixo de 0,05, de modo que o risco de erro tipo I nesta conclusão é pequeno.
 
-Esse risco, porém, depende de o teste t manter seu nível nominal, e isso é só aproximadamente garantido aqui, porque a normalidade dos $\psi_j$ foi rejeitada e a distribuição de $\bar{\psi}$ mostra assimetria à direita (Seção \@ref(premissas)). Por isso a conclusão não foi baseada apenas no teste t. O teste do sinal, que exige apenas independência, e o IC *bootstrap* levaram à mesma decisão, e o resultado persiste sem as instâncias atípicas. A independência entre os $\psi_j$ é garantida pelo sorteio aleatório das dimensões. Dessa forma, é improvável que a violação da normalidade tenha produzido uma rejeição espúria de $H_0$.
+Esse risco, porém, depende de o teste t manter seu nível nominal, e isso é só aproximadamente garantido aqui, porque a normalidade dos $\psi_j$ foi rejeitada e a distribuição de $\bar{\psi}$ mostra assimetria à direita (Seção \@ref(premissas)). Por isso a conclusão não foi baseada apenas no teste t. Os testes de Wilcoxon e do sinal, que não dependem da normalidade, e o IC *bootstrap* levaram à mesma decisão, e o resultado persiste sem as instâncias atípicas. A independência entre os $\psi_j$ é garantida pelo sorteio aleatório das dimensões. Dessa forma, é improvável que a violação da normalidade tenha produzido uma rejeição espúria de $H_0$.
 
 ## Erro tipo II e potência dos testes
 
@@ -434,12 +438,16 @@ Como $H_0$ foi rejeitada, o erro tipo II não afeta a conclusão principal: ele 
 
 # Papéis desempenhados pela equipe
 
-| Integrante | Papel |
-|------------------------------------|------------------------------------|
-| Adonai Arruda | Coordenador e Relator: estruturação do repositório, implementação do algoritmo de amostragem e execução do experimento, redação da análise estatística e integração das contribuições da equipe. |
-| Alexandra Milaya Soto Aponte | Programadora/Analista: redação da introdução, do planejamento do experimento e da análise exploratória dos dados, incluindo o cálculo do tamanho amostral. |
-| João Paulo Gonçalves Simim | Analista/Verificador: revisão metodológica, documentação do estudo piloto, redação do resumo e das sugestões de melhoria, compilação independente do relatório e envio. |
-| Yasmim Machado | Redatora e Verificadora: redação das conclusões e da discussão de significância e riscos, referências e revisão do texto final. |
+```{r papeis, echo=FALSE}
+papeis <- data.frame(
+  Integrante = c("Adonai Arruda", "Alexandra Milaya Soto Aponte",
+                 "João Paulo Gonçalves Simim", "Yasmim Machado"),
+  Papel = c("Coordenador e Relator: estruturação do repositório, implementação do algoritmo de amostragem e execução do experimento, redação da análise estatística e integração das contribuições da equipe.",
+            "Programadora/Analista: redação da introdução, do planejamento do experimento e da análise exploratória dos dados, incluindo o cálculo do tamanho amostral.",
+            "Analista/Verificador: revisão metodológica, documentação do estudo piloto, redação do resumo e das sugestões de melhoria, compilação independente do relatório e envio.",
+            "Redatora e Verificadora: redação das conclusões e da discussão de significância e riscos, referências e revisão do texto final."))
+knitr::kable(papeis, caption = "Papéis desempenhados pelos integrantes da equipe.")
+```
 
 # Declaração sobre o uso de IA generativa
 
