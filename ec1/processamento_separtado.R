@@ -289,12 +289,6 @@ fligner.test(BMI ~ Semestre, data = masc)
 # ------------------------------------------------------------------------
 
 
-<<<<<<< Updated upstream
-## Independencia
-resid_masc <- tapply(X     = masc$BMI,
-                     INDEX = masc$Semestre,
-                     FUN   = function(x){x - mean(x)})
-=======
 efeito_padronizado <- function(x, y) {
   n1 <- length(x); n2 <- length(y)
   s_pooled <- sqrt(((n1 - 1) * var(x) + (n2 - 1) * var(y)) / (n1 + n2 - 2))
@@ -305,7 +299,11 @@ efeito_padronizado <- function(x, y) {
 efeito_padronizado(fem_2016$BMI, fem_2017$BMI)
 efeito_padronizado(masc_2016$BMI, masc_2017$BMI)
 
->>>>>>> Stashed changes
+
+## Independencia
+resid_masc <- tapply(X     = masc$BMI,
+                     INDEX = masc$Semestre,
+                     FUN   = function(x){x - mean(x)})
 
 png("plots/indep_masc.png", width = 600, height = 600)
 par(mfrow = c(2, 1), oma = c(0, 0, 2, 0))
