@@ -1,0 +1,807 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>power.t.test por dentro</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=STIX+Two+Text:ital@0;1&display=swap">
+<style>
+/* Layout: um slide 16:9 (1280×720) escalado para caber; cabeçalho / [controles | gráfico | console do R] / quatro passos da conta. Em telas estreitas vira uma coluna. */
+:root {
+  --bg: #E7ECF0;
+  --slide: #FAFBFC;
+  --ink: #15212C;
+  --muted: #586774;
+  --line: #D2DAE1;
+  --chip: #EDF1F4;
+  --h0: #6A7784;
+  --h1: #0E7C6B;
+  --alpha: #C4470F;
+  --console: #16202A;
+  --console-ink: #D6E0E8;
+  --console-dim: #7F909F;
+  --console-hi: #7FE0CB;
+  --font-ui: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-math: "STIX Two Text", "Cambria Math", "Times New Roman", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C1116; --slide: #141B22; --ink: #E2E9EF; --muted: #95A3B0; --line: #2A3540; --chip: #1C252E;
+    --h0: #8E9BA8; --h1: #3BC4AA; --alpha: #F0803F;
+    --console: #0A0F14; --console-ink: #D6E0E8; --console-dim: #6F808F; --console-hi: #7FE0CB;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0C1116; --slide: #141B22; --ink: #E2E9EF; --muted: #95A3B0; --line: #2A3540; --chip: #1C252E;
+  --h0: #8E9BA8; --h1: #3BC4AA; --alpha: #F0803F;
+  --console: #0A0F14; --console-ink: #D6E0E8; --console-dim: #6F808F; --console-hi: #7FE0CB;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 16px;
+}
+i { font-family: var(--font-math); font-style: italic; }
+sub { font-size: 0.68em; line-height: 0; }
+
+.stage { width: 100%; }
+.holder { position: relative; margin: 0 auto; }
+.slide {
+  background: var(--slide);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  font-size: 15px;
+  line-height: 1.4;
+  display: grid;
+  gap: 18px;
+  padding: 20px 18px;
+}
+
+/* ---------- cabeçalho ---------- */
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px 20px; flex-wrap: wrap; }
+.eyebrow { margin: 0 0 6px; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+h1 { margin: 0; font-size: 26px; font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; text-wrap: balance; }
+h1 code { font-family: var(--font-mono); font-weight: 500; font-size: 0.92em; color: var(--h1); }
+.actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.seg { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 9px; background: var(--chip); }
+.seg button {
+  border: 0; background: transparent; color: var(--muted); cursor: pointer;
+  font: 500 13px/1 var(--font-ui); padding: 8px 12px; border-radius: 6px;
+}
+.seg button[aria-pressed="true"] { background: var(--slide); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.14); }
+.btn {
+  border: 1px solid var(--line); background: var(--slide); color: var(--ink); cursor: pointer;
+  font: 500 13px/1 var(--font-ui); padding: 9px 12px; border-radius: 8px;
+}
+.btn:hover, .seg button:hover, .chips button:hover { border-color: var(--muted); color: var(--ink); }
+.btn.icon { padding: 7px; display: inline-grid; place-items: center; }
+.btn svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--h1); outline-offset: 2px; }
+
+/* ---------- faixa do meio ---------- */
+.mid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; min-height: 0; }
+
+.controls { display: flex; flex-direction: column; gap: 9px; margin: 0; min-width: 0; }
+.field { display: grid; gap: 5px; }
+.row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.row label, .flabel { font-size: 13px; color: var(--muted); }
+output { font: 500 14px var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink); }
+input[type="range"] { width: 100%; margin: 0; height: 20px; accent-color: var(--ink); cursor: pointer; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.chips button {
+  border: 1px solid var(--line); background: var(--chip); color: var(--ink); cursor: pointer;
+  font: 500 12.5px/1 var(--font-ui); padding: 6px 9px; border-radius: 6px;
+}
+.chips button.mono { font-family: var(--font-mono); font-size: 12px; padding: 6px 8px; }
+.flabel code { font: 12px var(--font-mono); color: var(--ink); }
+.chips button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--slide); }
+.strict { display: inline-flex; align-items: center; gap: 5px; margin-left: 6px; font: 12px var(--font-mono); color: var(--muted); cursor: pointer; }
+.strict input { margin: 0; accent-color: var(--ink); }
+
+.chart { margin: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 6px; min-width: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--muted); }
+.legend .item { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.legend b { font: 500 12.5px var(--font-mono); color: var(--ink); }
+.sw { display: inline-block; width: 14px; height: 10px; border-radius: 2px; }
+.sw.l0 { height: 2px; background: var(--h0); }
+.sw.l1 { height: 3px; background: var(--h1); }
+.sw.fa { background: color-mix(in srgb, var(--alpha) 55%, transparent); }
+.sw.fp { background: color-mix(in srgb, var(--h1) 40%, transparent); }
+.sw.hb { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--h1) 70%, transparent) 0 1.4px, transparent 1.4px 4px); }
+#plot { display: block; width: 100%; aspect-ratio: 600 / 290; height: auto; overflow: visible; }
+figcaption { font-size: 12.5px; line-height: 1.4; color: var(--muted); }
+
+#plot .a-beta { fill: url(#hatch); }
+#plot .hatch-line { stroke: var(--h1); stroke-opacity: 0.5; stroke-width: 1.4; }
+#plot .a-pow { fill: var(--h1); fill-opacity: 0.3; }
+#plot .a-alpha { fill: var(--alpha); fill-opacity: 0.55; }
+#plot .c0 { fill: none; stroke: var(--h0); stroke-width: 2; }
+#plot .c1 { fill: none; stroke: var(--h1); stroke-width: 2.6; }
+#plot .axis { stroke: var(--muted); stroke-width: 1; }
+#plot .tick { stroke: var(--muted); stroke-width: 1; }
+#plot .tl { fill: var(--muted); font: 11px var(--font-mono); }
+#plot .crit { stroke: var(--ink); stroke-width: 1.3; stroke-dasharray: 4 3; }
+#plot .cl { fill: var(--ink); font: 500 12px var(--font-ui); }
+#plot .cl-i { font-family: var(--font-math); font-style: italic; font-size: 14px; }
+#plot .lab0 { fill: var(--h0); font: italic 16px var(--font-math); }
+#plot .lab1 { fill: var(--h1); font: italic 16px var(--font-math); }
+#plot .lam { stroke: var(--h1); stroke-width: 2.5; }
+#plot .lam-l { fill: var(--h1); font: 500 11.5px var(--font-mono); }
+
+.console {
+  min-width: 0; overflow: auto;
+  background: var(--console); color: var(--console-ink);
+  border-radius: 10px; padding: 12px 14px;
+  font: 11.5px/1.5 var(--font-mono);
+}
+.console pre { margin: 0; font: inherit; white-space: pre-wrap; word-break: break-word; }
+.console .tag { display: block; margin-bottom: 8px; font: 500 10.5px var(--font-ui); letter-spacing: 0.08em; text-transform: uppercase; color: var(--console-dim); }
+.console .p { color: var(--console-dim); }
+.console .hi { color: var(--console-hi); font-weight: 500; }
+
+/* ---------- passos ---------- */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; }
+.step { min-width: 0; display: grid; gap: 5px; align-content: start; padding-top: 10px; border-top: 2px solid var(--line); }
+.step:last-child { border-top-color: var(--h1); }
+.step-h { display: flex; gap: 8px; align-items: baseline; font-size: 13px; font-weight: 600; }
+.step-h .k { font: 500 12px var(--font-mono); color: var(--muted); }
+.f { font-family: var(--font-math); font-size: 17px; line-height: 1.3; }
+.sub { font-family: var(--font-math); font-size: 15px; line-height: 1.3; color: var(--muted); }
+.sub .aside { font-family: var(--font-ui); font-size: 12px; }
+.res { font: 600 25px/1.15 var(--font-ui); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.res i { font-weight: 400; }
+.step:last-child .res { color: var(--h1); }
+.step code { display: block; font: 11.5px/1.45 var(--font-mono); color: var(--muted); white-space: pre-wrap; word-break: break-word; }
+
+@media (max-width: 560px) {
+  .steps { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- modo slide (telas largas): 1280×720 fixo, escalado por JS ---------- */
+@media (min-width: 900px) {
+  .slide {
+    position: absolute; top: 0; left: 0;
+    width: 1280px; height: 720px;
+    transform-origin: 0 0; transform: scale(var(--s, 1));
+    padding: 34px 48px;
+    gap: 20px;
+    grid-template-rows: auto 342px minmax(0, 1fr);
+    overflow: hidden;
+  }
+  h1 { font-size: 31px; }
+  .mid { grid-template-columns: 276px minmax(0, 1fr) 310px; gap: 26px; }
+  .mid > * { min-height: 0; }
+  .chart { height: 100%; }
+  #plot { aspect-ratio: auto; height: 100%; }
+  .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+}
+.stage:fullscreen { display: grid; place-items: center; background: var(--bg); padding: 0; }
+.stage:fullscreen .slide { border-radius: 0; border-color: transparent; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .seg button, .chips button, .btn { transition: background-color 0.12s, color 0.12s, border-color 0.12s; }
+}
+</style>
+
+<div class="stage" id="stage">
+  <div class="holder" id="holder">
+    <section class="slide" id="slide" aria-label="Slide: o que o power.t.test calcula">
+
+      <header class="top">
+        <div>
+          <p class="eyebrow">Aula 05 · Tamanho amostral e erro tipo II</p>
+          <h1>O que o <code>power.t.test</code> calcula</h1>
+        </div>
+        <div class="actions">
+          <div class="seg" role="group" aria-label="O que calcular">
+            <button type="button" id="mode-power" aria-pressed="true">Calcular poder</button>
+            <button type="button" id="mode-n" aria-pressed="false">Calcular n</button>
+          </div>
+          <button type="button" class="btn" id="example">Exemplo da aula</button>
+          <button type="button" class="btn icon" id="fs" aria-label="Tela cheia" title="Tela cheia">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="mid">
+        <form class="controls" id="controls" autocomplete="off">
+          <div class="field" id="field-n">
+            <div class="row"><label for="n">Tamanho amostral <i>n</i></label><output id="n-out" for="n">10</output></div>
+            <input type="range" id="n" min="2" max="100" step="1" value="10">
+          </div>
+          <div class="field" id="field-pw" hidden>
+            <div class="row"><label for="pw">Poder desejado 1 − <i>β</i></label><output id="pw-out" for="pw">0,85</output></div>
+            <input type="range" id="pw" min="0.5" max="0.99" step="0.01" value="0.85">
+          </div>
+          <div class="field">
+            <div class="row"><label for="delta">Diferença mínima <i>δ</i></label><output id="delta-out" for="delta">0,50</output></div>
+            <input type="range" id="delta" min="0.05" max="2" step="0.05" value="0.5">
+          </div>
+          <div class="field">
+            <div class="row"><label for="sd">Desvio padrão <i>σ</i></label><output id="sd-out" for="sd">1,00</output></div>
+            <input type="range" id="sd" min="0.25" max="3" step="0.05" value="1">
+          </div>
+          <div class="field">
+            <span class="flabel" id="alpha-l">Significância <i>α</i></span>
+            <div class="chips" role="group" aria-labelledby="alpha-l" data-key="alpha">
+              <button type="button" class="mono" data-v="0.001">0,001</button>
+              <button type="button" class="mono" data-v="0.01">0,01</button>
+              <button type="button" class="mono" data-v="0.05">0,05</button>
+              <button type="button" class="mono" data-v="0.1">0,10</button>
+            </div>
+          </div>
+          <div class="field">
+            <span class="flabel" id="type-l">Tipo de teste · <code>type</code></span>
+            <div class="chips" role="group" aria-labelledby="type-l" data-key="type">
+              <button type="button" class="mono" data-v="one.sample" title="Uma amostra">one.sample</button>
+              <button type="button" class="mono" data-v="paired" title="Pareado">paired</button>
+              <button type="button" class="mono" data-v="two.sample" title="Duas amostras">two.sample</button>
+            </div>
+          </div>
+          <div class="field">
+            <span class="flabel" id="alt-l">Alternativa · <code>alternative</code></span>
+            <div class="chips" role="group" aria-labelledby="alt-l" data-key="alt">
+              <button type="button" class="mono" data-v="one.sided" title="Unilateral">one.sided</button>
+              <button type="button" class="mono" data-v="two.sided" title="Bilateral">two.sided</button>
+              <label class="strict" id="strict-wrap" hidden><input type="checkbox" id="strict">strict</label>
+            </div>
+          </div>
+        </form>
+
+        <figure class="chart">
+          <div class="legend" id="legend" aria-live="polite"></div>
+          <svg id="plot" role="img" aria-label="Distribuições de t sob H0 e sob H1"></svg>
+          <figcaption id="caption">Sob H₀, <i>t</i><sub>0</sub> segue uma <i>t</i> central. Se a diferença real é <i>δ</i>, segue uma <i>t</i> não-central de parâmetro <i>λ</i>. Poder = área de H₁ além de <i>t</i><sub>c</sub>.</figcaption>
+        </figure>
+
+        <div class="console" aria-label="Chamada e saída no R">
+          <span class="tag">Console do R</span>
+          <pre id="rcall"></pre>
+          <pre id="rout"></pre>
+        </div>
+      </div>
+
+      <ol class="steps" aria-label="Passos da conta">
+        <li class="step">
+          <div class="step-h"><span class="k">1</span><span>Graus de liberdade</span></div>
+          <div class="f"><i>ν</i> = (<i>n</i> − 1) · <i>k</i></div>
+          <div class="sub" id="s1-sub"></div>
+          <div class="res" id="s1-res"></div>
+          <code id="s1-code"></code>
+        </li>
+        <li class="step">
+          <div class="step-h"><span class="k">2</span><span>Valor crítico sob H₀</span></div>
+          <div class="f" id="s2-f"></div>
+          <div class="sub" id="s2-sub"></div>
+          <div class="res" id="s2-res"></div>
+          <code id="s2-code"></code>
+        </li>
+        <li class="step">
+          <div class="step-h"><span class="k">3</span><span>Não-centralidade sob H₁</span></div>
+          <div class="f"><i>λ</i> = √(<i>n</i>/<i>k</i>) · <i>δ</i> / <i>σ</i></div>
+          <div class="sub" id="s3-sub"></div>
+          <div class="res" id="s3-res"></div>
+          <code id="s3-code"></code>
+        </li>
+        <li class="step">
+          <div class="step-h"><span class="k">4</span><span id="s4-title">Poder</span></div>
+          <div class="f" id="s4-f"></div>
+          <div class="sub" id="s4-sub"></div>
+          <div class="res" id="s4-res"></div>
+          <code id="s4-code"></code>
+        </li>
+      </ol>
+
+    </section>
+  </div>
+</div>
+
+<script>
+// ==MATH-START==
+// Porte das rotinas do R (nmath): pt, qt, pnt (algoritmo AS 243), dnt e zeroin (uniroot).
+const EPS = 2.220446049250313e-16;
+const LN_SQRT_PI = 0.5723649429247001;  // log(sqrt(pi))
+const SQRT_2dPI = 0.7978845608028654;   // sqrt(2/pi)
+
+function lgamma(x) {
+  const c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  if (x < 0.5) return Math.log(Math.PI / Math.abs(Math.sin(Math.PI * x))) - lgamma(1 - x);
+  x -= 1;
+  let a = c[0];
+  const t = x + 7.5;
+  for (let i = 1; i < 9; i++) a += c[i] / (x + i);
+  return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(t) - t + Math.log(a);
+}
+
+// Gama incompleta regularizada: devolve [P(a,x), Q(a,x)]
+function gammaPQ(a, x) {
+  if (x <= 0) return [0, 1];
+  const gln = lgamma(a);
+  if (x < a + 1) {
+    let ap = a, sum = 1 / a, del = sum;
+    for (let k = 0; k < 1000; k++) { ap += 1; del *= x / ap; sum += del; if (Math.abs(del) < Math.abs(sum) * 1e-16) break; }
+    const P = sum * Math.exp(-x + a * Math.log(x) - gln);
+    return [P, 1 - P];
+  }
+  const TINY = 1e-300;
+  let b = x + 1 - a, c = 1 / TINY, d = 1 / b, h = d;
+  for (let i = 1; i < 1000; i++) {
+    const an = -i * (i - a);
+    b += 2;
+    d = an * d + b; if (Math.abs(d) < TINY) d = TINY;
+    c = b + an / c; if (Math.abs(c) < TINY) c = TINY;
+    d = 1 / d;
+    const del = d * c; h *= del;
+    if (Math.abs(del - 1) < 1e-16) break;
+  }
+  const Q = Math.exp(-x + a * Math.log(x) - gln) * h;
+  return [1 - Q, Q];
+}
+
+function pnorm(z) {           // P(Z <= z)
+  const q = gammaPQ(0.5, z * z / 2)[1];  // erfc(|z|/sqrt(2))
+  return z < 0 ? 0.5 * q : 1 - 0.5 * q;
+}
+
+function betacf(a, b, x) {
+  const TINY = 1e-300;
+  const qab = a + b, qap = a + 1, qam = a - 1;
+  let c = 1, d = 1 - qab * x / qap;
+  if (Math.abs(d) < TINY) d = TINY;
+  d = 1 / d;
+  let h = d;
+  for (let m = 1; m <= 2000; m++) {
+    const m2 = 2 * m;
+    let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+    d = 1 + aa * d; if (Math.abs(d) < TINY) d = TINY;
+    c = 1 + aa / c; if (Math.abs(c) < TINY) c = TINY;
+    d = 1 / d; h *= d * c;
+    aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+    d = 1 + aa * d; if (Math.abs(d) < TINY) d = TINY;
+    c = 1 + aa / c; if (Math.abs(c) < TINY) c = TINY;
+    d = 1 / d;
+    const del = d * c; h *= del;
+    if (Math.abs(del - 1) < 1e-16) break;
+  }
+  return h;
+}
+
+function pbeta(x, a, b) {     // beta incompleta regularizada I_x(a, b)
+  if (x <= 0) return 0;
+  if (x >= 1) return 1;
+  const bt = Math.exp(lgamma(a + b) - lgamma(a) - lgamma(b) + a * Math.log(x) + b * Math.log(1 - x));
+  if (x < (a + 1) / (a + b + 2)) return bt * betacf(a, b, x) / a;
+  return 1 - bt * betacf(b, a, 1 - x) / b;
+}
+
+function ptUpper(t, df) {     // P(T_df > t), t central
+  const tail = 0.5 * pbeta(df / (df + t * t), df / 2, 0.5);
+  return t > 0 ? tail : 1 - tail;
+}
+
+function qtUpper(p, df) {     // qt(p, df, lower.tail = FALSE), p <= 0.5
+  let lo = 0, hi = 1;
+  while (ptUpper(hi, df) > p && hi < 1e12) hi *= 2;
+  for (let i = 0; i < 300; i++) {
+    const mid = (lo + hi) / 2;
+    if (ptUpper(mid, df) > p) lo = mid; else hi = mid;
+    if (hi - lo <= 1e-14 * hi) break;
+  }
+  return (lo + hi) / 2;
+}
+
+function dt(x, df) {
+  return Math.exp(lgamma((df + 1) / 2) - lgamma(df / 2) - 0.5 * Math.log(df * Math.PI) - (df + 1) / 2 * Math.log1p(x * x / df));
+}
+
+// pnt do R: P(T' <= t) para a t não-central (df, ncp)
+function pntLower(t, df, ncp) {
+  if (ncp === 0) return 1 - ptUpper(t, df);
+  let negdel, tt, del;
+  if (t >= 0) { negdel = false; tt = t; del = ncp; }
+  else { if (ncp > 40) return 0; negdel = true; tt = -t; del = -ncp; }
+
+  if (df > 4e5 || del * del > 2 * Math.LN2 * 1021) {
+    const s = 1 / (4 * df);
+    const lower = pnorm((tt * (1 - s) - del) / Math.sqrt(1 + tt * tt * 2 * s));
+    return negdel ? 1 - lower : lower;
+  }
+
+  let x = t * t;
+  x = x / (x + df);
+  let tnc;
+  if (x > 0) {
+    const lambda = del * del;
+    let p = 0.5 * Math.exp(-0.5 * lambda);
+    if (p === 0) return 0;
+    let q = SQRT_2dPI * p * del;
+    let s = 0.5 - p;
+    if (s < 1e-7) s = -0.5 * Math.expm1(-0.5 * lambda);
+    let a = 0.5;
+    const b = 0.5 * df;
+    const rxb = Math.pow(1 - x, b);
+    const albeta = LN_SQRT_PI + lgamma(b) - lgamma(0.5 + b);
+    let xodd = pbeta(x, a, b);
+    let godd = 2 * rxb * Math.exp(a * Math.log(x) - albeta);
+    const bx = b * x;
+    let xeven = bx < EPS ? bx : 1 - rxb;
+    let geven = bx * rxb;
+    tnc = p * xodd + q * xeven;
+    for (let it = 1; it <= 1000; it++) {
+      a += 1;
+      xodd -= godd;
+      xeven -= geven;
+      godd *= x * (a + b - 1) / a;
+      geven *= x * (a + b - 0.5) / (a + 0.5);
+      p *= lambda / (2 * it);
+      q *= lambda / (2 * it + 1);
+      tnc += p * xodd + q * xeven;
+      s -= p;
+      if (s < -1e-10) break;
+      if (s <= 0 && it > 1) break;
+      if (Math.abs(2 * s * (xodd - godd)) < 1e-12) break;
+    }
+  } else {
+    tnc = 0;
+  }
+  tnc += pnorm(-del);
+  tnc = Math.min(tnc, 1);
+  return negdel ? 1 - tnc : tnc;
+}
+
+function dnt(x, df, ncp) {
+  if (ncp === 0) return dt(x, df);
+  let u;
+  if (Math.abs(x) > Math.sqrt(df * EPS)) {
+    u = Math.log(df) - Math.log(Math.abs(x)) +
+      Math.log(Math.abs(pntLower(x * Math.sqrt((df + 2) / df), df + 2, ncp) - pntLower(x, df, ncp)));
+  } else {
+    u = lgamma((df + 1) / 2) - lgamma(df / 2) - (LN_SQRT_PI + 0.5 * (Math.log(df) + ncp * ncp));
+  }
+  const v = Math.exp(u);
+  return Number.isFinite(v) ? v : 0;
+}
+
+// O corpo de stats::power.t.test (p.body)
+function powerCalc(n, delta, sd, alpha, tsample, tside, strict) {
+  const nu = Math.max(1e-7, n - 1) * tsample;
+  const qu = qtUpper(alpha / tside, nu);
+  const ncp = Math.sqrt(n / tsample) * delta / sd;
+  let power = 1 - pntLower(qu, nu, ncp);
+  if (strict && tside === 2) power += pntLower(-qu, nu, ncp);
+  return { nu, qu, ncp, power };
+}
+
+// R_zeroin2 (Brent), o motor do uniroot
+function zeroin(f, ax, bx, fa, fb, tol, maxit) {
+  let a = ax, b = bx, c = a, fc = fa;
+  if (fa === 0) return a;
+  if (fb === 0) return b;
+  let left = maxit + 1;
+  while (left--) {
+    const prev = b - a;
+    if (Math.abs(fc) < Math.abs(fb)) { a = b; b = c; c = a; fa = fb; fb = fc; fc = fa; }
+    const tolAct = 2 * EPS * Math.abs(b) + tol / 2;
+    let step = (c - b) / 2;
+    if (Math.abs(step) <= tolAct || fb === 0) return b;
+    if (Math.abs(prev) >= tolAct && Math.abs(fa) > Math.abs(fb)) {
+      let p, q;
+      const cb = c - b;
+      if (a === c) { const t1 = fb / fa; p = cb * t1; q = 1 - t1; }
+      else {
+        const qq = fa / fc, t1 = fb / fc, t2 = fb / fa;
+        p = t2 * (cb * qq * (qq - t1) - (b - a) * (t1 - 1));
+        q = (qq - 1) * (t1 - 1) * (t2 - 1);
+      }
+      if (p > 0) q = -q; else p = -p;
+      if (p < (0.75 * cb * q - Math.abs(tolAct * q) / 2) && p < Math.abs(prev * q / 2)) step = p / q;
+    }
+    if (Math.abs(step) < tolAct) step = step > 0 ? tolAct : -tolAct;
+    a = b; fa = fb;
+    b += step; fb = f(b);
+    if ((fb > 0 && fc > 0) || (fb < 0 && fc < 0)) { c = a; fc = fa; }
+  }
+  return b;
+}
+
+// uniroot(function(n) eval(p.body) - power, c(2, 1e7), tol = .Machine$double.eps^0.25)
+function solveN(target, delta, sd, alpha, tsample, tside, strict) {
+  const f = n => powerCalc(n, delta, sd, alpha, tsample, tside, strict).power - target;
+  const fl = f(2), fu = f(1e7);
+  if (fl >= 0) return { n: 2, atMin: true };
+  if (fu <= 0) return { n: NaN };
+  return { n: zeroin(f, 2, 1e7, fl, fu, Math.pow(EPS, 0.25), 1000) };
+}
+// ==MATH-END==
+
+(function () {
+  const $ = s => document.querySelector(s);
+  const MINUS = "−";
+  const EXAMPLE = { n: 10, delta: 0.5, sd: 1, alpha: 0.01, type: "one.sample", alt: "one.sided", strict: false, target: 0.85 };
+  const state = Object.assign({ mode: "power" }, EXAMPLE);
+  const TYPES = {
+    "one.sample": { k: 1, label: "uma amostra", method: "One-sample", note: null },
+    "paired": { k: 1, label: "pareado", method: "Paired", note: "n is number of *pairs*, sd is std.dev. of *differences* within pairs" },
+    "two.sample": { k: 2, label: "duas amostras", method: "Two-sample", note: "n is number in *each* group" },
+  };
+
+  const neg = s => (s.startsWith("-") ? MINUS + s.slice(1) : s);
+  const br = (x, d) => neg(x.toFixed(d).replace(".", ","));                 // casas fixas, vírgula
+  const brt = (x, d = 3) => neg(String(Number(x.toFixed(d))).replace(".", ",")); // sem zeros à direita
+  const rnum = x => (Number.isInteger(x) ? String(x) : String(Number(x.toPrecision(7)))); // como o print do R
+  const rc = (x, d = 4) => String(Number(x.toFixed(d)));
+  const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const tc = '<i>t</i><sub>c</sub>';
+
+  let last = null;
+
+  function update() {
+    const T = TYPES[state.type];
+    const k = T.k;
+    const m = state.alt === "one.sided" ? 1 : 2;
+    const strict = state.strict && m === 2;
+    let n = state.n, sol = null;
+    if (state.mode === "n") {
+      sol = solveN(state.target, state.delta, state.sd, state.alpha, k, m, strict);
+      n = sol.n;
+    }
+    const r = powerCalc(n, state.delta, state.sd, state.alpha, k, m, strict);
+    last = { r, n, sol, T, k, m, strict };
+    renderControls();
+    renderSteps(last);
+    renderConsole(last);
+    renderLegend(last);
+    drawChart(last);
+  }
+
+  function renderControls() {
+    $("#mode-power").setAttribute("aria-pressed", String(state.mode === "power"));
+    $("#mode-n").setAttribute("aria-pressed", String(state.mode === "n"));
+    $("#field-n").hidden = state.mode !== "power";
+    $("#field-pw").hidden = state.mode !== "n";
+    $("#n").value = state.n; $("#n-out").textContent = String(state.n);
+    $("#pw").value = state.target; $("#pw-out").textContent = br(state.target, 2);
+    $("#delta").value = state.delta; $("#delta-out").textContent = br(state.delta, 2);
+    $("#sd").value = state.sd; $("#sd-out").textContent = br(state.sd, 2);
+    document.querySelectorAll(".chips[data-key]").forEach(g => {
+      const key = g.dataset.key;
+      g.querySelectorAll("button").forEach(b => {
+        const v = key === "alpha" ? Number(b.dataset.v) : b.dataset.v;
+        b.setAttribute("aria-pressed", String(state[key] === v));
+      });
+    });
+    $("#strict-wrap").hidden = state.alt !== "two.sided";
+    $("#strict").checked = state.strict;
+  }
+
+  function renderSteps({ r, n, sol, T, k, m, strict }) {
+    const nTxt = brt(n, 2);
+    const nuTxt = brt(r.nu, 2);
+    const aTxt = brt(state.alpha);
+
+    $("#s1-sub").innerHTML = `(${nTxt} − 1) · ${k} <span class="aside">· k = ${k}, ${T.label}</span>`;
+    $("#s1-res").textContent = nuTxt;
+    $("#s1-code").textContent = `nu <- (${rc(n, 2)} - 1) * ${k}`;
+
+    $("#s2-f").innerHTML = `P(<i>T</i><sub><i>ν</i></sub> &gt; ${tc}) = <i>α</i> / <i>m</i>`;
+    $("#s2-sub").innerHTML = `P(<i>T</i><sub>${nuTxt}</sub> &gt; ${tc}) = ${aTxt}${m === 2 ? " / 2" : ""} <span class="aside">· m = ${m} cauda${m === 2 ? "s" : ""}</span>`;
+    $("#s2-res").innerHTML = `${tc} = ${br(r.qu, 3)}`;
+    $("#s2-code").textContent = `qt(${state.alpha}${m === 2 ? "/2" : ""}, ${rc(r.nu, 2)}, lower.tail = FALSE)`;
+
+    $("#s3-sub").innerHTML = `√(${nTxt}/${k}) · ${brt(state.delta)} / ${brt(state.sd)}`;
+    $("#s3-res").innerHTML = `<i>λ</i> = ${br(r.ncp, 3)}`;
+    $("#s3-code").textContent = `sqrt(${rc(n, 2)} / ${k}) * ${rc(state.delta)} / ${rc(state.sd)}`;
+
+    if (state.mode === "power") {
+      $("#s4-title").textContent = "Poder";
+      $("#s4-f").innerHTML = `1 − <i>β</i> = P(<i>T′</i> &gt; ${tc})` + (strict ? ` + P(<i>T′</i> &lt; −${tc})` : "");
+      $("#s4-sub").innerHTML = `<i>T′</i> ~ <i>t</i> não-central(${nuTxt}; ${br(r.ncp, 3)})`;
+      $("#s4-res").textContent = br(r.power, 4);
+      $("#s4-code").textContent = `pt(${rc(r.qu)}, ${rc(r.nu, 2)}, ncp = ${rc(r.ncp)}, lower.tail = FALSE)` +
+        (strict ? ` + pt(-${rc(r.qu)}, ${rc(r.nu, 2)}, ncp = ${rc(r.ncp)})` : "");
+    } else {
+      $("#s4-title").textContent = "Inverter para n";
+      $("#s4-f").innerHTML = `achar <i>n</i> com 1 − <i>β</i>(<i>n</i>) = ${br(state.target, 2)}`;
+      $("#s4-sub").innerHTML = `passos 1–3 repetidos para cada <i>n</i> testado em [2; 10⁷]`;
+      $("#s4-res").innerHTML = sol.atMin ? `<i>n</i> ≤ 2` : `<i>n</i> = ${br(n, 2)} → ${Math.ceil(n - 1e-9)}`;
+      $("#s4-code").textContent = `uniroot(function(n) poder(n) - ${state.target}, c(2, 1e7))`;
+    }
+  }
+
+  function renderConsole({ r, n, T, m, strict }) {
+    const first = state.mode === "power" ? `n = ${rnum(n)}` : `power = ${rnum(state.target)}`;
+    const P = s => `<span class="p">${s}</span>`;
+    const lines = [
+      `${P(">")} power.t.test(${first},`,
+      `${P("+")}   delta = ${rnum(state.delta)}, sd = ${rnum(state.sd)},`,
+      `${P("+")}   sig.level = ${rnum(state.alpha)},`,
+      `${P("+")}   type = "${state.type}",`,
+      `${P("+")}   alternative = "${state.alt}"${strict ? "," : ")"}`,
+    ];
+    if (strict) lines.push(`${P("+")}   strict = TRUE)`);
+    $("#rcall").innerHTML = lines.join("\n");
+
+    const power = state.mode === "power" ? r.power : state.target;
+    const rows = [["n", n], ["delta", state.delta], ["sd", state.sd], ["sig.level", state.alpha], ["power", power], ["alternative", state.alt]];
+    const solved = state.mode === "power" ? "power" : "n";
+    let out = `\n     ${T.method} t test power calculation \n\n`;
+    out += rows.map(([name, v]) => {
+      const txt = esc(name.padStart(15) + " = " + (typeof v === "number" ? rnum(v) : v));
+      return name === solved ? `<span class="hi">${txt}</span>` : txt;
+    }).join("\n");
+    if (T.note) out += `\n\nNOTE: ${esc(T.note)}`;
+    $("#rout").innerHTML = out;
+  }
+
+  function renderLegend({ r, m }) {
+    const power = r.power;
+    $("#legend").innerHTML =
+      `<span class="item"><span class="sw l0"></span>H₀: <i>t</i> central, <i>ν</i> = ${brt(r.nu, 2)}</span>` +
+      `<span class="item"><span class="sw l1"></span>H₁: <i>t</i> não-central, <i>λ</i> = ${br(r.ncp, 3)}</span>` +
+      `<span class="item"><span class="sw fa"></span><i>α</i> = <b>${brt(state.alpha)}</b>${m === 2 ? " (metade em cada cauda)" : ""}</span>` +
+      `<span class="item"><span class="sw hb"></span><i>β</i> = <b>${br(1 - power, 4)}</b></span>` +
+      `<span class="item"><span class="sw fp"></span>Poder = <b>${br(power, 4)}</b></span>`;
+  }
+
+  function drawChart({ r, m, strict }) {
+    const svg = $("#plot");
+    const W = Math.max(280, svg.clientWidth || 600);
+    const H = Math.max(170, svg.clientHeight || 290);
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const ml = 16, mr = 16, mt = 30, mb = 40;
+    const { nu, qu, ncp } = r;
+
+    let xmin = Math.min(-4, ncp - 4.5);
+    if (m === 2) xmin = Math.min(xmin, -qu - 0.8);
+    let xmax = Math.max(4, ncp + 4.5, qu + 0.8);
+    const cap = Math.max(10, ncp + 6);
+    xmax = Math.min(xmax, cap);
+    xmin = Math.max(xmin, -cap);
+
+    const N = 320, xs = [], d0 = [], d1 = [];
+    for (let i = 0; i <= N; i++) {
+      const x = xmin + (xmax - xmin) * i / N;
+      xs.push(x); d0.push(dt(x, nu)); d1.push(dnt(x, nu, ncp));
+    }
+    let ymax = 0, ipk = 0;
+    for (let i = 0; i <= N; i++) { ymax = Math.max(ymax, d0[i], d1[i]); if (d1[i] > d1[ipk]) ipk = i; }
+    ymax *= 1.12;
+
+    const X = x => ml + (x - xmin) / (xmax - xmin) * (W - ml - mr);
+    const y0 = H - mb;
+    const Y = y => y0 - (y / ymax) * (y0 - mt);
+    const f0 = x => dt(x, nu), f1 = x => dnt(x, nu, ncp);
+    const fx = v => v.toFixed(1);
+
+    function area(fn, arr, a, b, cls) {
+      a = Math.max(a, xmin); b = Math.min(b, xmax);
+      if (!(b > a)) return "";
+      let d = `M${fx(X(a))},${fx(y0)} L${fx(X(a))},${fx(Y(fn(a)))}`;
+      for (let i = 0; i <= N; i++) if (xs[i] > a && xs[i] < b) d += ` L${fx(X(xs[i]))},${fx(Y(arr[i]))}`;
+      d += ` L${fx(X(b))},${fx(Y(fn(b)))} L${fx(X(b))},${fx(y0)} Z`;
+      return `<path class="${cls}" d="${d}"/>`;
+    }
+    const curve = (arr, cls) => `<path class="${cls}" d="${arr.map((v, i) => (i ? "L" : "M") + fx(X(xs[i])) + "," + fx(Y(v))).join(" ")}"/>`;
+    const clampX = (x, pad) => Math.min(W - mr - pad, Math.max(ml + pad, x));
+
+    let g = `<defs><pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hatch-line" x1="0" y1="0" x2="0" y2="5"/></pattern></defs>`;
+
+    // eixo e marcas
+    const span = xmax - xmin, raw = span / 8;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const step = [1, 2, 5, 10].map(s => s * mag).find(s => s >= raw);
+    g += `<line class="axis" x1="${ml}" x2="${W - mr}" y1="${y0}" y2="${y0}"/>`;
+    for (let t = Math.ceil(xmin / step) * step; t <= xmax + 1e-9; t += step) {
+      const x = fx(X(t));
+      g += `<line class="tick" x1="${x}" x2="${x}" y1="${y0}" y2="${y0 + 4}"/>`;
+      g += `<text class="tl" x="${x}" y="${y0 + 16}" text-anchor="middle">${brt(Math.round(t / step) * step, 2)}</text>`;
+    }
+
+    // áreas: beta (H1 antes de t_c), poder (H1 além de t_c), alfa (H0 além de t_c)
+    g += area(f1, d1, strict ? -qu : -Infinity, qu, "a-beta");
+    g += area(f1, d1, qu, Infinity, "a-pow");
+    if (strict) g += area(f1, d1, -Infinity, -qu, "a-pow");
+    g += area(f0, d0, qu, Infinity, "a-alpha");
+    if (m === 2) g += area(f0, d0, -Infinity, -qu, "a-alpha");
+
+    g += curve(d0, "c0") + curve(d1, "c1");
+
+    // valor(es) crítico(s)
+    const crit = (x, label, anchor) => {
+      if (x >= xmin && x <= xmax) {
+        const px = fx(X(x));
+        g += `<line class="crit" x1="${px}" x2="${px}" y1="${mt - 6}" y2="${y0}"/>`;
+        g += `<text class="cl" x="${fx(clampX(X(x), 34))}" y="${mt - 12}" text-anchor="middle">${label}</text>`;
+      } else {
+        const px = anchor === "end" ? W - mr : ml;
+        g += `<text class="cl" x="${px}" y="${mt - 12}" text-anchor="${anchor}">${anchor === "end" ? label + " →" : "← " + label}</text>`;
+      }
+    };
+    const tcSvg = `<tspan class="cl-i">t</tspan><tspan dy="3" font-size="9">c</tspan><tspan dy="-3">`;
+    crit(qu, `${tcSvg} = ${br(qu, 3)}</tspan>`, "end");
+    if (m === 2) crit(-qu, `${MINUS}${tcSvg}</tspan>`, "start");
+
+    // rótulos das curvas
+    g += `<text class="lab0" x="${fx(clampX(X(0) - 8, 20))}" y="${fx(Y(dt(0, nu)) - 7)}" text-anchor="end">H₀</text>`;
+    g += `<text class="lab1" x="${fx(clampX(X(xs[ipk]) + 8, 20))}" y="${fx(Y(d1[ipk]) - 7)}" text-anchor="start">H₁</text>`;
+
+    // parâmetro de não-centralidade no eixo
+    if (ncp >= xmin && ncp <= xmax) {
+      const px = fx(X(ncp));
+      g += `<line class="lam" x1="${px}" x2="${px}" y1="${y0 - 5}" y2="${y0 + 5}"/>`;
+      g += `<text class="lam-l" x="${fx(clampX(X(ncp), 36))}" y="${y0 + 32}" text-anchor="middle">λ = ${br(ncp, 3)}</text>`;
+    }
+
+    svg.innerHTML = g;
+    svg.setAttribute("aria-label",
+      `t central com ${brt(nu, 2)} graus de liberdade sob H0 e t não-central com lambda ${br(ncp, 3)} sob H1; ` +
+      `valor crítico ${br(qu, 3)}; poder ${br(r.power, 4)}.`);
+  }
+
+  // ---------- eventos ----------
+  $("#controls").addEventListener("submit", e => e.preventDefault());
+  $("#n").addEventListener("input", e => { state.n = Number(e.target.value); update(); });
+  $("#pw").addEventListener("input", e => { state.target = Number(e.target.value); update(); });
+  $("#delta").addEventListener("input", e => { state.delta = Number(e.target.value); update(); });
+  $("#sd").addEventListener("input", e => { state.sd = Number(e.target.value); update(); });
+  $("#strict").addEventListener("change", e => { state.strict = e.target.checked; update(); });
+  document.querySelectorAll(".chips[data-key]").forEach(gr => {
+    gr.addEventListener("click", e => {
+      const b = e.target.closest("button");
+      if (!b) return;
+      const key = gr.dataset.key;
+      state[key] = key === "alpha" ? Number(b.dataset.v) : b.dataset.v;
+      update();
+    });
+  });
+  $("#mode-power").addEventListener("click", () => { state.mode = "power"; update(); });
+  $("#mode-n").addEventListener("click", () => { state.mode = "n"; update(); });
+  $("#example").addEventListener("click", () => { Object.assign(state, EXAMPLE); update(); });
+
+  // ---------- encaixe do slide ----------
+  const stage = $("#stage"), holder = $("#holder"), slide = $("#slide");
+  const wide = window.matchMedia("(min-width: 900px)");
+  function fit() {
+    const fs = document.fullscreenElement === stage;
+    if (!wide.matches) {
+      holder.style.width = ""; holder.style.height = "";
+      slide.style.removeProperty("--s");
+    } else {
+      const w = fs ? window.innerWidth : stage.clientWidth;
+      const h = fs ? window.innerHeight : window.innerHeight - 32;
+      let s = Math.min(w / 1280, h / 720);
+      if (!fs && s < 0.55) s = w / 1280;
+      holder.style.width = 1280 * s + "px";
+      holder.style.height = 720 * s + "px";
+      slide.style.setProperty("--s", String(s));
+    }
+    if (last) drawChart(last);
+  }
+  window.addEventListener("resize", fit);
+  if (wide.addEventListener) wide.addEventListener("change", fit);
+  if ("ResizeObserver" in window) new ResizeObserver(fit).observe(stage);
+
+  const fsBtn = $("#fs");
+  if (!document.fullscreenEnabled) fsBtn.hidden = true;
+  fsBtn.addEventListener("click", () => {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else stage.requestFullscreen().catch(() => {});
+  });
+  document.addEventListener("fullscreenchange", fit);
+
+  update();
+  fit();
+})();
+</script>
+
+</body></html>

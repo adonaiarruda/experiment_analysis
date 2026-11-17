@@ -1,0 +1,550 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Significância Estatística vs Prática</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: coluna de leitura (~68ch) em volta de um painel interativo mais largo. Azul = evidência estatística, laranja = relevância prática. */
+:root {
+  --bg: #F3F5F8;
+  --surface: #FCFDFE;
+  --ink: #152033;
+  --muted: #4F5B6E;
+  --line: #D3DAE4;
+  --sig: #1F5FA8;
+  --sig-soft: #DCE7F5;
+  --prac: #B4560F;
+  --prac-soft: #F8E4D1;
+  --font-text: 'IBM Plex Sans', 'Segoe UI', Arial, sans-serif;
+  --font-data: 'IBM Plex Mono', 'Courier New', monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1622; --surface: #162030; --ink: #E6ECF4; --muted: #A6B2C4; --line: #2B3749;
+    --sig: #82B2EE; --sig-soft: #1C3253; --prac: #F0A25E; --prac-soft: #4A2E17;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1622; --surface: #162030; --ink: #E6ECF4; --muted: #A6B2C4; --line: #2B3749;
+  --sig: #82B2EE; --sig-soft: #1C3253; --prac: #F0A25E; --prac-soft: #4A2E17;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-text); font-size: 1.0625rem; line-height: 1.6; }
+
+.page {
+  max-width: 1080px; margin: 0 auto;
+  padding-block: 48px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 64px;
+}
+.prose { max-width: 68ch; }
+.data { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 1.2rem + 3.4vw, 3.4rem); line-height: 1.08; font-weight: 600; letter-spacing: -0.015em; max-width: 18ch; }
+h2 { font-size: 1.5rem; line-height: 1.25; font-weight: 600; }
+p { margin: 0; }
+
+.eyebrow { font-family: var(--font-data); font-size: 0.8125rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+/* abertura */
+.hero { display: flex; flex-direction: column; gap: 20px; }
+.lede { font-size: 1.25rem; line-height: 1.5; color: var(--muted); max-width: 52ch; }
+
+/* exemplo da aula */
+.example { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 40px; align-items: start; }
+.example .prose { display: flex; flex-direction: column; gap: 14px; }
+.console {
+  margin: 0; padding: 20px 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  display: grid; grid-template-columns: auto 1fr; column-gap: 20px; row-gap: 6px;
+  font-family: var(--font-data); font-size: 1rem; font-variant-numeric: tabular-nums;
+}
+.console dt { color: var(--muted); }
+.console dd { margin: 0; }
+.console .split { grid-column: 1 / -1; border-top: 1px dashed var(--line); margin: 8px 0; }
+.console .result { color: var(--sig); font-weight: 500; }
+.ask { font-size: 1.25rem; font-weight: 500; color: var(--prac); }
+
+/* explorador */
+.explorer { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: clamp(20px, 3vw, 36px); display: flex; flex-direction: column; gap: 28px; }
+.explorer-head { display: flex; flex-direction: column; gap: 6px; }
+.explorer-head p { color: var(--muted); }
+
+.controls { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 32px; }
+.control { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.control label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; font-weight: 500; }
+.control output { font-family: var(--font-data); font-size: 1.125rem; font-variant-numeric: tabular-nums; }
+#n-out { color: var(--sig); }
+#d-out { color: var(--prac); }
+input[type="range"] { width: 100%; margin: 4px 0; }
+#n-slider { accent-color: var(--sig); }
+#d-slider { accent-color: var(--prac); }
+.hint { font-size: 0.875rem; color: var(--muted); }
+
+.presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.presets button {
+  font: 500 0.875rem/1 var(--font-data); color: var(--ink); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer;
+}
+.presets button[aria-pressed="true"] { background: var(--sig-soft); border-color: var(--sig); color: var(--ink); }
+.presets button:hover { border-color: var(--sig); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--sig); outline-offset: 3px; }
+
+.calc { font-size: clamp(0.9375rem, 0.8rem + 0.6vw, 1.1875rem); padding: 14px 18px; background: var(--bg); border-radius: 8px; overflow-x: auto; white-space: nowrap; }
+.calc .t { color: var(--sig); font-weight: 500; }
+
+.chart { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.chart-box { width: 100%; min-height: 220px; }
+.chart-box svg { display: block; width: 100%; height: auto; }
+.c-axis { stroke: var(--muted); stroke-width: 1; }
+.c-tick { fill: var(--muted); font-family: var(--font-data); font-size: 12px; }
+.c-mu { fill: var(--ink); font-family: var(--font-data); font-size: 12px; font-weight: 500; }
+.c-band { fill: var(--prac-soft); }
+.c-band-edge { stroke: var(--prac); stroke-width: 1.5; stroke-dasharray: 2 4; }
+.c-area { fill: var(--sig-soft); }
+.c-curve { fill: none; stroke: var(--sig); stroke-width: 2; }
+.c-tail { fill: var(--sig); fill-opacity: 0.55; }
+.c-crit { stroke: var(--sig); stroke-width: 1.5; stroke-dasharray: 6 4; }
+.c-obs { stroke: var(--ink); stroke-width: 2; }
+.c-obs-dot { fill: var(--ink); }
+.c-obs-label { fill: var(--ink); font-family: var(--font-data); font-size: 13px; font-weight: 500; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 0.875rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.sw { width: 22px; height: 12px; border-radius: 2px; flex: none; }
+.sw-curve { background: var(--sig-soft); border-top: 2px solid var(--sig); }
+.sw-crit { height: 0; border-top: 2px dashed var(--sig); }
+.sw-band { background: var(--prac-soft); border-left: 2px dotted var(--prac); border-right: 2px dotted var(--prac); }
+.sw-obs { width: 2px; height: 16px; background: var(--ink); }
+
+.readouts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.readout { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; min-width: 0; }
+.readout + .readout { border-left: 1px solid var(--line); }
+.r-label { font-size: 0.875rem; color: var(--muted); }
+.r-value { font-size: 1.5rem; line-height: 1.25; font-weight: 500; overflow-wrap: anywhere; }
+.r-note { font-size: 0.8125rem; color: var(--muted); }
+.sig-text { color: var(--sig); }
+.prac-text { color: var(--prac); }
+
+.verdicts { display: flex; flex-wrap: wrap; gap: 12px; }
+.chip { display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px; border-radius: 999px; font-weight: 500; border: 2px solid transparent; transition: background-color 150ms, color 150ms, border-color 150ms; }
+.chip .mark { font-family: var(--font-data); font-weight: 600; }
+.chip-sig-yes { background: var(--sig); color: var(--surface); }
+.chip-sig-no { background: transparent; border-color: var(--sig); color: var(--sig); }
+.chip-prac-yes { background: var(--prac); color: var(--surface); }
+.chip-prac-no { background: transparent; border-color: var(--prac); color: var(--prac); }
+
+.matrix-wrap { display: flex; flex-direction: column; gap: 10px; }
+.matrix-title { font-size: 0.875rem; color: var(--muted); }
+.matrix { width: 100%; border-collapse: separate; border-spacing: 8px; margin: -8px; table-layout: fixed; }
+.matrix th { font-size: 0.875rem; font-weight: 600; text-align: left; padding: 4px 8px; vertical-align: bottom; }
+.matrix th[scope="row"] { vertical-align: middle; width: 24%; }
+.matrix td { vertical-align: top; padding: 14px 16px; border-radius: 10px; border: 1px solid var(--line); color: var(--muted); font-size: 0.9375rem; line-height: 1.45; transition: border-color 150ms, background-color 150ms, color 150ms; }
+.matrix td.is-current { border: 2px solid var(--ink); background: var(--bg); color: var(--ink); }
+.here { display: none; font-family: var(--font-data); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; color: var(--ink); }
+.is-current .here { display: block; }
+.th-sig { color: var(--sig); }
+.th-prac { color: var(--prac); }
+
+/* explicação */
+.why { display: flex; flex-direction: column; gap: 16px; }
+.formula { font-size: clamp(1.25rem, 1rem + 1.2vw, 1.75rem); color: var(--sig); padding: 6px 0; }
+.why ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 8px; }
+blockquote { margin: 8px 0 0; padding: 4px 0 4px 20px; border-left: 3px solid var(--line); font-size: 1.125rem; }
+blockquote cite { display: block; margin-top: 6px; font-style: normal; font-size: 0.875rem; color: var(--muted); }
+
+.report { display: flex; flex-direction: column; gap: 20px; }
+.table-wrap { overflow-x: auto; }
+.qa { width: 100%; min-width: 560px; border-collapse: collapse; font-size: 1rem; }
+.qa th, .qa td { text-align: left; vertical-align: top; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.qa th { font-size: 0.875rem; color: var(--muted); font-weight: 600; }
+.qa td:first-child { font-weight: 500; }
+
+.source { font-size: 0.875rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 20px; }
+
+@media (max-width: 760px) {
+  .example { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .controls { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .readouts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .readout:nth-child(3) { border-left: none; }
+  .readout:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .matrix th[scope="row"] { width: 28%; }
+  .matrix td { padding: 10px 12px; font-size: 0.875rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+
+<main class="page">
+  <header class="hero">
+    <p class="eyebrow">Aula 05 · Inferência Estatística · slides 33 a 35</p>
+    <h1>Significância estatística não é significância prática</h1>
+    <p class="lede">Com uma amostra grande o suficiente, até uma diferença mínima dá um p-valor minúsculo. O teste mostra que a diferença existe. Ele não diz se ela importa.</p>
+  </header>
+
+  <section class="example" aria-labelledby="ex-title">
+    <dl class="console" aria-label="Dados e resultado do exemplo do slide 33">
+      <dt>H₀</dt><dd>μ = 500</dd>
+      <dt>H₁</dt><dd>μ ≠ 500 (bilateral)</dd>
+      <dt>n</dt><dd>5000</dd>
+      <dt>x̄</dt><dd>499</dd>
+      <dt>s</dt><dd>5</dd>
+      <div class="split" role="presentation"></div>
+      <dt>t₀</dt><dd class="result">−14,142</dd>
+      <dt>p</dt><dd class="result">1,02 × 10⁻²³</dd>
+    </dl>
+    <div class="prose">
+      <h2 id="ex-title">O exemplo do slide 33</h2>
+      <p>Um teste t para uma média, com hipótese alternativa bilateral. A amostra tem 5000 observações, com média 499 e desvio padrão 5.</p>
+      <p>O resultado é t₀ = −14,142 e p = 1,02 × 10⁻²³. A evidência para rejeitar H₀ é fortíssima, ou seja, existe significância estatística. Mesmo assim, a média observada ficou só 1 unidade abaixo de 500.</p>
+      <p class="ask">“Mas essa conclusão possui significância prática?”</p>
+    </div>
+  </section>
+
+  <section class="explorer" aria-labelledby="exp-title">
+    <div class="explorer-head">
+      <h2 id="exp-title">Aumente o n e veja o que muda</h2>
+      <p>x̄ = 499, μ₀ = 500 e s = 5 ficam fixos, como no slide. Só o tamanho da amostra muda.</p>
+    </div>
+
+    <div class="controls">
+      <div class="control">
+        <label for="n-slider">Tamanho amostral <output id="n-out" for="n-slider">n = 5000</output></label>
+        <input type="range" id="n-slider" min="1" max="5" step="0.001" value="3.69897" aria-describedby="n-help">
+        <div class="presets" role="group" aria-label="Valores de n prontos" id="n-help">
+          <button type="button" id="n-10" data-n="10" aria-pressed="false">10</button>
+          <button type="button" id="n-100" data-n="100" aria-pressed="false">100</button>
+          <button type="button" id="n-1000" data-n="1000" aria-pressed="false">1000</button>
+          <button type="button" id="n-5000" data-n="5000" aria-pressed="true">5000 (aula)</button>
+          <button type="button" id="n-100000" data-n="100000" aria-pressed="false">100 000</button>
+        </div>
+      </div>
+      <div class="control">
+        <label for="d-slider">δ*, o efeito minimamente interessante <output id="d-out" for="d-slider">δ* = 2</output></label>
+        <input type="range" id="d-slider" min="0.5" max="5" step="0.5" value="2">
+        <p class="hint">Valor ilustrativo. O slide não define δ*. Num problema real ele vem do contexto e é fixado antes da coleta (slide 23).</p>
+      </div>
+    </div>
+
+    <p class="calc data" id="calc" aria-live="polite"></p>
+
+    <figure class="chart">
+      <div class="chart-box" id="chart" role="img" aria-label="Distribuição amostral da média sob H0, com os limites de rejeição, a zona de irrelevância prática e a média observada"></div>
+      <figcaption class="legend">
+        <span><i class="sw sw-curve"></i>Distribuição de x̄ se H₀ fosse verdadeira (altura ajustada para caber)</span>
+        <span><i class="sw sw-crit"></i>Limites de rejeição, α = 0,05</span>
+        <span><i class="sw sw-band"></i>Zona de irrelevância prática, 500 ± δ*</span>
+        <span><i class="sw sw-obs"></i>Média observada, x̄ = 499</span>
+      </figcaption>
+    </figure>
+
+    <div class="readouts">
+      <div class="readout">
+        <span class="r-label">Erro padrão, s/√n</span>
+        <span class="r-value data" id="se-out">0,0707</span>
+        <span class="r-note">encolhe quando n cresce</span>
+      </div>
+      <div class="readout">
+        <span class="r-label">Estatística t₀</span>
+        <span class="r-value data sig-text" id="t-out">−14,142</span>
+        <span class="r-note" id="gl-out">gl = n − 1 = 4999</span>
+      </div>
+      <div class="readout">
+        <span class="r-label">p-valor (bilateral)</span>
+        <span class="r-value data sig-text" id="p-out">&lt; 10⁻¹⁶</span>
+        <span class="r-note" id="p-note">abaixo de 10⁻¹⁶, como o R (&lt; 2.2e-16)</span>
+      </div>
+      <div class="readout">
+        <span class="r-label">Tamanho do efeito</span>
+        <span class="r-value data prac-text">−1 · d = −0,2</span>
+        <span class="r-note">x̄ − μ₀ e d = (x̄ − μ₀)/s: não mudam com n</span>
+      </div>
+    </div>
+
+    <div class="verdicts" aria-live="polite">
+      <p class="chip" id="sig-chip"></p>
+      <p class="chip" id="prac-chip"></p>
+    </div>
+
+    <div class="matrix-wrap">
+      <p class="matrix-title">As duas perguntas são independentes. A célula marcada é a situação atual.</p>
+      <table class="matrix">
+        <thead>
+          <tr>
+            <td style="border:none"></td>
+            <th scope="col" class="th-prac">Relevante na prática</th>
+            <th scope="col" class="th-prac">Irrelevante na prática</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row" class="th-sig">Estatisticamente significativo</th>
+            <td id="cell-sig-rel"><span class="here">situação atual</span>Diferença detectada e grande o bastante para importar.</td>
+            <td id="cell-sig-irr"><span class="here">situação atual</span>Diferença detectada, mas pequena demais para importar. É o caso do slide 33.</td>
+          </tr>
+          <tr>
+            <th scope="row" class="th-sig">Não significativo</th>
+            <td id="cell-ns-rel"><span class="here">situação atual</span>A diferença importaria, mas falta evidência: com esse n, o teste tem pouco poder.</td>
+            <td id="cell-ns-irr"><span class="here">situação atual</span>Nada detectado, e a diferença também não importaria.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="why prose" aria-labelledby="why-title">
+    <h2 id="why-title">Por que o p-valor despenca</h2>
+    <p>A estatística de teste divide o efeito observado pelo erro padrão:</p>
+    <p class="formula data">t₀ = (x̄ − μ₀) / (s / √n)</p>
+    <ul>
+      <li><b>Numerador:</b> o efeito, x̄ − μ₀ = −1. Ele não depende de n.</li>
+      <li><b>Denominador:</b> o erro padrão, s/√n. Ele encolhe à medida que n cresce.</li>
+    </ul>
+    <p>Com o denominador indo a zero, |t₀| cresce sem parar e o p-valor vai a zero, por menor que seja a diferença.</p>
+    <blockquote>“p-valores podem ser transformados em valores arbitrariamente pequenos se o n for grande o suficiente.”<cite>Aula 05, slide 33</cite></blockquote>
+  </section>
+
+  <section class="report" aria-labelledby="rep-title">
+    <h2 id="rep-title">O que relatar junto com o p-valor</h2>
+    <p class="prose">Para contar a história completa, a aula recomenda relatar um estimador do tamanho do efeito e o intervalo de confiança junto com o resultado do teste (slides 34 e 35).</p>
+    <div class="table-wrap">
+      <table class="qa">
+        <thead>
+          <tr><th>Pergunta</th><th>Quem responde</th><th>Neste exemplo</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Existe evidência de diferença?</td><td>p-valor</td><td>Sim: p = 1,02 × 10⁻²³</td></tr>
+          <tr><td>Quão grande é a diferença?</td><td>Tamanho do efeito: x̄ − μ₀, ou d = (x̄ − μ₀)/s</td><td>−1 unidade, ou d = −0,2 (um quinto do desvio padrão)</td></tr>
+          <tr><td>A diferença importa na prática?</td><td>Comparação com δ*, definido antes da coleta</td><td>Depende do problema. O slide deixa a pergunta para a turma.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="prose">No planejamento, o tamanho amostral é calculado a partir de δ*, de α e do poder desejado (slide 50). Assim o experimento tem amostra suficiente para detectar a diferença que importa.</p>
+  </section>
+
+  <footer class="source">Fonte: Planejamento e Análise de Experimentos, Aula 05, Inferência Estatística (slides 23, 33, 34, 35 e 50).</footer>
+</main>
+
+<script>
+const MU0 = 500, XBAR = 499, S = 5, ALPHA = 0.05;
+const state = { n: 5000, dStar: 2 };
+
+/* ---------- distribuição t (função beta incompleta regularizada) ---------- */
+function lgamma(x) {
+  const g = 7;
+  const c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  if (x < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * x)) - lgamma(1 - x);
+  x -= 1;
+  let a = c[0];
+  const t = x + g + 0.5;
+  for (let i = 1; i < 9; i++) a += c[i] / (x + i);
+  return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(t) - t + Math.log(a);
+}
+function betacf(a, b, x) {
+  const MAXIT = 20000, EPS = 1e-15, FPMIN = 1e-300;
+  const qab = a + b, qap = a + 1, qam = a - 1;
+  let c = 1, d = 1 - qab * x / qap;
+  if (Math.abs(d) < FPMIN) d = FPMIN;
+  d = 1 / d;
+  let h = d;
+  for (let m = 1; m <= MAXIT; m++) {
+    const m2 = 2 * m;
+    let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+    d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN;
+    c = 1 + aa / c; if (Math.abs(c) < FPMIN) c = FPMIN;
+    d = 1 / d; h *= d * c;
+    aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+    d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN;
+    c = 1 + aa / c; if (Math.abs(c) < FPMIN) c = FPMIN;
+    d = 1 / d;
+    const del = d * c;
+    h *= del;
+    if (Math.abs(del - 1) < EPS) break;
+  }
+  return h;
+}
+/* I_x(a, b), recebendo x e 1 − x separados para não perder precisão */
+function betai(a, b, x, y) {
+  if (x <= 0) return 0;
+  if (y <= 0) return 1;
+  const lbt = lgamma(a + b) - lgamma(a) - lgamma(b) + a * Math.log(x) + b * Math.log(y);
+  if (x < (a + 1) / (a + b + 2)) return Math.exp(lbt) * betacf(a, b, x) / a;
+  return 1 - Math.exp(lbt) * betacf(b, a, y) / b;
+}
+/* p-valor bilateral: P(|T| >= |t|), T ~ t(df) */
+function pTwoSided(t, df) {
+  const t2 = t * t;
+  return betai(df / 2, 0.5, df / (df + t2), t2 / (df + t2));
+}
+/* valor crítico t(1 − α/2, df) por bisseção */
+function tCrit(df, alpha) {
+  let lo = 0, hi = 100;
+  for (let i = 0; i < 100; i++) {
+    const mid = (lo + hi) / 2;
+    if (pTwoSided(mid, df) > alpha) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
+
+/* ---------- formatação pt-BR ---------- */
+const SUP = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+const sup = e => String(e).split('').map(ch => SUP[ch]).join('');
+const br = s => s.replace('.', ',').replace(/^-/, '−');
+const fmtFixed = (v, k) => br(v.toFixed(k));
+const fmtPrec = (v, k) => br(v.toPrecision(k));
+function fmtN(n) {
+  const s = String(n);
+  return n >= 10000 ? s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : s;
+}
+function fmtP(p) {
+  if (p < 1e-16) return '< 10⁻¹⁶';
+  if (p < 0.001) {
+    const e = Math.floor(Math.log10(p));
+    let m = p / Math.pow(10, e);
+    return fmtFixed(m, 2) + ' × 10' + sup(e);
+  }
+  return fmtFixed(p, 4);
+}
+
+/* ---------- gráfico ---------- */
+const chartBox = document.getElementById('chart');
+function drawChart(se, tc) {
+  const W = Math.max(280, Math.round(chartBox.clientWidth || 700));
+  const narrow = W < 560;
+  const H = narrow ? 230 : 290;
+  const m = { l: 18, r: 18, t: 34, b: 40 };
+  const x0 = 494, x1 = 506;
+  const X = v => m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r);
+  const base = H - m.b;
+  const ph = base - m.t;
+  const Y = v => base - ph * 0.94 * Math.exp(-0.5 * Math.pow((v - MU0) / se, 2));
+  const lo = MU0 - tc * se, hi = MU0 + tc * se;
+
+  const grid = [];
+  const steps = Math.round(W * 2.5);
+  for (let i = 0; i <= steps; i++) grid.push(x0 + (x1 - x0) * i / steps);
+  grid.push(MU0, lo, hi);
+  for (let k = -6; k <= 6; k++) grid.push(MU0 + k * se * 0.25);
+  const xs = grid.filter(v => v >= x0 && v <= x1).sort((a, b) => a - b);
+
+  const pt = v => X(v).toFixed(2) + ',' + Y(v).toFixed(2);
+  const curve = 'M' + xs.map(pt).join(' L');
+  const area = 'M' + X(x0).toFixed(2) + ',' + base + ' L' + xs.map(pt).join(' L') + ' L' + X(x1).toFixed(2) + ',' + base + ' Z';
+  const tailPath = (a, b) => {
+    const seg = xs.filter(v => v >= a && v <= b);
+    if (seg.length < 2) return '';
+    return 'M' + X(a).toFixed(2) + ',' + base + ' L' + seg.map(pt).join(' L') + ' L' + X(b).toFixed(2) + ',' + base + ' Z';
+  };
+
+  const d = state.dStar;
+  const bandL = X(Math.max(x0, MU0 - d)), bandR = X(Math.min(x1, MU0 + d));
+
+  let ticks = '';
+  const step = narrow ? 2 : 1;
+  for (let v = x0; v <= x1; v += step) {
+    const isMu = v === MU0;
+    ticks += `<line class="c-axis" x1="${X(v)}" x2="${X(v)}" y1="${base}" y2="${base + 5}"/>`;
+    ticks += `<text class="${isMu ? 'c-mu' : 'c-tick'}" x="${X(v)}" y="${base + 22}" text-anchor="middle">${isMu ? '500 = μ₀' : v}</text>`;
+  }
+
+  const xo = X(XBAR);
+  chartBox.innerHTML = `
+<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <rect class="c-band" x="${bandL}" y="${m.t - 10}" width="${bandR - bandL}" height="${base - m.t + 10}"/>
+  <line class="c-band-edge" x1="${bandL}" x2="${bandL}" y1="${m.t - 10}" y2="${base}"/>
+  <line class="c-band-edge" x1="${bandR}" x2="${bandR}" y1="${m.t - 10}" y2="${base}"/>
+  <path class="c-area" d="${area}"/>
+  <path class="c-tail" d="${tailPath(x0, lo)}"/>
+  <path class="c-tail" d="${tailPath(hi, x1)}"/>
+  <path class="c-curve" d="${curve}"/>
+  ${lo > x0 ? `<line class="c-crit" x1="${X(lo)}" x2="${X(lo)}" y1="${m.t - 10}" y2="${base}"/>` : ''}
+  ${hi < x1 ? `<line class="c-crit" x1="${X(hi)}" x2="${X(hi)}" y1="${m.t - 10}" y2="${base}"/>` : ''}
+  <line class="c-obs" x1="${xo}" x2="${xo}" y1="${m.t - 14}" y2="${base}"/>
+  <circle class="c-obs-dot" cx="${xo}" cy="${base}" r="5"/>
+  <text class="c-obs-label" x="${xo - 8}" y="${m.t - 18}" text-anchor="end">x̄ = 499</text>
+  <line class="c-axis" x1="${m.l}" x2="${W - m.r}" y1="${base}" y2="${base}"/>
+  ${ticks}
+</svg>`;
+}
+
+/* ---------- atualização ---------- */
+const $ = id => document.getElementById(id);
+const nSlider = $('n-slider'), dSlider = $('d-slider');
+const presetButtons = Array.from(document.querySelectorAll('.presets button'));
+
+function update() {
+  const n = state.n, df = n - 1;
+  const se = S / Math.sqrt(n);
+  const t = (XBAR - MU0) / se;
+  const p = pTwoSided(t, df);
+  const tc = tCrit(df, ALPHA);
+  const significant = p <= ALPHA;
+  const relevant = Math.abs(XBAR - MU0) >= state.dStar;
+
+  $('n-out').textContent = 'n = ' + fmtN(n);
+  $('d-out').textContent = 'δ* = ' + br(String(state.dStar));
+  $('se-out').textContent = fmtPrec(se, 3);
+  $('t-out').textContent = fmtFixed(t, 3);
+  $('gl-out').textContent = 'gl = n − 1 = ' + fmtN(df);
+  $('p-out').textContent = fmtP(p);
+  $('p-note').textContent = p < 1e-16 ? 'abaixo de 10⁻¹⁶, como o R (< 2.2e-16)' : (significant ? 'p ≤ α = 0,05' : 'p > α = 0,05');
+  $('calc').innerHTML = `t₀ = (499 − 500) / (5 / √${fmtN(n)}) = −1 / ${fmtPrec(se, 3)} = <span class="t">${fmtFixed(t, 3)}</span>`;
+
+  const sc = $('sig-chip');
+  sc.className = 'chip ' + (significant ? 'chip-sig-yes' : 'chip-sig-no');
+  sc.innerHTML = significant
+    ? '<span class="mark">p ≤ 0,05</span>Estatisticamente significativo: rejeita H₀'
+    : '<span class="mark">p &gt; 0,05</span>Não significativo: não rejeita H₀';
+  const pc = $('prac-chip');
+  pc.className = 'chip ' + (relevant ? 'chip-prac-yes' : 'chip-prac-no');
+  pc.innerHTML = relevant
+    ? `<span class="mark">|−1| ≥ δ*</span>Relevante na prática`
+    : `<span class="mark">|−1| &lt; δ*</span>Irrelevante na prática`;
+
+  const current = 'cell-' + (significant ? 'sig' : 'ns') + '-' + (relevant ? 'rel' : 'irr');
+  ['cell-sig-rel', 'cell-sig-irr', 'cell-ns-rel', 'cell-ns-irr'].forEach(id => {
+    $(id).classList.toggle('is-current', id === current);
+  });
+
+  presetButtons.forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.n) === n)));
+  nSlider.setAttribute('aria-valuetext', 'n = ' + n);
+  dSlider.setAttribute('aria-valuetext', 'δ* = ' + state.dStar);
+
+  drawChart(se, tc);
+}
+
+nSlider.addEventListener('input', () => {
+  state.n = Math.max(10, Math.round(Math.pow(10, Number(nSlider.value))));
+  update();
+});
+dSlider.addEventListener('input', () => {
+  state.dStar = Number(dSlider.value);
+  update();
+});
+presetButtons.forEach(b => b.addEventListener('click', () => {
+  state.n = Number(b.dataset.n);
+  nSlider.value = String(Math.log10(state.n));
+  update();
+}));
+
+let resizeTimer = null;
+if ('ResizeObserver' in window) {
+  new ResizeObserver(() => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(update, 60);
+  }).observe(chartBox);
+}
+
+state.n = 5000;
+state.dStar = Number(dSlider.value) || 2;
+update();
+</script>
+
+</body></html>
