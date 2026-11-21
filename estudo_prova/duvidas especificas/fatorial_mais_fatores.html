@@ -1,0 +1,1342 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fatorial com Mais de 2 Fatores</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&family=STIX+Two+Text:ital@0;1&display=swap">
+<style>
+:root{
+  /* Layout: o mesmo caderno de laboratório do Roteiro RCBD. Trilho com os 8 passos à esquerda (vira faixa rolável no celular); um passo por vez numa coluna de leitura de ~72ch. */
+  --paper:#f4f6fa; --card:#ffffff; --ink:#172033; --muted:#586379; --line:#d7dde9;
+  --accent:#2445c4; --accent-ink:#ffffff; --accent-soft:#e6ebfa;
+  --amber:#a35200; --amber-soft:#fcefdc; --good:#1b7246; --good-soft:#e1f2e8; --bad:#ad2a20; --bad-soft:#fae5e2;
+  --code:#ebeef5; --grid:rgba(36,69,196,.075);
+  --t1:#2445c4; --t2:#b04e0a; --t3:#1b7246; --t4:#7a3fb8; --t5:#0f7480; --t6:#b02a55; --t7:#7d6300; --t-ink:#ffffff;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --f-math:"STIX Two Text","Cambria Math","Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0e131d; --card:#151c29; --ink:#e4e9f2; --muted:#9aa5b9; --line:#29334a;
+    --accent:#8fa6ff; --accent-ink:#0e131d; --accent-soft:#1b2646;
+    --amber:#f0a24a; --amber-soft:#2c2213; --good:#5fd39a; --good-soft:#11281d; --bad:#ff8b7f; --bad-soft:#331a1a;
+    --code:#1a2232; --grid:rgba(143,166,255,.06);
+    --t1:#8fa6ff; --t2:#f5a061; --t3:#5fd39a; --t4:#c7a2f5; --t5:#5cc9d6; --t6:#f483a4; --t7:#dcbb4a; --t-ink:#0e131d;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0e131d; --card:#151c29; --ink:#e4e9f2; --muted:#9aa5b9; --line:#29334a;
+  --accent:#8fa6ff; --accent-ink:#0e131d; --accent-soft:#1b2646;
+  --amber:#f0a24a; --amber-soft:#2c2213; --good:#5fd39a; --good-soft:#11281d; --bad:#ff8b7f; --bad-soft:#331a1a;
+  --code:#1a2232; --grid:rgba(143,166,255,.06);
+  --t1:#8fa6ff; --t2:#f5a061; --t3:#5fd39a; --t4:#c7a2f5; --t5:#5cc9d6; --t6:#f483a4; --t7:#dcbb4a; --t-ink:#0e131d;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:1.0625rem;line-height:1.62}
+a{color:var(--accent);text-underline-offset:.15em}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--code);padding:.05em .35em;border-radius:4px}
+sub,sup{line-height:0}
+.sx{display:inline-flex;flex-direction:column;vertical-align:-.5em;font-size:.68em;line-height:1.05;margin-left:.04em}
+.sx span{display:block}
+
+/* topo */
+.hero{background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px;border-bottom:1px solid var(--line)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.hero .wrap{padding-block:2rem 1.5rem}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 .4rem}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(2.1rem,5vw,3rem);line-height:1.04;margin:0 0 .55rem;letter-spacing:-.015em;text-wrap:balance}
+.sub{max-width:70ch;margin:0;color:var(--muted)}
+.meter{display:flex;align-items:center;gap:.75rem;margin-top:1rem;font-family:var(--f-mono);font-size:.76rem;color:var(--muted);flex-wrap:wrap}
+.meter .bar{flex:0 1 200px;width:200px;height:6px;background:var(--line);border-radius:99px;overflow:hidden}
+.meter .bar i{display:block;height:100%;width:0;background:var(--good);transition:width .4s}
+
+/* casca */
+.shell{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:1.6rem 4rem;display:grid;grid-template-columns:236px minmax(0,1fr);gap:2.6rem;align-items:start}
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 1rem)}
+.rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.12rem}
+.rail .ph{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);padding:.95rem .5rem .3rem}
+.rail .ph:first-child{padding-top:0}
+.ri{display:flex;align-items:center;gap:.6rem;padding:.4rem .5rem;border-radius:8px;color:var(--ink);text-decoration:none;font-size:.94rem;line-height:1.25}
+.ri:hover{background:var(--accent-soft)}
+.ri .n{flex:none;width:1.65rem;height:1.65rem;border-radius:50%;display:grid;place-items:center;font-family:var(--f-mono);font-size:.74rem;font-weight:600;border:1.5px solid var(--line);color:var(--muted);background:var(--card)}
+.ri.ok .n{border-color:var(--good);color:var(--good);background:var(--good-soft)}
+.ri.miss .n{border-color:var(--amber);color:var(--amber);background:var(--amber-soft)}
+.ri[aria-current="step"]{background:var(--accent-soft);font-weight:700}
+.ri[aria-current="step"] .n{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+@media (max-width:880px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:1.1rem;padding-top:1rem}
+  .rail{position:static}
+  .rail ol{flex-direction:row;overflow-x:auto;gap:.3rem;padding-bottom:.45rem;scrollbar-width:thin}
+  .rail .ph{display:none}
+  .ri{flex:none;padding:.3rem}
+  .ri .t{display:none}
+  .ri[aria-current="step"] .t{display:inline;white-space:nowrap;padding-right:.45rem}
+}
+
+/* passo */
+main{min-width:0}
+.step{max-width:760px}
+.step h2{font-family:var(--f-display);font-weight:700;font-size:clamp(1.6rem,3.4vw,2.15rem);line-height:1.1;margin:.15rem 0 .8rem;text-wrap:balance;letter-spacing:-.01em}
+.step h3{font-family:var(--f-display);font-weight:600;font-size:1.12rem;margin:1.9rem 0 .5rem;text-wrap:balance}
+.lead{font-size:1.13rem;margin:0 0 1.1rem}
+.step p{margin:.6rem 0}
+.step ul,.step ol.plain{padding-left:1.25rem;margin:.6rem 0}
+.step li{margin:.28rem 0}
+.widget{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1rem 1.1rem 1.15rem;margin:1.3rem 0;min-width:0}
+.wh{display:flex;justify-content:space-between;align-items:baseline;gap:.4rem 1rem;flex-wrap:wrap;margin-bottom:.75rem}
+.wh h3{margin:0;font-size:1.02rem}
+.wh .tag{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.note{background:var(--accent-soft);border-radius:10px;padding:.75rem 1rem;margin:1rem 0}
+.note .tag{display:block;font-family:var(--f-mono);font-size:.64rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.15rem}
+.note.warn{background:var(--amber-soft)} .note.warn .tag{color:var(--amber)}
+.note.ex{background:var(--code)} .note.ex .tag{color:var(--muted)}
+.note p{margin:.3rem 0}
+.formula{font-family:var(--f-math);font-size:1.18rem;background:var(--code);border-radius:8px;padding:.7rem 1rem;margin:.8rem 0;overflow-x:auto;line-height:1.7}
+.formula small{display:block;font-family:var(--f-body);font-size:.82rem;color:var(--muted);margin-top:.2rem;line-height:1.45}
+pre.r{font-family:var(--f-mono);font-size:.8rem;line-height:1.55;background:var(--code);border-radius:8px;padding:.8rem 1rem;overflow-x:auto;margin:.8rem 0;white-space:pre;tab-size:2}
+pre.r .c{color:var(--muted)}
+.src{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);margin-top:1.8rem;padding-top:.8rem;border-top:1px dashed var(--line)}
+.hint{font-size:.84rem;color:var(--muted);margin:.6rem 0 0}
+
+/* controles */
+.btn{font:inherit;font-size:.92rem;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:.4rem .85rem;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.small{font-size:.8rem;padding:.25rem .6rem}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--card)}
+.seg button{font:inherit;font-size:.88rem;border:0;background:transparent;color:var(--ink);padding:.38rem .75rem;cursor:pointer}
+.seg button + button{border-left:1.5px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.seg.mono button{font-family:var(--f-mono);font-size:.82rem;padding:.38rem .62rem}
+.row{display:flex;flex-wrap:wrap;gap:.6rem 1.1rem;align-items:center}
+.sl{display:flex;align-items:center;gap:.5rem;font-size:.9rem;flex-wrap:wrap}
+.sl select{font:inherit;font-size:.88rem;padding:.25rem .4rem;border-radius:6px;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+.v{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:600}
+.scroll{overflow-x:auto;padding-bottom:.3rem}
+.readout{margin-top:.8rem;font-size:.95rem;min-height:3em}
+.chk{display:flex;gap:.45rem;align-items:center;font-size:.88rem;cursor:pointer;font-family:var(--f-mono)}
+.chk input{accent-color:var(--accent);width:1rem;height:1rem}
+.chks{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.35rem .9rem;margin:.2rem 0 .4rem}
+.presets{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+.lvls{display:flex;flex-wrap:wrap;gap:.5rem 1.2rem;margin-top:.75rem}
+
+/* blocos de números */
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6rem;margin:1rem 0}
+@media (max-width:640px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{border:1px solid var(--line);border-radius:10px;padding:.6rem .75rem;background:var(--paper);min-width:0}
+.tile .k{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tile b{display:block;font-family:var(--f-display);font-size:1.55rem;font-variant-numeric:tabular-nums;line-height:1.2}
+.tile span.d{display:block;font-size:.8rem;color:var(--muted);line-height:1.35;overflow-wrap:anywhere}
+.tile.bad{border-color:var(--bad);background:var(--bad-soft)} .tile.bad b{color:var(--bad)}
+.chip{display:inline-block;font-family:var(--f-mono);font-size:.78rem;border-radius:6px;padding:.05rem .45rem;margin:.12rem .25rem .12rem 0;background:var(--code);white-space:nowrap}
+.chip i{font-style:normal;color:var(--muted)}
+
+/* tabelas */
+table.t{border-collapse:collapse;width:100%;font-size:.9rem}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:.42rem .55rem;text-align:left;vertical-align:top}
+table.t th{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+table.t td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+table.t td.mono{font-family:var(--f-mono);font-size:.82rem}
+table.t tr.res td{background:var(--code)}
+table.t tr.tot td{font-weight:700}
+
+/* modelo */
+.model{font-family:var(--f-math);font-size:1.4rem;display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .35rem}
+.model .term{font:inherit;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:0 .45rem;cursor:pointer;line-height:1.6}
+.model .term[data-o="1"]{box-shadow:inset 0 -3px 0 var(--t1)}
+.model .term[data-o="2"]{box-shadow:inset 0 -3px 0 var(--t3)}
+.model .term[data-o="3"]{box-shadow:inset 0 -3px 0 var(--t4)}
+.model .term[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.olegend{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.82rem;color:var(--muted);margin-top:.7rem}
+.olegend span{display:flex;align-items:center;gap:.4rem}
+.olegend i{width:16px;height:4px;border-radius:2px;display:inline-block}
+.termdesc{margin-top:.8rem;min-height:6.5em;font-size:.95rem;border-top:1px solid var(--line);padding-top:.7rem}
+.termdesc strong{font-family:var(--f-display);font-size:1.05rem}
+.termdesc .hyp{font-family:var(--f-math);font-size:1.05rem}
+
+/* gráficos */
+svg.plot{display:block;width:100%;height:auto}
+svg.plot text{fill:var(--ink);font-family:var(--f-mono);font-size:11px}
+svg.plot text.mut{fill:var(--muted)}
+svg.plot .gl{stroke:var(--line);stroke-width:1;fill:none}
+svg.plot .ax{stroke:var(--muted);stroke-width:1;fill:none}
+svg.plot .ln{stroke-width:2.5;fill:none}
+svg.plot .ln.s-lo{stroke:var(--amber)} svg.plot .ln.s-hi{stroke:var(--accent)} svg.plot .ln.s-one{stroke:var(--t5)}
+svg.plot circle.s-lo{fill:var(--amber)} svg.plot circle.s-hi{fill:var(--accent)} svg.plot circle.s-one{fill:var(--t5)}
+.ilegend{display:flex;flex-wrap:wrap;gap:.3rem 1.2rem;font-size:.88rem;margin:.8rem 0 .2rem}
+.ilegend span{display:flex;align-items:center;gap:.45rem}
+.ilegend i{width:22px;height:3px;border-radius:2px;display:inline-block}
+.panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem 1rem;margin-top:.4rem}
+.panels.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:600px){.panels,.panels.three{grid-template-columns:minmax(0,1fr)}}
+.pan{margin:0;border:1px solid var(--line);border-radius:10px;padding:.55rem .6rem .6rem;background:var(--paper);min-width:0}
+.pan figcaption{font-weight:700;font-size:.88rem;line-height:1.3}
+.pan .pcap{font-size:.84rem;margin:.3rem 0 0;line-height:1.45}
+.pan svg{max-width:340px;margin:0 auto}
+
+/* cubo */
+svg.cube{max-width:560px;margin:0 auto}
+svg.cube .face.plus{fill:var(--accent);fill-opacity:.13}
+svg.cube .face.minus{fill:var(--amber);fill-opacity:.15}
+svg.cube .edge{stroke:var(--muted);stroke-width:1.5;fill:none}
+svg.cube .edge.hid{stroke-dasharray:5 5;opacity:.55}
+svg.cube g.node{cursor:pointer}
+svg.cube g.node .ring{fill:var(--card);stroke-width:3}
+svg.cube g.node.plus .ring{stroke:var(--accent)}
+svg.cube g.node.minus .ring{stroke:var(--amber)}
+svg.cube g.node.sel .ring{stroke-width:5}
+svg.cube g.node:focus{outline:none}
+svg.cube g.node:focus-visible .ring{stroke:var(--ink)}
+svg.cube g.node text.val{font-size:14px;font-weight:600}
+svg.cube g.node text.id{font-size:10px;fill:var(--muted)}
+svg.cube .badge.plus{fill:var(--accent)} svg.cube .badge.minus{fill:var(--amber)}
+svg.cube text.bt{fill:var(--t-ink);font-size:12px;font-weight:600}
+svg.cube text.axl{font-size:12px;fill:var(--muted)}
+table.sg{border-collapse:collapse;font-family:var(--f-mono);font-size:.82rem;width:100%;min-width:500px;margin-top:.9rem}
+table.sg th,table.sg td{border-bottom:1px solid var(--line);padding:.28rem .35rem;text-align:center}
+table.sg th{font-size:.7rem;color:var(--muted);font-weight:600}
+table.sg th button{font:inherit;font-size:.74rem;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;padding:.1rem .4rem;cursor:pointer}
+table.sg th button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+table.sg td.p{color:var(--accent);font-weight:600}
+table.sg td.m{color:var(--amber);font-weight:600}
+table.sg td.on,table.sg th.on{background:var(--accent-soft)}
+table.sg tbody tr{cursor:pointer}
+table.sg tbody tr:hover td{background:var(--code)}
+table.sg tbody tr.sel td{background:var(--code);font-weight:700}
+table.sg td.y{text-align:right;font-variant-numeric:tabular-nums}
+table.sg td.lot{text-align:left}
+
+/* SQ */
+.ssbar{display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:var(--paper);margin-top:1rem}
+.ssbar span{display:block;height:100%;min-width:3px;transition:opacity .3s}
+.ssbar span.dim{opacity:.28}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.3rem 1rem;margin-top:.7rem;font-size:.88rem}
+.legend div{display:flex;gap:.5rem;align-items:center}
+.legend i{width:12px;height:12px;border-radius:3px;flex:none}
+.legend .num{margin-left:auto;font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.8rem;white-space:nowrap}
+.calc{font-family:var(--f-mono);font-size:.84rem;line-height:1.7;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:.6rem .8rem;margin-top:.8rem;overflow-x:auto}
+.calc .ok{color:var(--good);font-weight:600}
+
+/* Daniel */
+svg.dan{min-width:480px;max-width:620px}
+svg.dan g.pt{cursor:pointer}
+svg.dan g.pt circle{fill:var(--accent);stroke:var(--accent);stroke-width:2.5}
+svg.dan g.pt.out circle{fill:var(--card);stroke:var(--muted)}
+svg.dan g.pt.out text{fill:var(--muted)}
+svg.dan g.pt:focus{outline:none}
+svg.dan g.pt:focus-visible circle{stroke:var(--ink);stroke-width:3.5}
+svg.dan .qq{stroke:var(--amber);stroke-width:1.8;stroke-dasharray:6 4;fill:none}
+.dkey{display:flex;flex-wrap:wrap;gap:.3rem 1.2rem;font-size:.85rem;color:var(--muted);margin-top:.4rem}
+.dkey span{display:flex;align-items:center;gap:.4rem}
+.dkey i{width:12px;height:12px;border-radius:50%;display:inline-block;border:2.5px solid var(--accent);background:var(--accent)}
+.dkey i.o{border-color:var(--muted);background:var(--card)}
+
+.pill{display:inline-block;font-family:var(--f-mono);font-size:.66rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:.1rem .5rem;border-radius:99px;white-space:nowrap}
+.pill.yes{background:var(--good-soft);color:var(--good)} .pill.no{background:var(--amber-soft);color:var(--amber)}
+
+/* checagem */
+.quiz{margin-top:2rem;border:1.5px dashed var(--line);border-radius:12px;padding:1rem 1.1rem}
+.quiz .qh{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.quiz p.q{font-weight:700;margin:.3rem 0 .75rem}
+.quiz .opts{display:grid;gap:.45rem}
+.quiz .opts button{text-align:left;font:inherit;font-size:.95rem;padding:.55rem .8rem;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);cursor:pointer}
+.quiz .opts button:hover:not(:disabled){border-color:var(--accent)}
+.quiz .opts button:disabled{cursor:default}
+.quiz .opts button.right{border-color:var(--good);background:var(--good-soft)}
+.quiz .opts button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.quiz .fb{margin-top:.75rem;font-size:.95rem}
+.linkish{font:inherit;font-size:.88rem;background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;text-underline-offset:.15em;cursor:pointer;margin-left:.3rem}
+
+/* paginação */
+.pager{max-width:760px;display:flex;justify-content:space-between;gap:.8rem;margin-top:2.2rem;flex-wrap:wrap}
+.pager a{display:flex;flex-direction:column;gap:.1rem;text-decoration:none;color:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:.6rem .9rem;flex:1 1 220px;min-width:0;background:var(--card)}
+.pager a small{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.pager a span{font-weight:700}
+.pager a.next{text-align:right}
+.pager a:hover{border-color:var(--accent)}
+.kbd{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);margin-top:.8rem}
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">EEE933 · Aula 11 · Experimento fatorial</p>
+    <h1>Fatorial com mais de 2 fatores</h1>
+    <p class="sub">Do modelo com 3 fatores à análise de um 2³ sem réplicas, em 8 passos. Conteúdo e números vêm de <code>Slides/11_ExpFatorial.pdf</code> (seções 2.4 e 2.5) e de <code>codigos/11-Planejamento_Fatorial/</code> (<code>ExpFatorial.R</code> e <code>lio.txt</code>), com o exemplo das lentes intraoculares.</p>
+    <div class="meter"><span class="bar"><i id="meterbar"></i></span><span id="metertxt">0 de 8 checagens certas</span></div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" aria-label="Passos do roteiro">
+    <ol id="railol">
+      <li class="ph" aria-hidden="true">Entender</li>
+      <li><a class="ri" href="#passo-1" data-id="passo-1"><span class="n">1</span><span class="t">De 2 para k fatores</span></a></li>
+      <li><a class="ri" href="#passo-2" data-id="passo-2"><span class="n">2</span><span class="t">O modelo com 3 fatores</span></a></li>
+      <li><a class="ri" href="#passo-3" data-id="passo-3"><span class="n">3</span><span class="t">Interação de 3ª ordem</span></a></li>
+      <li class="ph" aria-hidden="true">Calcular</li>
+      <li><a class="ri" href="#passo-4" data-id="passo-4"><span class="n">4</span><span class="t">O cubo 2³ e os efeitos</span></a></li>
+      <li><a class="ri" href="#passo-5" data-id="passo-5"><span class="n">5</span><span class="t">Somas de quadrados</span></a></li>
+      <li class="ph" aria-hidden="true">Analisar</li>
+      <li><a class="ri" href="#passo-6" data-id="passo-6"><span class="n">6</span><span class="t">Sem réplica: Daniel</span></a></li>
+      <li><a class="ri" href="#passo-7" data-id="passo-7"><span class="n">7</span><span class="t">Modelo reduzido e F</span></a></li>
+      <li><a class="ri" href="#passo-8" data-id="passo-8"><span class="n">8</span><span class="t">Comparações e conclusão</span></a></li>
+      <li class="ph" aria-hidden="true">Revisar</li>
+      <li><a class="ri" href="#resumo" data-id="resumo"><span class="n">≡</span><span class="t">Resumo e roteiro</span></a></li>
+    </ol>
+  </nav>
+
+  <main id="main">
+
+<!-- ============================================================ PASSO 1 -->
+<section class="step" data-id="passo-1" aria-labelledby="h-1">
+  <p class="eyebrow">Passo 1 de 8 · Entender</p>
+  <h2 id="h-1">Some um fator e veja o experimento crescer</h2>
+  <p class="lead">Num experimento fatorial, todas as combinações de todos os níveis dos fatores são avaliadas (slide 2). Com <i>a</i> níveis de A, <i>b</i> de B, <i>c</i> de C e <i>n</i> repetições por combinação, são <i>abc</i>…<i>n</i> observações (slide 28). Cada fator a mais multiplica o tamanho do experimento e acrescenta termos ao modelo.</p>
+
+  <div class="widget">
+    <div class="wh"><h3>Monte um fatorial</h3><span class="tag">Interativo</span></div>
+    <div class="row">
+      <div class="sl"><span>Fatores</span>
+        <div class="seg" id="b-k" role="group" aria-label="Número de fatores">
+          <button type="button" data-k="2">2</button><button type="button" data-k="3">3</button><button type="button" data-k="4">4</button><button type="button" data-k="5">5</button>
+        </div>
+      </div>
+      <label class="sl" for="b-n">Repetições por combinação (<i>n</i>) <select id="b-n"></select></label>
+    </div>
+    <div class="lvls" id="b-lv"></div>
+    <div class="tiles" id="b-tiles"></div>
+    <div class="scroll"><table class="t" id="b-tab"></table></div>
+    <p class="readout" id="b-read" aria-live="polite"></p>
+    <div class="presets"><span>Exemplos da aula:</span>
+      <button type="button" class="btn small" data-bp="mot">Motores (slide 5): 2 × 3, n = 20</button>
+      <button type="button" class="btn small" data-bp="lio">Lentes (slide 36): 2 × 2 × 2, n = 1</button>
+    </div>
+  </div>
+
+  <h3>Quantos termos o modelo ganha</h3>
+  <p>Com <i>k</i> fatores, o modelo tem <i>k</i> efeitos principais, uma interação de 2ª ordem para cada par de fatores, uma de 3ª ordem para cada trio, e assim por diante até a interação de todos os <i>k</i>. São 2<sup><i>k</i></sup> − 1 termos testáveis: 3 com dois fatores, 7 com três, 15 com quatro.</p>
+  <p>Os graus de liberdade seguem a regra do caso com 2 fatores (slide 13). Um efeito principal tem (níveis − 1) gl, e uma interação tem o produto dos (níveis − 1) de cada fator envolvido. O resíduo fica com <i>abc</i>…(<i>n</i> − 1) gl.</p>
+
+  <div class="note warn"><span class="tag">Por que n ≥ 2 importa</span>
+    <p>Com <i>n</i> = 1, não sobra nenhum gl para o resíduo e não há como estimar σ². O slide 12 já avisa, para 2 fatores, que é preciso <i>n</i> ≥ 2 para distinguir SS<sub>AB</sub> de SS<sub>E</sub>. Clique no exemplo das lentes acima para ver o problema.</p>
+  </div>
+  <div class="note ex"><span class="tag">Exemplo da aula</span>
+    <p>Dois engenheiros estudaram a porcentagem de lentes intraoculares que atendem às especificações. Escolheram três fatores com dois níveis cada: tempo do torno CNC, tempo de polimento e idade da ferramenta de corte. Os recursos davam para exatamente 8 lotes de 30 lentes, um lote por combinação (slides 35–36).</p>
+  </div>
+
+  <div class="quiz"></div>
+  <p class="src">Fonte: 11_ExpFatorial.pdf, slides 2, 12–13, 17, 28–29, 35–36</p>
+</section>
+
+<!-- ============================================================ PASSO 2 -->
+<section class="step" data-id="passo-2" aria-labelledby="h-2" hidden>
+  <p class="eyebrow">Passo 2 de 8 · Entender</p>
+  <h2 id="h-2">Leia o modelo com 3 fatores termo a termo</h2>
+  <p class="lead">O modelo de 3 fatores é a generalização direta do modelo de 2 (slide 29). Cada termo é um desvio em relação à média global e, por construção, os efeitos de cada termo somam zero em cada índice, como no slide 10. Clique em um termo para ver o que ele mede.</p>
+
+  <div class="widget">
+    <div class="wh"><h3>O modelo do slide 29</h3><span class="tag">Interativo</span></div>
+    <div class="model" id="m-eq" role="group" aria-label="Termos do modelo">
+      <span><i>y</i><sub>ijkl</sub> =</span>
+      <button type="button" class="term" data-t="mu" data-o="0">μ</button><span>+</span>
+      <button type="button" class="term" data-t="A" data-o="1">τ<sub>i</sub></button><span>+</span>
+      <button type="button" class="term" data-t="B" data-o="1">β<sub>j</sub></button><span>+</span>
+      <button type="button" class="term" data-t="C" data-o="1">γ<sub>k</sub></button><span>+</span>
+      <button type="button" class="term" data-t="AB" data-o="2">(τβ)<sub>ij</sub></button><span>+</span>
+      <button type="button" class="term" data-t="AC" data-o="2">(τγ)<sub>ik</sub></button><span>+</span>
+      <button type="button" class="term" data-t="BC" data-o="2">(βγ)<sub>jk</sub></button><span>+</span>
+      <button type="button" class="term" data-t="ABC" data-o="3">(τβγ)<sub>ijk</sub></button><span>+</span>
+      <button type="button" class="term" data-t="E" data-o="0">ε<sub>ijkl</sub></button>
+    </div>
+    <div class="olegend">
+      <span><i style="background:var(--t1)"></i>efeitos principais</span>
+      <span><i style="background:var(--t3)"></i>interações de 2ª ordem</span>
+      <span><i style="background:var(--t4)"></i>interação de 3ª ordem</span>
+    </div>
+    <div class="termdesc" id="m-desc" aria-live="polite"></div>
+  </div>
+
+  <h3>As hipóteses que a ANOVA testa</h3>
+  <p>Como no slide 11, cada termo testável tem a sua hipótese nula, todas com o mesmo formato: o termo inteiro é zero.</p>
+  <div class="scroll">
+    <table class="t">
+      <thead><tr><th>Termo</th><th>H<sub>0</sub></th><th>gl</th><th>Nome no R (lentes)</th></tr></thead>
+      <tbody>
+        <tr><td>Efeito principal de A</td><td>τ<sub>i</sub> = 0 para todo <i>i</i></td><td><i>a</i> − 1</td><td class="mono">CNCTime</td></tr>
+        <tr><td>Efeito principal de B</td><td>β<sub>j</sub> = 0 para todo <i>j</i></td><td><i>b</i> − 1</td><td class="mono">PolTime</td></tr>
+        <tr><td>Efeito principal de C</td><td>γ<sub>k</sub> = 0 para todo <i>k</i></td><td><i>c</i> − 1</td><td class="mono">ToolAge</td></tr>
+        <tr><td>Interação AB</td><td>(τβ)<sub>ij</sub> = 0 para todo <i>i</i>, <i>j</i></td><td>(<i>a</i> − 1)(<i>b</i> − 1)</td><td class="mono">CNCTime:PolTime</td></tr>
+        <tr><td>Interação AC</td><td>(τγ)<sub>ik</sub> = 0 para todo <i>i</i>, <i>k</i></td><td>(<i>a</i> − 1)(<i>c</i> − 1)</td><td class="mono">CNCTime:ToolAge</td></tr>
+        <tr><td>Interação BC</td><td>(βγ)<sub>jk</sub> = 0 para todo <i>j</i>, <i>k</i></td><td>(<i>b</i> − 1)(<i>c</i> − 1)</td><td class="mono">PolTime:ToolAge</td></tr>
+        <tr><td>Interação ABC</td><td>(τβγ)<sub>ijk</sub> = 0 para todo <i>i</i>, <i>j</i>, <i>k</i></td><td>(<i>a</i> − 1)(<i>b</i> − 1)(<i>c</i> − 1)</td><td class="mono">CNCTime:PolTime:ToolAge</td></tr>
+        <tr class="res"><td>Resíduo</td><td>—</td><td><i>abc</i>(<i>n</i> − 1)</td><td class="mono">Residuals</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Cada H<sub>0</sub> é testada com F<sub>0</sub> = MS<sub>termo</sub> / MS<sub>E</sub>. A lógica é a dos slides 14–15: o valor esperado de cada quadrado médio é σ² mais uma parcela que só vale zero quando H<sub>0</sub> é verdadeira. Sob H<sub>0</sub>, F<sub>0</sub> segue uma distribuição F com (gl do termo, gl do resíduo).</p>
+
+  <h3>Como escrever no R</h3>
+<pre class="r"><span class="c"># As três formas ajustam o mesmo modelo completo</span>
+aov(Conf.rate ~ CNCTime * PolTime * ToolAge, data = lentes)
+aov(Conf.rate ~ .^3, data = lentes)   <span class="c"># forma usada no slide 38</span>
+aov(Conf.rate ~ CNCTime + PolTime + ToolAge +
+      CNCTime:PolTime + CNCTime:ToolAge + PolTime:ToolAge +
+      CNCTime:PolTime:ToolAge, data = lentes)
+
+<span class="c"># Só os efeitos principais (slide 42)</span>
+aov(Conf.rate ~ ., data = lentes)</pre>
+  <p>O <code>.</code> quer dizer "todas as outras colunas", e o <code>^3</code> pede todas as interações até a 3ª ordem.</p>
+
+  <div class="quiz"></div>
+  <p class="src">Fonte: 11_ExpFatorial.pdf, slides 9–15, 29, 38, 42 · ExpFatorial.R, seções 8–9</p>
+</section>
+
+<!-- ============================================================ PASSO 3 -->
+<section class="step" data-id="passo-3" aria-labelledby="h-3" hidden>
+  <p class="eyebrow">Passo 3 de 8 · Entender</p>
+  <h2 id="h-3">Entenda o que é uma interação de 3ª ordem</h2>
+  <p class="lead">Há interação quando a resposta a mudanças de um fator depende do nível de outro (slide 2). Com três fatores, a ideia sobe um degrau: existe interação ABC quando a própria interação entre dois fatores muda conforme o nível do terceiro.</p>
+  <p>Gráficos de interação ajudam a ver isso (slide 3). Linhas paralelas indicam que não há interação entre os dois fatores do gráfico; linhas que se afastam ou se cruzam indicam interação. Abaixo estão os 8 lotes das lentes, separados em dois painéis pelo nível de um dos fatores.</p>
+
+  <div class="widget">
+    <div class="wh"><h3>Gráfico de interação das lentes</h3><span class="tag">Interativo</span></div>
+    <div class="row"><span class="sl">Separar os painéis por</span>
+      <div class="seg" id="i-by" role="group" aria-label="Fator que separa os painéis">
+        <button type="button" data-p="C">Idade da ferramenta</button><button type="button" data-p="B">Tempo de polimento</button><button type="button" data-p="A">Tempo do torno</button>
+      </div>
+    </div>
+    <div class="ilegend" id="i-leg"></div>
+    <div class="panels" id="i-panels"></div>
+    <div class="readout" id="i-read" aria-live="polite"></div>
+  </div>
+
+  <p>Com os painéis separados pela idade da ferramenta, a ferramenta nova dá linhas paralelas: o polimento de 7 dias acrescenta 0,20 tanto com torno curto quanto com torno longo. Com a ferramenta velha, o ganho do polimento é de 0,30 com torno curto e só 0,13 com torno longo. A interação entre torno e polimento aparece em um painel e não no outro, e é essa mudança que a interação de 3ª ordem mede.</p>
+
+  <h3>A conta por trás</h3>
+  <div class="formula">
+    Interação de 2ª ordem dentro de um painel: <i>XL</i> = ½ [ (efeito de <i>L</i> com <i>X</i> em +) − (efeito de <i>L</i> com <i>X</i> em −) ]<br>
+    Interação de 3ª ordem: <i>ABC</i> = ½ [ (<i>XL</i> no painel +) − (<i>XL</i> no painel −) ]
+    <small>É a forma usual de definir efeitos num planejamento com 2 níveis por fator. O passo 4 faz a mesma conta como média dos lotes + menos média dos lotes −, e chega aos mesmos números.</small>
+  </div>
+  <p>Troque o fator que separa os painéis: o valor final de ABC não muda. A interação de 3ª ordem é simétrica, então tanto faz perguntar se AB muda com C, se AC muda com B ou se BC muda com A.</p>
+
+  <div class="note warn"><span class="tag">Cuidado com o tamanho</span>
+    <p>Com um lote por combinação, essa diferença pode ser só ruído. A soma de quadrados da interação de 3ª ordem é 0,0036, contra 0,5151 do tempo do torno (slide 38). Os passos 6 e 7 mostram por que a aula descarta esse termo.</p>
+  </div>
+
+  <div class="quiz"></div>
+  <p class="src">Fonte: 11_ExpFatorial.pdf, slides 2–3, 29, 38 · lio.txt</p>
+</section>
+
+<!-- ============================================================ PASSO 4 -->
+<section class="step" data-id="passo-4" aria-labelledby="h-4" hidden>
+  <p class="eyebrow">Passo 4 de 8 · Calcular</p>
+  <h2 id="h-4">Veja o 2³ como um cubo e calcule cada efeito</h2>
+  <p class="lead">Com três fatores de dois níveis, as 8 combinações são os vértices de um cubo. Cada efeito compara a média de 4 lotes com a média dos outros 4. Escolha um efeito e veja quais lotes entram com sinal + e quais entram com sinal −.</p>
+
+  <div class="widget">
+    <div class="wh"><h3>O cubo das lentes</h3><span class="tag">Interativo</span></div>
+    <div class="seg mono" id="c-term" role="group" aria-label="Efeito">
+      <button type="button" data-t="A">A</button><button type="button" data-t="B">B</button><button type="button" data-t="C">C</button><button type="button" data-t="AB">AB</button><button type="button" data-t="AC">AC</button><button type="button" data-t="BC">BC</button><button type="button" data-t="ABC">ABC</button>
+    </div>
+    <svg id="c-svg" class="plot cube" viewBox="0 0 520 372" role="img" aria-label="Cubo do planejamento 2 ao cubo com a proporção de lentes conformes em cada vértice"></svg>
+    <div class="readout" id="c-read" aria-live="polite"></div>
+    <div class="scroll"><table class="sg" id="c-tab"></table></div>
+    <p class="hint">Clique num vértice ou numa linha da tabela para ver o lote. O cabeçalho das colunas também troca o efeito.</p>
+  </div>
+
+  <h3>Os fatores e os níveis</h3>
+  <div class="scroll">
+    <table class="t">
+      <thead><tr><th>Fator</th><th>Nível −</th><th>Nível +</th><th>No lio.txt</th></tr></thead>
+      <tbody>
+        <tr><td>A · Tempo do torno</td><td>2,35 min</td><td>3,15 min</td><td class="mono">CNCTime: short / long</td></tr>
+        <tr><td>B · Tempo de polimento</td><td>5 dias</td><td>7 dias</td><td class="mono">PolTime: short / long</td></tr>
+        <tr><td>C · Idade da ferramenta</td><td>≈400 ciclos (nova)</td><td>≈1200 ciclos (velha)</td><td class="mono">ToolAge: new / old</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Aqui o nível + é sempre o maior valor do fator; para a idade, + é a ferramenta velha. Os nomes dos lotes seguem a notação usual: as letras minúsculas dizem quais fatores estão em +, e (1) é o lote com tudo em −.</p>
+  <p>Num efeito principal, os lotes + formam uma face do cubo, e o efeito é a diferença entre duas faces opostas. Numa interação, o sinal de cada lote é o produto dos sinais dos fatores: em AB, o lote tem sinal + quando A e B estão no mesmo nível. Os lotes + ficam em diagonal, e não numa face.</p>
+
+  <div class="note"><span class="tag">Confira com o slide 43</span>
+    <p>O efeito do tempo do torno, +0,5075, e o do polimento, +0,2075, são os valores da coluna <code>Estimate</code> do slide 43 com o sinal trocado: lá o R calcula curto − longo.</p>
+  </div>
+  <div class="note warn"><span class="tag">Unidade experimental</span>
+    <p>Cada vértice é um lote de 30 lentes, e a resposta é a proporção de lentes conformes do lote (slide 36). As 30 lentes não são 30 réplicas: o experimento tem 8 observações, uma por combinação (comentário em ExpFatorial.R, seção 7).</p>
+  </div>
+
+  <div class="quiz"></div>
+  <p class="src">Fonte: 11_ExpFatorial.pdf, slides 35–37, 43 · lio.txt · ExpFatorial.R, seção 7</p>
+</section>
+
+<!-- ============================================================ PASSO 5 -->
+<section class="step" data-id="passo-5" aria-labelledby="h-5" hidden>
+  <p class="eyebrow">Passo 5 de 8 · Calcular</p>
+  <h2 id="h-5">Calcule as somas de quadrados com as fórmulas da aula</h2>
+  <p class="lead">As fórmulas dos slides 30–32 usam totais e um termo de correção. Um ponto no índice indica soma sobre aquele índice: <i>y</i><sub>i···</sub> é o total do nível <i>i</i> de A, e <i>y</i><sub>····</sub> é o total geral. Escolha um termo e acompanhe a conta com os dados das lentes.</p>
+
+  <div class="widget">
+    <div class="wh"><h3>Calculadora das somas de quadrados</h3><span class="tag">Interativo</span></div>
+    <div class="seg mono" id="s-term" role="group" aria-label="Soma de quadrados">
+      <button type="button" data-t="T">Total</button><button type="button" data-t="A">A</button><button type="button" data-t="B">B</button><button type="button" data-t="C">C</button><button type="button" data-t="AB">AB</button><button type="button" data-t="AC">AC</button><button type="button" data-t="BC">BC</button><button type="button" data-t="ABC">ABC</button><button type="button" data-t="E">Resíduo</button>
+    </div>
+    <div class="formula" id="s-form"></div>
+    <div class="scroll"><table class="t" id="s-tab"></table></div>
+    <div class="calc" id="s-calc" aria-live="polite"></div>
+    <div class="ssbar" id="s-bar" aria-hidden="true"></div>
+    <div class="legend" id="s-leg"></div>
+  </div>
+
+  <p>O termo de correção é <i>y</i>²<sub>····</sub>/(<i>abcn</i>) = 4,91² / 8 = 3,0135. Ele aparece em todas as fórmulas.</p>
+  <p>Repare no padrão. Cada interação mede a variação entre os totais das suas células e desconta todos os termos de ordem menor que já estão dentro dela. SS<sub>AB</sub> desconta SS<sub>A</sub> e SS<sub>B</sub>; SS<sub>ABC</sub> desconta os três efeitos principais e as três interações de 2ª ordem (slides 31–32).</p>
+  <div class="note warn"><span class="tag">O resíduo zerado</span>
+    <p>SS<sub>E</sub> = SS<sub>T</sub> menos todas as outras. Com <i>n</i> = 1, as 7 somas de quadrados dos termos somam exatamente SS<sub>T</sub> e o resíduo fica com zero, sem nenhum gl. É por isso que o slide 38 não mostra F.</p>
+  </div>
+
+  <div class="quiz"></div>
+  <p class="src">Fonte: 11_ExpFatorial.pdf, slides 30–32, 38 · lio.txt</p>
+</section>
+
+<!-- ============================================================ PASSO 6 -->
+<section class="step" data-id="passo-6" aria-labelledby="h-6" hidden>
+  <p class="eyebrow">Passo 6 de 8 · Analisar</p>
+  <h2 id="h-6">Sem réplica, escolha o que descartar com o gráfico de Daniel</h2>
+  <p class="lead">As 8 observações das lentes têm 7 gl, e os 7 termos do modelo completo usam todos. O R mostra Df, Sum Sq e Mean Sq, mas sem MS<sub>E</sub> não há F para nenhum termo (slide 38).</p>
+<pre class="r">&gt; model &lt;- aov(Conf.rate ~ .^3, data = data)
+&gt; summary(model)
+                                        Df Sum Sq Mean Sq
+CNCTime.min                              1 0.5151  0.5151
+PolTime.days                             1 0.0861  0.0861
+ToolAge.cycles                           1 0.0105  0.0105
+CNCTime.min:PolTime.days                 1 0.0036  0.0036
+CNCTime.min:ToolAge.cycles               1 0.0001  0.0001
+PolTime.days:ToolAge.cycles              1 0.0001  0.0001
+CNCTime.min:PolTime.days:ToolAge.cycles  1 0.0036  0.0036</pre>
+
+  <h3>Princípio da esparsidade</h3>
+  <p>Para testar, é preciso dar gl ao resíduo. Com uma única repetição, a saída mais usual é descartar os termos de menor influência, começando pelas interações de maior ordem: eles passam a formar o MS<sub>E</sub>. A heurística vem do princípio da esparsidade, segundo o qual os sistemas são dominados por efeitos individuais e de baixa ordem (slide 39).</p>
+  <p>Para decidir o que descartar, o slide 40 usa o gráfico de efeitos de Daniel: os efeitos estimados do modelo saturado num gráfico QQ normal. Efeitos fortes aparecem como pontos fora da reta; efeitos fracos ficam em torno dela.</p>
+
+  <div class="widget">
+    <div class="wh"><h3>Gráfico de efeitos de Daniel</h3><span class="tag">Interativo</span></div>
+    <div class="scroll"><svg id="d-svg" class="plot dan" viewBox="0 0 580 372" role="group" aria-label="Gráfico QQ normal dos 7 efeitos estimados"></svg></div>
+    <div class="dkey"><span><i></i>fica no modelo</span><span><i class="o"></i>vai para o resíduo</span><span>tracejado: reta pelos quartis (qqline)</span></div>
+    <div class="readout" id="d-read" aria-live="polite"></div>
+    <div class="presets"><span>Escolhas prontas:</span>
+      <button type="button" class="btn small" data-dp="slide">A do slide 42: só efeitos principais</button>
+      <button type="button" class="btn small" data-dp="all">Tudo no modelo</button>
+    </div>
+    <p class="hint">Clique num ponto para movê-lo entre o modelo e o resíduo. A escolha segue para o passo 7.</p>
+  </div>
+
+  <p>Nas lentes, o tempo do torno e o tempo de polimento se afastam da reta, e os efeitos de interação ficam perto do zero. É a leitura do slide 41: os efeitos de maior ordem têm pouca influência, o tempo do torno é o mais relevante e o polimento vem em segundo.</p>
+  <div class="note ex"><span class="tag">Escala e sinais</span>
+    <p>Aqui cada efeito é média dos lotes + menos média dos lotes −, com + no maior valor de cada fator. O slide plota <code>model$effects</code>, os componentes QR do <code>aov</code>, que têm outra escala e podem ter outro sinal. O código da aula avisa que eles são proporcionais aos efeitos em magnitude (ExpFatorial.R, seção 8), então os pontos que se destacam são os mesmos.</p>
+  </div>
+  <div class="note warn"><span class="tag">Duas condições</span>
+    <p>O gráfico de Daniel só funciona com 2 níveis por fator, nos planejamentos 2<sup><i>k</i></sup> (slide 40). E descartar um termo é assumir que ele é desprezível: o resíduo do modelo reduzido não é uma estimativa de erro puro (ExpFatorial.R, seção 9).</p>
+  </div>
+<pre class="r"><span class="c"># Como o slide 41 desenha o gráfico</span>
+effect.est &lt;- as.numeric(model$effects[-1])
+qq.text    &lt;- rownames(summary.aov(model)[[1]])
+qq.obj     &lt;- qqnorm(effect.est, datax = TRUE)
+qqline(effect.est, datax = TRUE)
+text(qq.obj$x, qq.obj$y, labels = qq.text)</pre>
+
+  <div class="quiz"></div>
+  <p class="src">Fonte: 11_ExpFatorial.pdf, slides 38–41 · ExpFatorial.R, seções 8–9</p>
+</section>
+
+<!-- ============================================================ PASSO 7 -->
+<section class="step" data-id="passo-7" aria-labelledby="h-7" hidden>
+  <p class="eyebrow">Passo 7 de 8 · Analisar</p>
+  <h2 id="h-7">Teste o modelo reduzido com o F</h2>
+  <p class="lead">Os termos descartados vão para o resíduo: suas somas de quadrados e seus gl se somam e formam o MS<sub>E</sub>. Com ele, cada termo que ficou volta a ter F<sub>0</sub> = MS / MS<sub>E</sub>, comparado com o valor crítico F<sub>1−α; gl<sub>1</sub>; gl<sub>2</sub></sub> (slide 15).</p>
+
+  <div class="widget">
+    <div class="wh"><h3>Monte o modelo reduzido</h3><span class="tag">Interativo</span></div>
+    <div class="chks" id="l-chk" role="group" aria-label="Termos no modelo"></div>
+    <pre class="r" id="l-code"></pre>
+    <div class="scroll"><table class="t" id="l-tab"></table></div>
+    <div class="readout" id="l-read" aria-live="polite"></div>
+    <div class="presets"><span>Caminhos:</span>
+      <button type="button" class="btn small" data-lp="all">Modelo completo (slide 38)</button>
+      <button type="button" class="btn small" data-lp="no3">Sem a interação de 3ª ordem</button>
+      <button type="button" class="btn small" data-lp="slide">Só efeitos principais (slide 42)</button>
+    </div>
+  </div>
+
+  <div class="note"><span class="tag">O F crítico depende do resíduo</span>
+    <p>Com α = 0,05 e 1 gl no termo, o F crítico é 161,4 quando o resíduo tem 1 gl e 7,71 quando tem 4 gl (tabela da distribuição F). Com poucos gl no resíduo, só efeitos muito grandes passam no teste. Só a configuração com os efeitos principais aparece nos slides; as outras usam a mesma conta, com as somas de quadrados do slide 38.</p>
+  </div>
+
+  <h3>O que o slide 42 mostra</h3>
+<pre class="r">&gt; model2 &lt;- aov(Conf.rate ~ ., data = data)
+&gt; summary(model2)
+            Df Sum Sq Mean Sq F value   Pr(&gt;F)
+CNCTime      1 0.5151  0.5151 276.570 7.66e-05 ***
+PolTime      1 0.0861  0.0861  46.235  0.00244 **
+ToolAge      1 0.0105  0.0105   5.644  0.07634 .
+Residuals    4 0.0074  0.0019
+
+&gt; summary.lm(model2)$r.squared
+[1] 0.9879681
+
+&gt; shapiro.test(model2$residuals)
+W = 0.9271, p-value = 0.4902</pre>
+  <p>Tempo do torno e tempo de polimento têm efeito significativo com α = 0,05; a idade da ferramenta não. Os resíduos não mostram desvio de normalidade pelo Shapiro-Wilk.</p>
+  <div class="note warn"><span class="tag">Limites desta análise</span>
+    <p>A ANOVA de proporções é uma aproximação didática: o modelo normal pode prever valores fora de [0, 1]. E não rejeitar o Shapiro-Wilk não comprova normalidade, ainda mais com 8 lotes (ExpFatorial.R, seção 9).</p>
+  </div>
+
+  <div class="quiz"></div>
+  <p class="src">Fonte: 11_ExpFatorial.pdf, slides 15, 38–39, 42 · ExpFatorial.R, seção 9</p>
+</section>
+
+<!-- ============================================================ PASSO 8 -->
+<section class="step" data-id="passo-8" aria-labelledby="h-8" hidden>
+  <p class="eyebrow">Passo 8 de 8 · Analisar</p>
+  <h2 id="h-8">Compare os níveis e transforme o resultado em decisão</h2>
+  <p class="lead">Sem interação no modelo, as comparações entre níveis usam diretamente as médias de cada fator (slide 20). Para comparar dois níveis, t<sub>0</sub> = Δȳ / √(2·MS<sub>E</sub>/<i>n</i>′), em que <i>n</i>′ é o número de observações em cada nível (slides 21–22).</p>
+
+  <div class="widget">
+    <div class="wh"><h3>Médias por nível no modelo reduzido</h3><span class="tag">Interativo</span></div>
+    <div class="panels three" id="e-panels"></div>
+    <p class="hint">Os três painéis usam a mesma escala vertical, para que as inclinações sejam comparáveis. O slide 44 mostra o mesmo gráfico com intervalos de confiança, feito com <code>plot(allEffects(model2))</code>.</p>
+    <div class="row" style="margin-top:.9rem"><span class="sl">Calcular t<sub>0</sub> para</span>
+      <div class="seg" id="e-f" role="group" aria-label="Fator comparado">
+        <button type="button" data-f="A">Tempo do torno</button><button type="button" data-f="B">Tempo de polimento</button>
+      </div>
+    </div>
+    <div class="calc" id="e-calc" aria-live="polite"></div>
+  </div>
+
+<pre class="r">&gt; summary(glht(model2, linfct = mcp(CNCTime = "Tukey")))
+                  Estimate Std. Error t value Pr(&gt;|t|)
+short - long == 0 -0.50750    0.03052  -16.63 7.66e-05 ***
+
+&gt; summary(glht(model2, linfct = mcp(PolTime = "Tukey")))
+                  Estimate Std. Error t value Pr(&gt;|t|)
+short - long == 0 -0.20750    0.03052    -6.8  0.00244 **</pre>
+  <p>Com só dois níveis por fator, cada Tukey tem uma única comparação, e o p-valor é o mesmo da ANOVA do slide 42.</p>
+
+  <h3>O que os engenheiros concluíram</h3>
+  <ul>
+    <li>O tempo do torno é o fator de maior impacto: a proporção de lentes conformes vai de 0,36 para 0,87 com o tempo maior, o que sugere fortemente usar tempos de torno maiores.</li>
+    <li>O tempo de polimento também teve impacto significativo, de 0,51 com 5 dias para 0,72 com 7 dias.</li>
+    <li>Não foi detectada diferença entre ferramentas novas e velhas. Pode não haver efeito, ou a amostra pode ser pequena demais para detectá-lo.</li>
+    <li>Vale explorar mais os tempos de torno e incluir o custo de fabricação na discussão.</li>
+  </ul>
+  <div class="note warn"><span class="tag">Não significativo não é zero</span>
+    <p>O planejamento pedia poder de 0,8 para efeitos de 0,1 (slide 37), mas os recursos só cobriram 8 lotes (slide 35). Por isso a conclusão sobre a ferramenta é "não detectado", e não "não existe" (slide 45).</p>
+  </div>
+
+  <div class="quiz"></div>
+  <p class="src">Fonte: 11_ExpFatorial.pdf, slides 20–22, 37, 42–45 · ExpFatorial.R, seção 10</p>
+</section>
+
+<!-- ============================================================ RESUMO -->
+<section class="step" data-id="resumo" aria-labelledby="h-r" hidden>
+  <p class="eyebrow">Revisar</p>
+  <h2 id="h-r">Resumo do roteiro e variações</h2>
+  <p class="lead">O roteiro abaixo junta o que a aula faz nos dois exemplos: os motores (2 fatores, com repetição) e as lentes (3 fatores, sem repetição).</p>
+
+  <div class="scroll">
+    <table class="t">
+      <thead><tr><th>Fase</th><th>O que fazer</th><th>Onde na aula</th></tr></thead>
+      <tbody>
+        <tr><td>Planejar</td><td>Liste os fatores e escolha os níveis. Com muitos fatores, 2 níveis por fator servem para triagem, como no estudo preliminar das lentes.</td><td class="mono">slides 28, 35–36</td></tr>
+        <tr><td>Planejar</td><td>Conte as combinações (<i>abc</i>…) e decida <i>n</i>. Com <i>n</i> ≥ 2, todas as interações podem ser testadas.</td><td class="mono">slides 12, 28</td></tr>
+        <tr><td>Planejar</td><td>Defina a unidade experimental e aleatorize a ordem. Nas lentes, o lote é a unidade, e o experimento foi totalmente aleatório e parcialmente cego.</td><td class="mono">slides 36–37</td></tr>
+        <tr><td>Analisar</td><td>Ajuste o modelo completo, <code>aov(y ~ A*B*C)</code>.</td><td class="mono">slides 29, 38</td></tr>
+        <tr><td>Analisar</td><td>Se <i>n</i> = 1, use o princípio da esparsidade e o gráfico de Daniel para descartar termos de alta ordem e ajustar o modelo reduzido.</td><td class="mono">slides 39–42</td></tr>
+        <tr><td>Analisar</td><td>Cheque as premissas nos resíduos. A independência vem do planejamento.</td><td class="mono">slides 18, 42</td></tr>
+        <tr><td>Analisar</td><td>Leia os F começando pelas interações. Interação significativa: compare as combinações de níveis. Sem interação: compare os níveis de cada fator.</td><td class="mono">slides 20, 24</td></tr>
+        <tr><td>Concluir</td><td>Faça as comparações múltiplas com o <i>n</i>′ certo e traduza o resultado numa recomendação prática.</td><td class="mono">slides 21–26, 43–45</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Fórmulas gerais para k fatores</h3>
+  <div class="formula">
+    Observações: <i>N</i> = <i>abc</i>…<i>n</i> · termos testáveis: 2<sup><i>k</i></sup> − 1<br>
+    gl de um termo = produto dos (níveis − 1) dos fatores do termo<br>
+    gl do resíduo = <i>abc</i>…(<i>n</i> − 1) · gl total = <i>N</i> − 1<br>
+    F<sub>0</sub> = MS<sub>termo</sub> / MS<sub>E</sub> ~ F(gl do termo, gl do resíduo) sob H<sub>0</sub>
+    <small>Generalização dos slides 13, 15 e 28–32.</small>
+  </div>
+
+  <h3>Variações</h3>
+  <ul>
+    <li><strong>Com repetição (<i>n</i> ≥ 2):</strong> todos os termos são testados direto, como nos motores (slide 17).</li>
+    <li><strong>Fatores com mais de 2 níveis:</strong> as fórmulas são as mesmas, mas o gráfico de Daniel não se aplica (slide 40).</li>
+    <li><strong>Interação significativa:</strong> crie um fator com as combinações, <code>interaction(A, B)</code>, e compare os grupos com Tukey ou com Dunnett, se houver uma referência (slide 24).</li>
+    <li><strong>Blocagem:</strong> no RCBD fatorial, cada bloco contém uma observação de cada combinação de níveis. A modelagem combina esta aula com a de blocagem (slide 46).</li>
+  </ul>
+
+  <h3>Cola de R para as lentes</h3>
+<pre class="r">lentes &lt;- read.table("lio.txt", header = TRUE)
+f &lt;- c("CNCTime", "PolTime", "ToolAge")
+lentes[f] &lt;- lapply(lentes[f], as.factor)
+
+m_sat &lt;- aov(Conf.rate ~ .^3, data = lentes)    <span class="c"># modelo completo (saturado)</span>
+summary(m_sat)                                   <span class="c"># sem F: 0 gl no resíduo</span>
+
+ef &lt;- as.numeric(m_sat$effects[-1])              <span class="c"># gráfico de Daniel</span>
+qqnorm(ef, datax = TRUE); qqline(ef, datax = TRUE)
+
+m_red &lt;- aov(Conf.rate ~ ., data = lentes)       <span class="c"># só efeitos principais</span>
+summary(m_red)
+shapiro.test(m_red$residuals)
+summary(glht(m_red, linfct = mcp(CNCTime = "Tukey")))   <span class="c"># library(multcomp)</span>
+plot(allEffects(m_red))                                  <span class="c"># library(effects)</span></pre>
+  <p class="src">Fonte: 11_ExpFatorial.pdf, slides 12–46 · ExpFatorial.R</p>
+</section>
+
+    <nav class="pager" aria-label="Navegação entre passos">
+      <a id="prev" class="prev" href="#passo-1" hidden><small>← Anterior</small><span></span></a>
+      <a id="next" class="next" href="#passo-2"><small>Próximo →</small><span></span></a>
+    </nav>
+    <p class="kbd">Dica: as setas ← e → do teclado também trocam de passo.</p>
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(s, r){ return (r || document).querySelector(s); };
+  var $$ = function(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var fmt = function(x, d){ return x.toLocaleString('pt-BR', {minimumFractionDigits: d, maximumFractionDigits: d}); };
+  var fmtS = function(x, d){ var s = fmt(Math.abs(x), d); return (x < 0 && s !== fmt(0, d)) ? '−' + s : s; };
+  var sgnS = function(x, d){ var s = fmt(Math.abs(x), d); if (s === fmt(0, d)) return s; return (x < 0 ? '−' : '+') + s; };
+  var par = function(x, d){ var s = fmtS(x, d); return s.charAt(0) === '−' ? '(' + s + ')' : s; };
+  var esc = function(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var ORDER = ['passo-1','passo-2','passo-3','passo-4','passo-5','passo-6','passo-7','passo-8','resumo'];
+  var NAMES = {
+    'passo-1':'De 2 para k fatores', 'passo-2':'O modelo com 3 fatores', 'passo-3':'Interação de 3ª ordem',
+    'passo-4':'O cubo 2³ e os efeitos', 'passo-5':'Somas de quadrados', 'passo-6':'Sem réplica: Daniel',
+    'passo-7':'Modelo reduzido e F', 'passo-8':'Comparações e conclusão', 'resumo':'Resumo e roteiro'
+  };
+
+  /* ---------- dados das lentes (lio.txt), com + no maior valor de cada fator ---------- */
+  var F = {
+    A: {nome:'Tempo do torno', curto:'torno', lo:'2,35 min', hi:'3,15 min', loS:'curto', hiS:'longo', ef:'torno 2,35 → 3,15 min', r:'CNCTime'},
+    B: {nome:'Tempo de polimento', curto:'polimento', lo:'5 dias', hi:'7 dias', loS:'5 d', hiS:'7 d', ef:'polimento 5 → 7 dias', r:'PolTime'},
+    C: {nome:'Idade da ferramenta', curto:'ferramenta', lo:'nova (≈400 ciclos)', hi:'velha (≈1200 ciclos)', loS:'nova', hiS:'velha', ef:'ferramenta nova → velha', r:'ToolAge'}
+  };
+  var RUNS = [
+    {id:'(1)', A:-1, B:-1, C:-1, y:0.30},
+    {id:'a',   A: 1, B:-1, C:-1, y:0.80},
+    {id:'b',   A:-1, B: 1, C:-1, y:0.50},
+    {id:'ab',  A: 1, B: 1, C:-1, y:1.00},
+    {id:'c',   A:-1, B:-1, C: 1, y:0.17},
+    {id:'ac',  A: 1, B:-1, C: 1, y:0.77},
+    {id:'bc',  A:-1, B: 1, C: 1, y:0.47},
+    {id:'abc', A: 1, B: 1, C: 1, y:0.90}
+  ];
+  var TERMS = ['A','B','C','AB','AC','BC','ABC'];
+  var TN = {A:'A (tempo do torno)', B:'B (tempo de polimento)', C:'C (idade da ferramenta)', AB:'AB (torno × polimento)', AC:'AC (torno × ferramenta)', BC:'BC (polimento × ferramenta)', ABC:'ABC (interação de 3ª ordem)'};
+  var RN = {A:'CNCTime', B:'PolTime', C:'ToolAge', AB:'CNCTime:PolTime', AC:'CNCTime:ToolAge', BC:'PolTime:ToolAge', ABC:'CNCTime:PolTime:ToolAge'};
+  var COL = {A:'var(--t1)', B:'var(--t2)', C:'var(--t3)', AB:'var(--t4)', AC:'var(--t5)', BC:'var(--t6)', ABC:'var(--t7)'};
+  var SLIDE38 = {A:'0.5151', B:'0.0861', C:'0.0105', AB:'0.0036', AC:'0.0001', BC:'0.0001', ABC:'0.0036'};
+
+  function sgn(r, t){ var s = 1; for (var i = 0; i < t.length; i++) s *= r[t[i]]; return s; }
+  function lvlText(r){ return 'torno ' + (r.A > 0 ? F.A.hi : F.A.lo) + ', polimento ' + (r.B > 0 ? F.B.hi : F.B.lo) + ', ferramenta ' + (r.C > 0 ? F.C.hi : F.C.lo); }
+
+  var YSUM = 0, Y2 = 0;
+  RUNS.forEach(function(r){ YSUM += r.y; Y2 += r.y * r.y; });
+  var CT = YSUM * YSUM / 8, SST = Y2 - CT;
+  var EFF = {};
+  TERMS.forEach(function(t){
+    var p = 0, m = 0;
+    RUNS.forEach(function(r){ if (sgn(r, t) > 0) p += r.y; else m += r.y; });
+    EFF[t] = (p - m) / 4;
+  });
+  function totals(t){
+    var g = [], map = {};
+    RUNS.forEach(function(r){
+      var key = t.split('').map(function(l){ return r[l] > 0 ? '+' : '-'; }).join('');
+      if (!(key in map)) { map[key] = g.length; g.push({key:key, rep:r, v:0}); }
+      g[map[key]].v += r.y;
+    });
+    return g;
+  }
+  function subsets(t){
+    var out = [], n = t.length;
+    for (var m = 1; m < (1 << n) - 1; m++) { var s = ''; for (var i = 0; i < n; i++) if (m & (1 << i)) s += t[i]; out.push(s); }
+    out.sort(function(x, y){ return x.length - y.length || TERMS.indexOf(x) - TERMS.indexOf(y); });
+    return out;
+  }
+  var RAW = {}, SS = {};
+  TERMS.forEach(function(t){
+    var g = totals(t), s2 = 0;
+    g.forEach(function(x){ s2 += x.v * x.v; });
+    var div = 8 / g.length;
+    RAW[t] = {g:g, s2:s2, div:div, val:s2 / div - CT};
+    var v = RAW[t].val;
+    subsets(t).forEach(function(s){ v -= SS[s]; });
+    SS[t] = v;
+  });
+  function mean(L, lev){ var s = 0, n = 0; RUNS.forEach(function(r){ if (r[L] === lev) { s += r.y; n++; } }); return s / n; }
+
+  /* ---------- estado por visitante (conveniência) ---------- */
+  var store = {quiz: {}};
+  try { var raw = localStorage.getItem('fatorial-mais-fatores'); if (raw) { store = JSON.parse(raw) || {quiz:{}}; store.quiz = store.quiz || {}; } } catch (e) { store = {quiz: {}}; }
+  function save(){ try { localStorage.setItem('fatorial-mais-fatores', JSON.stringify(store)); } catch (e) {} }
+
+  /* ---------- navegação ---------- */
+  function show(id, scroll){
+    if (ORDER.indexOf(id) < 0) id = 'passo-1';
+    $$('.step').forEach(function(s){ s.hidden = s.getAttribute('data-id') !== id; });
+    $$('.ri').forEach(function(a){
+      if (a.getAttribute('data-id') === id) a.setAttribute('aria-current', 'step'); else a.removeAttribute('aria-current');
+    });
+    var i = ORDER.indexOf(id), prev = $('#prev'), next = $('#next');
+    if (i > 0) { prev.hidden = false; prev.href = '#' + ORDER[i-1]; $('span', prev).textContent = NAMES[ORDER[i-1]]; } else { prev.hidden = true; }
+    if (i < ORDER.length - 1) { next.hidden = false; next.href = '#' + ORDER[i+1]; $('span', next).textContent = NAMES[ORDER[i+1]]; } else { next.hidden = true; }
+    var cur = $('.ri[data-id="' + id + '"]'), ol = $('#railol');
+    if (cur && ol.scrollWidth > ol.clientWidth) { ol.scrollLeft = cur.offsetLeft - ol.clientWidth / 2 + cur.offsetWidth / 2; }
+    if (scroll) {
+      var top = $('.shell').getBoundingClientRect().top;
+      if (top < 0) $('.shell').scrollIntoView({behavior: reduceMotion ? 'auto' : 'smooth', block: 'start'});
+    }
+  }
+  window.addEventListener('hashchange', function(){ show(location.hash.slice(1), true); });
+  document.addEventListener('keydown', function(e){
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    var t = e.target;
+    if (t && t.closest && t.closest('input,select,textarea,[contenteditable],svg')) return;
+    var cur = ORDER.indexOf(location.hash.slice(1)); if (cur < 0) cur = 0;
+    if (e.key === 'ArrowRight' && cur < ORDER.length - 1) { location.hash = ORDER[cur + 1]; }
+    else if (e.key === 'ArrowLeft' && cur > 0) { location.hash = ORDER[cur - 1]; }
+  });
+
+  /* ---------- checagens rápidas ---------- */
+  var QUIZ = {
+    'passo-1': {q:'Um fatorial tem 3 fatores, com 2, 3 e 4 níveis, e n = 2 repetições por combinação. Quantas observações são necessárias?',
+      o:['9','24','48','18'], c:2,
+      e:'abc·n = 2 × 3 × 4 × 2 = 48 (slide 28). 24 é o número de combinações; com n = 2, cada uma é observada duas vezes.'},
+    'passo-2': {q:'No modelo com 3 fatores do slide 29, quantos termos de interação existem?',
+      o:['3','4','6','7'], c:1,
+      e:'Três de 2ª ordem, (τβ), (τγ) e (βγ), e um de 3ª ordem, (τβγ). Com os 3 efeitos principais, são 7 termos testáveis, além de μ e do resíduo.'},
+    'passo-3': {q:'Num estudo com fatores A, B e C, a interação ABC é significativa. O que isso quer dizer?',
+      o:['Os três efeitos principais são grandes','A interação entre A e B muda conforme o nível de C','A, B e C estão correlacionados entre si','Os resíduos não são normais'], c:1,
+      e:'É a definição de interação do slide 2 aplicada um degrau acima. Como a interação é simétrica, vale também dizer que AC muda com B, ou que BC muda com A.'},
+    'passo-4': {q:'No estudo das lentes, qual é a unidade experimental?',
+      o:['Cada lente','Cada lote de 30 lentes','Cada torneiro','Cada fator'], c:1,
+      e:'A combinação de níveis é aplicada ao lote, e a resposta é a proporção de lentes conformes do lote (slide 36). São 8 observações, e não 240.'},
+    'passo-5': {q:'Por que a fórmula de SS_AB subtrai SS_A e SS_B (slide 31)?',
+      o:['Para descontar o efeito dos blocos','Porque a variação entre as células AB já contém os efeitos principais de A e B; o que sobra é a interação','Porque com n = 1 não há resíduo','Para que a soma de quadrados não fique negativa'], c:1,
+      e:'A soma dos quadrados dos totais y_ij·· mede toda a variação entre as células AB. Tirando o que A e B explicam sozinhos, sobra a parte que só aparece na combinação. SS_ABC segue o mesmo raciocínio e desconta todos os termos de ordem menor (slide 32).'},
+    'passo-6': {q:'Por que o summary() do modelo .^3 das lentes não mostra F nem p-valor?',
+      o:['Porque os dados não são normais','Porque os 7 termos usam os 7 gl das 8 observações e o resíduo fica com 0 gl','Porque falta carregar o pacote car','Porque proporções exigem transformação'], c:1,
+      e:'Sem gl no resíduo não existe MS_E, e sem MS_E não há F0 = MS/MS_E (slide 38). A saída é descartar termos de alta ordem para formar o resíduo (slide 39).'},
+    'passo-7': {q:'No modelo reduzido do slide 42, ToolAge tem F = 5,64 e p = 0,076. Com α = 0,05, o que concluir?',
+      o:['A ferramenta nova é melhor','A ferramenta velha é melhor','Não foi detectada diferença; pode não haver efeito ou a amostra pode ser pequena demais','O modelo reduzido está errado'], c:2,
+      e:'É a leitura do slide 45. Não rejeitar H0 não prova que o efeito é zero, ainda mais com 8 lotes.'},
+    'passo-8': {q:'O Std. Error 0,03052 do Tukey no slide 43 vem de √(2·MS_E/n′). Quanto vale n′ na comparação dos dois tempos de torno?',
+      o:['1','2','4','8'], c:2,
+      e:'Na comparação de efeitos principais, n′ é o número de observações em cada nível (slide 21). Cada tempo de torno aparece em 4 lotes: √(2 × 0,0018625 / 4) = 0,0305.'}
+  };
+  function renderQuiz(id){
+    var box = $('.step[data-id="' + id + '"] .quiz'); if (!box) return;
+    var qz = QUIZ[id];
+    box.innerHTML = '<div class="qh">Checagem rápida</div><p class="q"></p><div class="opts"></div><div class="fb" aria-live="polite"></div>';
+    $('.q', box).textContent = qz.q;
+    var opts = $('.opts', box), fb = $('.fb', box);
+    qz.o.forEach(function(t, k){
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = t;
+      b.addEventListener('click', function(){ answer(k); });
+      opts.appendChild(b);
+    });
+    function answer(k){
+      $$('button', opts).forEach(function(b, j){
+        b.disabled = true;
+        if (j === qz.c) b.classList.add('right'); else if (j === k) b.classList.add('wrong');
+      });
+      var ok = k === qz.c;
+      fb.innerHTML = '<strong>' + (ok ? 'Certo.' : 'Não é essa.') + '</strong> <span></span><button type="button" class="linkish">Responder de novo</button>';
+      $('span', fb).textContent = qz.e;
+      $('.linkish', fb).addEventListener('click', function(){ renderQuiz(id); var f = $('.opts button', box); if (f) f.focus(); });
+      store.quiz[id] = ok; save(); paintProgress();
+    }
+  }
+  function paintProgress(){
+    var n = 0, tot = Object.keys(QUIZ).length;
+    Object.keys(QUIZ).forEach(function(id){
+      var a = $('.ri[data-id="' + id + '"]');
+      a.classList.remove('ok', 'miss');
+      if (store.quiz[id] === true) { a.classList.add('ok'); n++; }
+      else if (store.quiz[id] === false) a.classList.add('miss');
+    });
+    $('#meterbar').style.width = (n / tot * 100) + '%';
+    $('#metertxt').textContent = n + ' de ' + tot + ' checagens certas';
+  }
+  Object.keys(QUIZ).forEach(renderQuiz);
+  paintProgress();
+
+  function pressSeg(seg, attr, val){
+    $$('button', seg).forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute(attr) === String(val) ? 'true' : 'false'); });
+  }
+
+  /* ---------- gráfico de linhas pequeno (passos 3 e 8) ---------- */
+  function linePanel(o){
+    var W = 300, H = 212, l = 46, r = 286, t = 22, b = 164;
+    var xs = [l + 48, r - 48];
+    var sy = function(v){ return b - (v - o.ymin) / (o.ymax - o.ymin) * (b - t); };
+    var s = '<svg class="plot" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(o.aria) + '">';
+    o.ticks.forEach(function(v){
+      var y = sy(v).toFixed(1);
+      s += '<line class="gl" x1="' + l + '" x2="' + r + '" y1="' + y + '" y2="' + y + '"/>';
+      s += '<text class="mut" x="' + (l - 6) + '" y="' + (+y + 4) + '" text-anchor="end">' + fmt(v, 2) + '</text>';
+    });
+    s += '<line class="ax" x1="' + l + '" x2="' + l + '" y1="' + t + '" y2="' + b + '"/>';
+    o.xl.forEach(function(lab, i){ s += '<text x="' + xs[i] + '" y="' + (b + 18) + '" text-anchor="middle">' + esc(lab) + '</text>'; });
+    if (o.xname) s += '<text class="mut" x="' + ((l + r) / 2) + '" y="' + (b + 37) + '" text-anchor="middle">' + esc(o.xname) + '</text>';
+    o.series.forEach(function(se){
+      s += '<path class="ln s-' + se.c + '" d="M' + xs[0] + ' ' + sy(se.v[0]).toFixed(1) + ' L' + xs[1] + ' ' + sy(se.v[1]).toFixed(1) + '"/>';
+    });
+    o.series.forEach(function(se, si){
+      se.v.forEach(function(v, i){
+        var above = true;
+        if (o.series.length > 1) {
+          var other = o.series[1 - si].v[i];
+          above = v > other ? true : v < other ? false : si === 1;
+        }
+        var y = sy(v);
+        s += '<circle class="s-' + se.c + '" cx="' + xs[i] + '" cy="' + y.toFixed(1) + '" r="5"/>';
+        s += '<text x="' + xs[i] + '" y="' + (above ? y - 10 : y + 19).toFixed(1) + '" text-anchor="middle">' + fmt(v, 2) + '</text>';
+      });
+    });
+    return s + '</svg>';
+  }
+
+  /* ---------- passo 1: montador de fatorial ---------- */
+  (function(){
+    var st = {k:3, lv:[2,2,2,2,2], n:2};
+    var LET = ['A','B','C','D','E'];
+    var NOPTS = [1,2,3,4,5,6,8,10,20];
+    var nsel = $('#b-n');
+    NOPTS.forEach(function(v){ var o = document.createElement('option'); o.value = v; o.textContent = v; nsel.appendChild(o); });
+    var lvbox = $('#b-lv');
+    LET.forEach(function(L, i){
+      var lab = document.createElement('label'); lab.className = 'sl'; lab.setAttribute('for', 'b-l' + i);
+      lab.innerHTML = '<span>Fator ' + L + '</span><select id="b-l' + i + '"><option value="2">2 níveis</option><option value="3">3 níveis</option><option value="4">4 níveis</option></select>';
+      lvbox.appendChild(lab);
+      $('select', lab).addEventListener('change', function(e){ st.lv[i] = +e.target.value; render(); });
+    });
+    $$('#b-k button').forEach(function(b){ b.addEventListener('click', function(){ st.k = +b.getAttribute('data-k'); render(); }); });
+    nsel.addEventListener('change', function(){ st.n = +nsel.value; render(); });
+    $$('[data-bp]').forEach(function(b){
+      b.addEventListener('click', function(){
+        if (b.getAttribute('data-bp') === 'mot') { st.k = 2; st.lv = [2,3,2,2,2]; st.n = 20; }
+        else { st.k = 3; st.lv = [2,2,2,2,2]; st.n = 1; }
+        render();
+      });
+    });
+    function terms(k){
+      var out = [];
+      for (var m = 1; m < (1 << k); m++) { var s = []; for (var i = 0; i < k; i++) if (m & (1 << i)) s.push(i); out.push(s); }
+      out.sort(function(x, y){
+        if (x.length !== y.length) return x.length - y.length;
+        for (var i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] - y[i];
+        return 0;
+      });
+      return out;
+    }
+    var ORD = ['', 'Efeitos principais', 'Interações de 2ª ordem', 'Interações de 3ª ordem', 'Interações de 4ª ordem', 'Interação de 5ª ordem'];
+    function render(){
+      pressSeg($('#b-k'), 'data-k', st.k);
+      nsel.value = st.n;
+      LET.forEach(function(L, i){ var lab = $('label[for="b-l' + i + '"]'); lab.hidden = i >= st.k; $('select', lab).value = st.lv[i]; });
+      var lv = st.lv.slice(0, st.k);
+      var comb = lv.reduce(function(a, x){ return a * x; }, 1);
+      var N = comb * st.n, nt = (1 << st.k) - 1, dfE = comb * (st.n - 1);
+      var desc = lv.join(' × ');
+      $('#b-tiles').innerHTML =
+        '<div class="tile"><span class="k">Combinações</span><b>' + comb + '</b><span class="d">' + desc + '</span></div>' +
+        '<div class="tile"><span class="k">Observações</span><b>' + N + '</b><span class="d">' + desc + ' × ' + st.n + '</span></div>' +
+        '<div class="tile"><span class="k">Termos testáveis</span><b>' + nt + '</b><span class="d">2<sup>' + st.k + '</sup> − 1</span></div>' +
+        '<div class="tile' + (dfE === 0 ? ' bad' : '') + '"><span class="k">gl do resíduo</span><b>' + dfE + '</b><span class="d">' + comb + ' × (' + st.n + ' − 1)</span></div>';
+      var rows = '', tsum = 0, tl = terms(st.k);
+      for (var o = 1; o <= st.k; o++) {
+        var chips = '', osum = 0, cnt = 0;
+        tl.filter(function(x){ return x.length === o; }).forEach(function(x){
+          var g = x.reduce(function(a, i){ return a * (lv[i] - 1); }, 1);
+          osum += g; cnt++;
+          chips += '<span class="chip">' + x.map(function(i){ return LET[i]; }).join('') + ' <i>' + g + ' gl</i></span>';
+        });
+        tsum += osum;
+        rows += '<tr><td>' + ORD[o] + ' (' + cnt + ')</td><td>' + chips + '</td><td class="num">' + osum + '</td></tr>';
+      }
+      rows += '<tr class="res"><td>Resíduo</td><td class="mono">' + comb + ' × (' + st.n + ' − 1)</td><td class="num">' + dfE + '</td></tr>';
+      rows += '<tr class="tot"><td>Total</td><td class="mono">N − 1 = ' + N + ' − 1</td><td class="num">' + (tsum + dfE) + '</td></tr>';
+      $('#b-tab').innerHTML = '<thead><tr><th>Ordem</th><th>Termos e gl de cada</th><th>gl</th></tr></thead><tbody>' + rows + '</tbody>';
+      var msg;
+      if (dfE === 0) msg = '<strong>Com n = 1 o resíduo fica com 0 gl.</strong> Os ' + nt + ' termos consomem os ' + (N - 1) + ' gl disponíveis e não sobra nada para estimar σ². Nenhum F pode ser calculado com o modelo completo.';
+      else msg = 'Os termos usam ' + tsum + ' gl e o resíduo fica com ' + dfE + '. Somados, dão os ' + (N - 1) + ' gl do total.';
+      if (st.k === 2 && lv[0] * lv[1] === 6 && st.n === 20) msg += ' É o caso dos motores (Estado com 2 níveis, Fabricante com 3): 114 gl no resíduo, como na tabela do slide 17.';
+      if (st.k === 3 && comb === 8 && st.n === 1) msg += ' É o caso das lentes: o slide 38 mostra o mesmo problema.';
+      $('#b-read').innerHTML = msg;
+    }
+    render();
+  })();
+
+  /* ---------- passo 2: termos do modelo ---------- */
+  (function(){
+    var MD = {
+      mu: {h:'μ · média global', p:'O nível de referência comum a todas as observações. Os outros termos são desvios em relação a ele. Não há hipótese a testar sobre μ.'},
+      A: {h:'τ<sub>i</sub> · efeito principal de A (tempo do torno)', p:'Quanto a média no nível <i>i</i> de A se afasta de μ, na média sobre todos os níveis de B e C.', H:'H<sub>0</sub>: τ<sub>i</sub> = 0 para todo <i>i</i> · H<sub>1</sub>: algum τ<sub>i</sub> ≠ 0', g:'<i>a</i> − 1 (nas lentes, 1)'},
+      B: {h:'β<sub>j</sub> · efeito principal de B (tempo de polimento)', p:'Quanto a média no nível <i>j</i> de B se afasta de μ, na média sobre todos os níveis de A e C.', H:'H<sub>0</sub>: β<sub>j</sub> = 0 para todo <i>j</i> · H<sub>1</sub>: algum β<sub>j</sub> ≠ 0', g:'<i>b</i> − 1 (nas lentes, 1)'},
+      C: {h:'γ<sub>k</sub> · efeito principal de C (idade da ferramenta)', p:'Quanto a média no nível <i>k</i> de C se afasta de μ, na média sobre todos os níveis de A e B.', H:'H<sub>0</sub>: γ<sub>k</sub> = 0 para todo <i>k</i> · H<sub>1</sub>: algum γ<sub>k</sub> ≠ 0', g:'<i>c</i> − 1 (nas lentes, 1)'},
+      AB: {h:'(τβ)<sub>ij</sub> · interação de 2ª ordem entre A e B', p:'Mede se o efeito de A depende do nível de B, na média sobre os níveis de C. É a mesma interação do caso com 2 fatores.', H:'H<sub>0</sub>: (τβ)<sub>ij</sub> = 0 para todo <i>i</i>, <i>j</i>', g:'(<i>a</i> − 1)(<i>b</i> − 1) (nas lentes, 1)'},
+      AC: {h:'(τγ)<sub>ik</sub> · interação de 2ª ordem entre A e C', p:'Mede se o efeito de A depende do nível de C, na média sobre os níveis de B.', H:'H<sub>0</sub>: (τγ)<sub>ik</sub> = 0 para todo <i>i</i>, <i>k</i>', g:'(<i>a</i> − 1)(<i>c</i> − 1) (nas lentes, 1)'},
+      BC: {h:'(βγ)<sub>jk</sub> · interação de 2ª ordem entre B e C', p:'Mede se o efeito de B depende do nível de C, na média sobre os níveis de A.', H:'H<sub>0</sub>: (βγ)<sub>jk</sub> = 0 para todo <i>j</i>, <i>k</i>', g:'(<i>b</i> − 1)(<i>c</i> − 1) (nas lentes, 1)'},
+      ABC: {h:'(τβγ)<sub>ijk</sub> · interação de 3ª ordem', p:'Mede se a interação entre dois fatores muda conforme o nível do terceiro: se a interação AB é diferente em cada nível de C. O passo 3 mostra isso num gráfico.', H:'H<sub>0</sub>: (τβγ)<sub>ijk</sub> = 0 para todo <i>i</i>, <i>j</i>, <i>k</i>', g:'(<i>a</i> − 1)(<i>b</i> − 1)(<i>c</i> − 1) (nas lentes, 1)'},
+      E: {h:'ε<sub>ijkl</sub> · resíduo', p:'O que nenhum termo explica. A premissa é ε<sub>ijkl</sub> i.i.d. N(0, σ²) (slide 15). O índice <i>l</i> conta as repetições de cada combinação.', g:'<i>abc</i>(<i>n</i> − 1); nas lentes, 0, porque <i>n</i> = 1'}
+    };
+    function pick(t){
+      $$('#m-eq .term').forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-t') === t ? 'true' : 'false'); });
+      var d = MD[t];
+      $('#m-desc').innerHTML = '<strong>' + d.h + '</strong><br>' + d.p + (d.H ? '<br><span class="hyp">' + d.H + '</span>' : '') + (d.g ? '<br>gl: ' + d.g : '');
+    }
+    $$('#m-eq .term').forEach(function(b){ b.addEventListener('click', function(){ pick(b.getAttribute('data-t')); }); });
+    pick('ABC');
+  })();
+
+  /* ---------- passo 3: gráfico de interação ---------- */
+  (function(){
+    var MAP = {C:{X:'A', L:'B'}, B:{X:'A', L:'C'}, A:{X:'B', L:'C'}};
+    var st = {p:'C'};
+    function yAt(o){ return RUNS.filter(function(r){ return Object.keys(o).every(function(k){ return r[k] === o[k]; }); })[0].y; }
+    function render(){
+      pressSeg($('#i-by'), 'data-p', st.p);
+      var P = st.p, X = MAP[P].X, L = MAP[P].L, XL = X + L;
+      $('#i-leg').innerHTML = '<span><i style="background:var(--amber)"></i>' + esc(F[L].nome + ': ' + F[L].lo) + '</span><span><i style="background:var(--accent)"></i>' + esc(F[L].nome + ': ' + F[L].hi) + '</span>';
+      var html = '', ints = {};
+      [-1, 1].forEach(function(p){
+        var lo = [-1, 1].map(function(x){ var o = {}; o[P] = p; o[X] = x; o[L] = -1; return yAt(o); });
+        var hi = [-1, 1].map(function(x){ var o = {}; o[P] = p; o[X] = x; o[L] = 1; return yAt(o); });
+        var eLo = hi[0] - lo[0], eHi = hi[1] - lo[1], it = (eHi - eLo) / 2;
+        ints[p] = it;
+        var title = F[P].nome + ': ' + (p < 0 ? F[P].lo : F[P].hi);
+        var svg = linePanel({aria:'Proporção conforme por ' + F[X].nome + ', ' + title, xl:[F[X].lo, F[X].hi], xname:F[X].nome,
+          series:[{c:'lo', v:lo}, {c:'hi', v:hi}], ymin:0, ymax:1, ticks:[0, .25, .5, .75, 1]});
+        var cap = 'Efeito de ' + F[L].ef + ': <span class="v">' + sgnS(eLo, 2) + '</span> com ' + F[X].curto + ' ' + F[X].loS +
+          ', <span class="v">' + sgnS(eHi, 2) + '</span> com ' + F[X].curto + ' ' + F[X].hiS + '.<br>' + XL + ' neste painel: ½(' + fmtS(eHi, 2) + ' − ' + par(eLo, 2) + ') =<span class="v">' + fmtS(it, 4) + '</span>' +
+          (Math.abs(it) < 1e-9 ? '. Linhas paralelas: sem interação aqui.' : '');
+        html += '<figure class="pan"><figcaption>' + esc(title) + '</figcaption>' + svg + '<p class="pcap">' + cap + '</p></figure>';
+      });
+      $('#i-panels').innerHTML = html;
+      var abc = (ints[1] - ints[-1]) / 2;
+      $('#i-read').innerHTML = '<strong>Interação de 3ª ordem:</strong> ½[(' + XL + ' com ' + F[P].curto + ' ' + F[P].hiS + ') − (' + XL + ' com ' + F[P].curto + ' ' + F[P].loS + ')] = ½[' +
+        fmtS(ints[1], 4) + ' − ' + par(ints[-1], 4) + '] =<span class="v">' + fmtS(abc, 4) + '</span>. Troque o fator dos painéis: o resultado é o mesmo.';
+    }
+    $$('#i-by button').forEach(function(b){ b.addEventListener('click', function(){ st.p = b.getAttribute('data-p'); render(); }); });
+    render();
+  })();
+
+  /* ---------- passo 4: cubo ---------- */
+  (function(){
+    var st = {t:'A', run:null};
+    var P = function(a, b, c){ return [110 + 230 * a + 120 * c, 300 - 180 * b - 80 * c]; };
+    function bit(v){ return v > 0 ? 1 : 0; }
+    function cube(){
+      var t = st.t, s = '';
+      if (t.length === 1) {
+        var others = ['A','B','C'].filter(function(x){ return x !== t; });
+        [1, 0].forEach(function(v){
+          var pts = [[0,0],[1,0],[1,1],[0,1]].map(function(q){
+            var co = {A:0, B:0, C:0}; co[t] = v; co[others[0]] = q[0]; co[others[1]] = q[1];
+            return P(co.A, co.B, co.C).join(',');
+          }).join(' ');
+          s += '<polygon class="face ' + (v ? 'plus' : 'minus') + '" points="' + pts + '"/>';
+        });
+      }
+      var V = [];
+      for (var a = 0; a < 2; a++) for (var b = 0; b < 2; b++) for (var c = 0; c < 2; c++) V.push([a, b, c]);
+      V.forEach(function(u, i){
+        V.forEach(function(w, j){
+          if (j <= i) return;
+          var d = Math.abs(u[0] - w[0]) + Math.abs(u[1] - w[1]) + Math.abs(u[2] - w[2]);
+          if (d !== 1) return;
+          var hid = (u[0] === 0 && u[1] === 0 && u[2] === 1) || (w[0] === 0 && w[1] === 0 && w[2] === 1);
+          var p1 = P(u[0], u[1], u[2]), p2 = P(w[0], w[1], w[2]);
+          s += '<line class="edge' + (hid ? ' hid' : '') + '" x1="' + p1[0] + '" y1="' + p1[1] + '" x2="' + p2[0] + '" y2="' + p2[1] + '"/>';
+        });
+      });
+      s += '<text class="axl" x="225" y="356" text-anchor="middle">A · torno: 2,35 → 3,15 min</text>';
+      s += '<text class="axl" transform="translate(64 210) rotate(-90)" text-anchor="middle">B · polimento: 5 → 7 dias</text>';
+      s += '<text class="axl" transform="translate(432 286) rotate(-33.7)" text-anchor="middle">C · ferramenta: nova → velha</text>';
+      RUNS.forEach(function(r, i){
+        var p = P(bit(r.A), bit(r.B), bit(r.C)), plus = sgn(r, t) > 0, cls = plus ? 'plus' : 'minus';
+        s += '<g class="node ' + cls + (st.run === i ? ' sel' : '') + '" data-i="' + i + '" tabindex="0" role="button" aria-label="Lote ' + esc(r.id) + ': ' + esc(lvlText(r)) + '; proporção ' + fmt(r.y, 2) + '; sinal ' + (plus ? 'mais' : 'menos') + ' em ' + t + '">';
+        s += '<circle class="ring" cx="' + p[0] + '" cy="' + p[1] + '" r="27"/>';
+        s += '<text class="val" x="' + p[0] + '" y="' + (p[1] + 2) + '" text-anchor="middle">' + fmt(r.y, 2) + '</text>';
+        s += '<text class="id" x="' + p[0] + '" y="' + (p[1] + 15) + '" text-anchor="middle">' + esc(r.id) + '</text>';
+        s += '<circle class="badge ' + cls + '" cx="' + (p[0] + 22) + '" cy="' + (p[1] - 22) + '" r="9"/>';
+        s += '<text class="bt" x="' + (p[0] + 22) + '" y="' + (p[1] - 18) + '" text-anchor="middle">' + (plus ? '+' : '−') + '</text>';
+        s += '</g>';
+      });
+      $('#c-svg').innerHTML = s;
+    }
+    function table(){
+      var h = '<thead><tr><th>Lote</th>';
+      TERMS.forEach(function(x){ h += '<th class="' + (x === st.t ? 'on' : '') + '"><button type="button" data-t="' + x + '" aria-pressed="' + (x === st.t) + '">' + x + '</button></th>'; });
+      h += '<th>Proporção</th></tr></thead><tbody>';
+      RUNS.forEach(function(r, i){
+        h += '<tr data-i="' + i + '" class="' + (st.run === i ? 'sel' : '') + '"><td class="lot">' + esc(r.id) + '</td>';
+        TERMS.forEach(function(x){ var v = sgn(r, x); h += '<td class="' + (v > 0 ? 'p' : 'm') + (x === st.t ? ' on' : '') + '">' + (v > 0 ? '+' : '−') + '</td>'; });
+        h += '<td class="y">' + fmt(r.y, 2) + '</td></tr>';
+      });
+      $('#c-tab').innerHTML = h + '</tbody>';
+    }
+    function readout(){
+      var t = st.t, P1 = [], M1 = [], sp = 0, sm = 0;
+      RUNS.forEach(function(r){ if (sgn(r, t) > 0) { P1.push(r); sp += r.y; } else { M1.push(r); sm += r.y; } });
+      var list = function(a){ return a.map(function(r){ return r.id; }).join(', '); };
+      var sum = function(a){ return a.map(function(r){ return fmt(r.y, 2); }).join(' + '); };
+      var h = '<strong>Efeito de ' + TN[t] + ' = <span class="v">' + sgnS(EFF[t], 4) + '</span></strong><br>' +
+        'Sinal +: lotes ' + list(P1) + ' → (' + sum(P1) + ')/4 = <span class="v">' + fmt(sp / 4, 4) + '</span><br>' +
+        'Sinal −: lotes ' + list(M1) + ' → (' + sum(M1) + ')/4 = <span class="v">' + fmt(sm / 4, 4) + '</span>';
+      if (st.run !== null) { var r = RUNS[st.run]; h += '<br><em>Lote ' + esc(r.id) + ':</em> ' + esc(lvlText(r)) + '. Proporção conforme: ' + fmt(r.y, 2) + '.'; }
+      $('#c-read').innerHTML = h;
+    }
+    function render(){ pressSeg($('#c-term'), 'data-t', st.t); cube(); table(); readout(); }
+    function pickRun(i){ st.run = st.run === i ? null : i; render(); }
+    $$('#c-term button').forEach(function(b){ b.addEventListener('click', function(){ st.t = b.getAttribute('data-t'); render(); }); });
+    $('#c-tab').addEventListener('click', function(e){
+      var b = e.target.closest('button[data-t]');
+      if (b) { st.t = b.getAttribute('data-t'); render(); return; }
+      var tr = e.target.closest('tbody tr'); if (tr) pickRun(+tr.getAttribute('data-i'));
+    });
+    $('#c-svg').addEventListener('click', function(e){ var g = e.target.closest('g.node'); if (g) pickRun(+g.getAttribute('data-i')); });
+    $('#c-svg').addEventListener('keydown', function(e){
+      var g = e.target.closest && e.target.closest('g.node');
+      if (g && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault(); var i = +g.getAttribute('data-i'); pickRun(i);
+        var n = $('#c-svg g.node[data-i="' + i + '"]'); if (n) n.focus();
+      }
+    });
+    render();
+  })();
+
+  /* ---------- passo 5: somas de quadrados ---------- */
+  (function(){
+    var st = {t:'A'};
+    var CHI = {A:'i', B:'j', C:'k'};
+    function sub(t){ return ['A','B','C'].map(function(p){ return t.indexOf(p) >= 0 ? CHI[p] : '·'; }).join('') + '·'; }
+    function divs(t){ return ['A','B','C'].filter(function(p){ return t.indexOf(p) < 0; }).map(function(p){ return p.toLowerCase(); }).join('') + 'n'; }
+    function ysq(idx){ return '<i>y</i><span class="sx"><span>2</span><span>' + idx + '</span></span>'; }
+    var corr = ysq('····') + '/(<i>abcn</i>)';
+    function ss(t){ return 'SS<sub>' + t + '</sub>'; }
+    function keyLabel(t, rep){
+      return t.split('').map(function(l){ return F[l].curto + ' ' + (rep[l] > 0 ? F[l].hiS : F[l].loS); }).join(' · ');
+    }
+    function render(){
+      pressSeg($('#s-term'), 'data-t', st.t);
+      var t = st.t, form = '', tab = '', calc = '';
+      if (t === 'T') {
+        form = ss('T') + ' = Σ<sub><i>ijkl</i></sub> ' + ysq('ijkl') + ' − ' + corr;
+        tab = '<thead><tr><th>Lote</th><th>Combinação</th><th>y</th><th>y²</th></tr></thead><tbody>' + RUNS.map(function(r){
+          return '<tr><td class="mono">' + esc(r.id) + '</td><td>' + esc(lvlText(r)) + '</td><td class="num">' + fmt(r.y, 2) + '</td><td class="num">' + fmt(r.y * r.y, 4) + '</td></tr>';
+        }).join('') + '</tbody>';
+        calc = 'Σ y² = ' + fmt(Y2, 4) + '<br>' + fmt(Y2, 4) + ' − ' + fmt(CT, 4) + ' = <b>' + fmt(SST, 4) + '</b>';
+      } else if (t === 'E') {
+        form = ss('E') + ' = ' + ss('T') + ' − ' + ss('A') + ' − ' + ss('B') + ' − ' + ss('C') + ' − ' + ss('AB') + ' − ' + ss('AC') + ' − ' + ss('BC') + ' − ' + ss('ABC');
+        var tot = 0; TERMS.forEach(function(x){ tot += SS[x]; });
+        tab = '<thead><tr><th>Termo</th><th>SQ</th></tr></thead><tbody>' + TERMS.map(function(x){ return '<tr><td>' + TN[x] + '</td><td class="num">' + fmt(SS[x], 4) + '</td></tr>'; }).join('') +
+          '<tr class="tot"><td>Soma das 7 SQ</td><td class="num">' + fmt(tot, 4) + '</td></tr></tbody>';
+        var e = SST - tot; if (Math.abs(e) < 1e-12) e = 0;
+        calc = fmt(SST, 4) + ' − ' + fmt(tot, 4) + ' = <b>' + fmt(e, 4) + '</b>, com 8 − 1 − 7 = 0 gl. Nada sobra para o resíduo.';
+      } else {
+        var R = RAW[t], subs = subsets(t);
+        form = ss(t) + ' = (1/<i>' + divs(t) + '</i>) Σ ' + ysq(sub(t)) + ' − ' + corr + subs.map(function(s){ return ' − ' + ss(s); }).join('');
+        tab = '<thead><tr><th>Total</th><th>Combinação</th><th>Valor</th><th>Quadrado</th></tr></thead><tbody>' + R.g.map(function(x){
+          return '<tr><td class="mono"><i>y</i><sub>' + sub(t) + '</sub></td><td>' + esc(keyLabel(t, x.rep)) + '</td><td class="num">' + fmt(x.v, 2) + '</td><td class="num">' + fmt(x.v * x.v, 4) + '</td></tr>';
+        }).join('') + '</tbody>';
+        calc = 'Σ = ' + R.g.map(function(x){ return fmt(x.v, 2) + '²'; }).join(' + ') + ' = ' + fmt(R.s2, 4) + '<br>' +
+          fmt(R.s2, 4) + '/' + R.div + ' − ' + fmt(CT, 4) + ' = ' + (subs.length ? fmt(R.val, 4) : '<b>' + fmt(R.val, 4) + '</b>');
+        if (subs.length === 2) {
+          calc += '<br>' + fmt(R.val, 4) + ' − ' + subs.map(function(s){ return fmt(SS[s], 4); }).join(' − ') + ' = <b>' + fmt(SS[t], 4) + '</b>';
+        } else if (subs.length > 2) {
+          var s6 = 0; subs.forEach(function(s){ s6 += SS[s]; });
+          calc += '<br>' + fmt(R.val, 4) + ' − (' + subs.map(ss).join(' + ') + ' = ' + fmt(s6, 4) + ') = <b>' + fmt(SS[t], 4) + '</b>';
+          calc += '<br><span style="color:var(--muted)">Com n = 1, os totais das células são as próprias observações.</span>';
+        }
+        calc += '<br><span class="ok">Sum Sq no slide 38: ' + SLIDE38[t] + '</span>';
+      }
+      $('#s-form').innerHTML = form;
+      $('#s-tab').innerHTML = tab;
+      $('#s-calc').innerHTML = calc;
+      var bar = '', leg = '';
+      TERMS.forEach(function(x){
+        var pct = SS[x] / SST * 100;
+        var dim = (t !== 'T' && t !== 'E' && t !== x);
+        bar += '<span class="' + (dim ? 'dim' : '') + '" style="flex:0 0 ' + pct.toFixed(3) + '%;background:' + COL[x] + '"></span>';
+        leg += '<div><i style="background:' + COL[x] + '"></i>' + x + '<span class="num">' + fmt(SS[x], 4) + ' · ' + (pct < 0.1 ? '&lt; 0,1' : fmt(pct, 1)) + '%</span></div>';
+      });
+      $('#s-bar').innerHTML = bar;
+      $('#s-leg').innerHTML = '<div style="grid-column:1/-1;color:var(--muted)">Como SS<sub>T</sub> = ' + fmt(SST, 4) + ' se divide entre os 7 termos</div>' + leg;
+    }
+    $$('#s-term button').forEach(function(b){ b.addEventListener('click', function(){ st.t = b.getAttribute('data-t'); render(); }); });
+    render();
+  })();
+
+  /* ---------- passos 6 e 7: Daniel e modelo reduzido (estado compartilhado) ---------- */
+  var inModel = {};
+  function setSlide(){ TERMS.forEach(function(t){ inModel[t] = t.length === 1; }); }
+  setSlide();
+  var FCRIT = {1:161.45, 2:18.51, 3:10.13, 4:7.71, 5:6.61, 6:5.99};
+
+  function qnorm(p){
+    var a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+    var b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+    var c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+    var d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+    var pl = 0.02425, q, r;
+    if (p < pl) { q = Math.sqrt(-2 * Math.log(p)); return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+    if (p > 1 - pl) { q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+    q = p - 0.5; r = q * q;
+    return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+  }
+  function q7(sorted, p){ var h = (sorted.length - 1) * p, lo = Math.floor(h), hi = Math.min(lo + 1, sorted.length - 1); return sorted[lo] + (h - lo) * (sorted[hi] - sorted[lo]); }
+
+  var DL = {A:'A · torno', B:'B · polimento', C:'C · idade', AB:'AB', AC:'AC', BC:'BC', ABC:'ABC'};
+  function renderDaniel(){
+    var W = 580, H = 372, l = 64, r = 556, t = 18, b = 318;
+    var xmin = -0.15, xmax = 0.60, ymin = -1.8, ymax = 1.8;
+    var sx = function(v){ return l + (v - xmin) / (xmax - xmin) * (r - l); };
+    var sy = function(v){ return b - (v - ymin) / (ymax - ymin) * (b - t); };
+    var items = TERMS.map(function(x){ return {t:x, e:EFF[x]}; });
+    items.sort(function(p, q){ return p.e - q.e || TERMS.indexOf(p.t) - TERMS.indexOf(q.t); });
+    var n = items.length;
+    items.forEach(function(it, i){ it.q = qnorm((i + 1 - 0.375) / (n + 0.25)); });
+    var vals = items.map(function(it){ return it.e; });
+    var x1 = q7(vals, 0.25), x2 = q7(vals, 0.75), y1 = qnorm(0.25), y2 = qnorm(0.75);
+    var slope = (y2 - y1) / (x2 - x1), icp = y1 - slope * x1;
+    var s = '<defs><clipPath id="dclip"><rect x="' + l + '" y="' + t + '" width="' + (r - l) + '" height="' + (b - t) + '"/></clipPath></defs>';
+    [-1.5, -1, -0.5, 0, 0.5, 1, 1.5].forEach(function(v){
+      var y = sy(v).toFixed(1);
+      s += '<line class="gl" x1="' + l + '" x2="' + r + '" y1="' + y + '" y2="' + y + '"/><text class="mut" x="' + (l - 6) + '" y="' + (+y + 4) + '" text-anchor="end">' + fmtS(v, 1) + '</text>';
+    });
+    [-0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5].forEach(function(v){
+      var x = sx(v).toFixed(1);
+      s += '<line class="gl" x1="' + x + '" x2="' + x + '" y1="' + t + '" y2="' + b + '"/><text class="mut" x="' + x + '" y="' + (b + 17) + '" text-anchor="middle">' + fmtS(v, 1) + '</text>';
+    });
+    s += '<rect class="ax" x="' + l + '" y="' + t + '" width="' + (r - l) + '" height="' + (b - t) + '"/>';
+    s += '<text class="mut" x="' + ((l + r) / 2) + '" y="' + (b + 40) + '" text-anchor="middle">Efeito estimado (média dos lotes + menos média dos lotes −)</text>';
+    s += '<text class="mut" transform="translate(16 ' + ((t + b) / 2) + ') rotate(-90)" text-anchor="middle">Quantil teórico normal</text>';
+    s += '<line class="qq" clip-path="url(#dclip)" x1="' + sx(xmin) + '" y1="' + sy(icp + slope * xmin).toFixed(1) + '" x2="' + sx(xmax) + '" y2="' + sy(icp + slope * xmax).toFixed(1) + '"/>';
+    items.forEach(function(it){
+      var px = sx(it.e), py = sy(it.q), left = it.e > 0.3, on = inModel[it.t];
+      s += '<g class="pt' + (on ? '' : ' out') + '" data-t="' + it.t + '" tabindex="0" role="button" aria-pressed="' + on + '" aria-label="' + TN[it.t] + ', efeito ' + fmtS(it.e, 4) + ', ' + (on ? 'no modelo' : 'no resíduo') + '">';
+      s += '<circle cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="7"/>';
+      s += '<text x="' + (left ? px - 12 : px + 12).toFixed(1) + '" y="' + (py + 4).toFixed(1) + '" text-anchor="' + (left ? 'end' : 'start') + '">' + DL[it.t] + ' (' + fmtS(it.e, 4) + ')</text>';
+      s += '</g>';
+    });
+    $('#d-svg').innerHTML = s;
+    var kept = TERMS.filter(function(x){ return inModel[x]; }), out = TERMS.filter(function(x){ return !inModel[x]; });
+    $('#d-read').innerHTML = '<strong>No modelo:</strong> ' + (kept.length ? kept.join(', ') : 'nenhum termo') + '<br><strong>No resíduo:</strong> ' + (out.length ? out.join(', ') + ' (' + out.length + ' gl)' : 'nenhum termo (0 gl)') +
+      (isSlide() ? '<br>É a escolha do slide 42.' : '');
+  }
+  function isSlide(){ return TERMS.every(function(x){ return inModel[x] === (x.length === 1); }); }
+
+  function renderLab(){
+    var box = $('#l-chk');
+    if (!box.children.length) {
+      TERMS.forEach(function(x){
+        var lab = document.createElement('label'); lab.className = 'chk'; lab.setAttribute('for', 'l-' + x);
+        lab.innerHTML = '<input type="checkbox" id="l-' + x + '"> ' + RN[x];
+        box.appendChild(lab);
+        $('input', lab).addEventListener('change', function(e){ inModel[x] = e.target.checked; renderAll(); });
+      });
+    }
+    TERMS.forEach(function(x){ $('#l-' + x).checked = !!inModel[x]; });
+    var kept = TERMS.filter(function(x){ return inModel[x]; }), out = TERMS.filter(function(x){ return !inModel[x]; });
+    var dfE = out.length, SSE = 0; out.forEach(function(x){ SSE += SS[x]; });
+    var MSE = dfE > 0 ? SSE / dfE : null, fc = FCRIT[dfE];
+    var code = 'model2 &lt;- aov(Conf.rate ~ ' + (kept.length ? kept.map(function(x){ return RN[x]; }).join(' + ') : '1') + ', data = lentes)';
+    if (isSlide()) code += '\n<span class="c"># equivale a aov(Conf.rate ~ ., data = lentes), como no slide 42</span>';
+    if (kept.length === 7) code += '\n<span class="c"># equivale a aov(Conf.rate ~ .^3, data = lentes), como no slide 38</span>';
+    $('#l-code').innerHTML = code;
+    var rows = kept.map(function(x){
+      var f = MSE ? SS[x] / MSE : null, sig = f !== null && f > fc;
+      return '<tr><td class="mono">' + RN[x] + '</td><td class="num">1</td><td class="num">' + fmt(SS[x], 4) + '</td><td class="num">' + fmt(SS[x], 4) + '</td>' +
+        '<td class="num">' + (f === null ? '—' : fmt(f, 2)) + '</td><td class="num">' + (f === null ? '—' : fmt(fc, 2)) + '</td>' +
+        '<td>' + (f === null ? '—' : sig ? '<span class="pill yes">rejeita H0</span>' : '<span class="pill no">não rejeita</span>') + '</td></tr>';
+    }).join('');
+    rows += '<tr class="res"><td class="mono">Residuals</td><td class="num">' + dfE + '</td><td class="num">' + fmt(SSE, 4) + '</td><td class="num">' + (MSE ? fmt(MSE, 5) : '—') + '</td><td></td><td></td><td></td></tr>';
+    $('#l-tab').innerHTML = '<thead><tr><th>Termo</th><th>gl</th><th>SQ</th><th>QM</th><th>F<sub>0</sub></th><th>F crítico 5%</th><th>Decisão</th></tr></thead><tbody>' + rows + '</tbody>';
+    var msg;
+    if (!kept.length) msg = 'Sem nenhum termo no modelo, não há o que testar: toda a variação está no resíduo.';
+    else if (dfE === 0) msg = '<strong>Resíduo com 0 gl:</strong> não existe MS<sub>E</sub>, então nenhum F pode ser calculado. É o modelo saturado do slide 38.';
+    else {
+      msg = 'MS<sub>E</sub> = ' + fmt(SSE, 4) + ' / ' + dfE + ' = ' + fmt(MSE, 5) + '. Cada F<sub>0</sub> é comparado com F<sub>0,95; 1; ' + dfE + '</sub> = ' + fmt(fc, 2) + '. R² = (SS<sub>T</sub> − SS<sub>E</sub>)/SS<sub>T</sub> = ' + fmt((SST - SSE) / SST, 4) + '.';
+      msg += isSlide() ? '<br><strong>Esta é a configuração do slide 42:</strong> os F e o R² batem com a saída de lá.' : '<br>Configuração fora dos slides: é a mesma conta, feita com as somas de quadrados do slide 38.';
+    }
+    $('#l-read').innerHTML = msg;
+  }
+  function renderAll(){ renderDaniel(); renderLab(); }
+  $('#d-svg').addEventListener('click', function(e){ var g = e.target.closest('g.pt'); if (g) { var x = g.getAttribute('data-t'); inModel[x] = !inModel[x]; renderAll(); } });
+  $('#d-svg').addEventListener('keydown', function(e){
+    var g = e.target.closest && e.target.closest('g.pt');
+    if (g && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault(); var x = g.getAttribute('data-t'); inModel[x] = !inModel[x]; renderAll();
+      var n = $('#d-svg g.pt[data-t="' + x + '"]'); if (n) n.focus();
+    }
+  });
+  $$('[data-dp]').forEach(function(b){ b.addEventListener('click', function(){
+    if (b.getAttribute('data-dp') === 'slide') setSlide(); else TERMS.forEach(function(x){ inModel[x] = true; });
+    renderAll();
+  }); });
+  $$('[data-lp]').forEach(function(b){ b.addEventListener('click', function(){
+    var k = b.getAttribute('data-lp');
+    if (k === 'slide') setSlide();
+    else if (k === 'all') TERMS.forEach(function(x){ inModel[x] = true; });
+    else TERMS.forEach(function(x){ inModel[x] = x !== 'ABC'; });
+    renderAll();
+  }); });
+  renderAll();
+
+  /* ---------- passo 8: médias por nível e t0 ---------- */
+  (function(){
+    var MSE42 = (SS.AB + SS.AC + SS.BC + SS.ABC) / 4;
+    var html = '';
+    ['A','B','C'].forEach(function(L){
+      var v = [mean(L, -1), mean(L, 1)];
+      html += '<figure class="pan"><figcaption>' + L + ' · ' + F[L].nome + '</figcaption>' +
+        linePanel({aria:'Proporção conforme média por nível de ' + F[L].nome, xl:[F[L].loS, F[L].hiS], xname:'', series:[{c:'one', v:v}], ymin:0.3, ymax:0.9, ticks:[0.3, 0.5, 0.7, 0.9]}) +
+        '<p class="pcap">Diferença: <span class="v">' + sgnS(v[1] - v[0], 4) + '</span></p></figure>';
+    });
+    $('#e-panels').innerHTML = html;
+    var SLIDE43 = {A:{est:'-0.50750', t:'-16.63', p:'7.66e-05'}, B:{est:'-0.20750', t:'-6.8', p:'0.00244'}};
+    var st = {f:'A'};
+    function render(){
+      pressSeg($('#e-f'), 'data-f', st.f);
+      var L = st.f, lo = mean(L, -1), hi = mean(L, 1), d = lo - hi, se = Math.sqrt(2 * MSE42 / 4), t0 = d / se;
+      $('#e-calc').innerHTML =
+        'Δȳ = ȳ(' + F[L].loS + ') − ȳ(' + F[L].hiS + ') = ' + fmt(lo, 4) + ' − ' + fmt(hi, 4) + ' = ' + fmtS(d, 4) + '<br>' +
+        'MS<sub>E</sub> do modelo reduzido = ' + fmt(SS.AB + SS.AC + SS.BC + SS.ABC, 4) + ' / 4 = ' + fmt(MSE42, 5) + ' · n′ = 4 lotes por nível<br>' +
+        'Erro padrão = √(2 × ' + fmt(MSE42, 5) + ' / 4) = ' + fmt(se, 5) + '<br>' +
+        't<sub>0</sub> = ' + fmtS(d, 4) + ' / ' + fmt(se, 5) + ' = <b>' + fmtS(t0, 2) + '</b><br>' +
+        '<span class="ok">Slide 43: Estimate ' + SLIDE43[L].est + ', Std. Error 0.03052, t value ' + SLIDE43[L].t + ', p = ' + SLIDE43[L].p + '</span>';
+    }
+    $$('#e-f button').forEach(function(b){ b.addEventListener('click', function(){ st.f = b.getAttribute('data-f'); render(); }); });
+    render();
+  })();
+
+  show(location.hash.slice(1), false);
+})();
+</script>

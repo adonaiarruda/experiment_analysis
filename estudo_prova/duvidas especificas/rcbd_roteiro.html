@@ -1,0 +1,1094 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Roteiro RCBD</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&family=STIX+Two+Text:ital@0;1&display=swap">
+<style>
+:root{
+  /* Layout: caderno de laboratório. Trilho com os 9 passos à esquerda (vira faixa rolável no celular); um passo por vez numa coluna de leitura de ~72ch. */
+  --paper:#f4f6fa; --card:#ffffff; --ink:#172033; --muted:#586379; --line:#d7dde9;
+  --accent:#2445c4; --accent-ink:#ffffff; --accent-soft:#e6ebfa;
+  --amber:#a35200; --amber-soft:#fcefdc; --good:#1b7246; --good-soft:#e1f2e8; --bad:#ad2a20; --bad-soft:#fae5e2;
+  --code:#ebeef5; --grid:rgba(36,69,196,.075);
+  --t1:#2445c4; --t2:#b04e0a; --t3:#1b7246; --t4:#7a3fb8; --t5:#0f7480; --t6:#b02a55; --t7:#7d6300; --t-ink:#ffffff;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --f-math:"STIX Two Text","Cambria Math","Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0e131d; --card:#151c29; --ink:#e4e9f2; --muted:#9aa5b9; --line:#29334a;
+    --accent:#8fa6ff; --accent-ink:#0e131d; --accent-soft:#1b2646;
+    --amber:#f0a24a; --amber-soft:#2c2213; --good:#5fd39a; --good-soft:#11281d; --bad:#ff8b7f; --bad-soft:#331a1a;
+    --code:#1a2232; --grid:rgba(143,166,255,.06);
+    --t1:#8fa6ff; --t2:#f5a061; --t3:#5fd39a; --t4:#c7a2f5; --t5:#5cc9d6; --t6:#f483a4; --t7:#dcbb4a; --t-ink:#0e131d;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0e131d; --card:#151c29; --ink:#e4e9f2; --muted:#9aa5b9; --line:#29334a;
+  --accent:#8fa6ff; --accent-ink:#0e131d; --accent-soft:#1b2646;
+  --amber:#f0a24a; --amber-soft:#2c2213; --good:#5fd39a; --good-soft:#11281d; --bad:#ff8b7f; --bad-soft:#331a1a;
+  --code:#1a2232; --grid:rgba(143,166,255,.06);
+  --t1:#8fa6ff; --t2:#f5a061; --t3:#5fd39a; --t4:#c7a2f5; --t5:#5cc9d6; --t6:#f483a4; --t7:#dcbb4a; --t-ink:#0e131d;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:1.0625rem;line-height:1.62}
+a{color:var(--accent);text-underline-offset:.15em}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--code);padding:.06em .35em;border-radius:4px}
+sub,sup{line-height:0}
+
+/* topo */
+.hero{background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px;border-bottom:1px solid var(--line)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.hero .wrap{padding-block:2rem 1.5rem}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 .4rem}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(2.1rem,5vw,3rem);line-height:1.04;margin:0 0 .55rem;letter-spacing:-.015em;text-wrap:balance}
+.sub{max-width:70ch;margin:0;color:var(--muted)}
+.meter{display:flex;align-items:center;gap:.75rem;margin-top:1rem;font-family:var(--f-mono);font-size:.76rem;color:var(--muted);flex-wrap:wrap}
+.meter .bar{flex:0 1 200px;width:200px;height:6px;background:var(--line);border-radius:99px;overflow:hidden}
+.meter .bar i{display:block;height:100%;width:0;background:var(--good);transition:width .4s}
+
+/* casca */
+.shell{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:1.6rem 4rem;display:grid;grid-template-columns:236px minmax(0,1fr);gap:2.6rem;align-items:start}
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 1rem)}
+.rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.12rem;position:relative}
+.rail .ph{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);padding:.95rem .5rem .3rem}
+.rail .ph:first-child{padding-top:0}
+.ri{display:flex;align-items:center;gap:.6rem;padding:.4rem .5rem;border-radius:8px;color:var(--ink);text-decoration:none;font-size:.94rem;line-height:1.25}
+.ri:hover{background:var(--accent-soft)}
+.ri .n{flex:none;width:1.65rem;height:1.65rem;border-radius:50%;display:grid;place-items:center;font-family:var(--f-mono);font-size:.74rem;font-weight:600;border:1.5px solid var(--line);color:var(--muted);background:var(--card)}
+.ri.ok .n{border-color:var(--good);color:var(--good);background:var(--good-soft)}
+.ri.miss .n{border-color:var(--amber);color:var(--amber);background:var(--amber-soft)}
+.ri[aria-current="step"]{background:var(--accent-soft);font-weight:700}
+.ri[aria-current="step"] .n{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+@media (max-width:880px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:1.1rem;padding-top:1rem}
+  .rail{position:static}
+  .rail ol{flex-direction:row;overflow-x:auto;gap:.3rem;padding-bottom:.45rem;scrollbar-width:thin}
+  .rail .ph{display:none}
+  .ri{flex:none;padding:.3rem}
+  .ri .t{display:none}
+  .ri[aria-current="step"] .t{display:inline;white-space:nowrap;padding-right:.45rem}
+}
+
+/* passo */
+main{min-width:0}
+.step{max-width:760px}
+.step h2{font-family:var(--f-display);font-weight:700;font-size:clamp(1.6rem,3.4vw,2.15rem);line-height:1.1;margin:.15rem 0 .8rem;text-wrap:balance;letter-spacing:-.01em}
+.step h3{font-family:var(--f-display);font-weight:600;font-size:1.12rem;margin:1.9rem 0 .5rem;text-wrap:balance}
+.lead{font-size:1.13rem;margin:0 0 1.1rem}
+.step p{margin:.6rem 0}
+.step ul,.step ol.plain{padding-left:1.25rem;margin:.6rem 0}
+.step li{margin:.28rem 0}
+.quote{font-family:var(--f-math);font-style:italic;font-size:1.25rem;margin:1.1rem 0 .3rem;line-height:1.35}
+.quote + .who{margin:0 0 1rem;font-size:.85rem;color:var(--muted)}
+.widget{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1rem 1.1rem 1.15rem;margin:1.3rem 0;min-width:0}
+.wh{display:flex;justify-content:space-between;align-items:baseline;gap:.4rem 1rem;flex-wrap:wrap;margin-bottom:.75rem}
+.wh h3{margin:0;font-size:1.02rem}
+.wh .tag{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.note{background:var(--accent-soft);border-radius:10px;padding:.75rem 1rem;margin:1rem 0}
+.note .tag,.leaf .tag{display:block;font-family:var(--f-mono);font-size:.64rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.15rem}
+.note.warn{background:var(--amber-soft)} .note.warn .tag{color:var(--amber)}
+.note.ex{background:var(--code)} .note.ex .tag{color:var(--muted)}
+.note p{margin:.3rem 0}
+.formula{font-family:var(--f-math);font-size:1.2rem;background:var(--code);border-radius:8px;padding:.7rem 1rem;margin:.8rem 0;overflow-x:auto;line-height:1.55}
+.formula small{display:block;font-family:var(--f-body);font-size:.82rem;color:var(--muted);margin-top:.2rem}
+pre.r{font-family:var(--f-mono);font-size:.8rem;line-height:1.55;background:var(--code);border-radius:8px;padding:.8rem 1rem;overflow-x:auto;margin:.8rem 0;white-space:pre;tab-size:2}
+pre.r .c{color:var(--muted)}
+.src{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);margin-top:1.8rem;padding-top:.8rem;border-top:1px dashed var(--line)}
+
+/* controles */
+.btn{font:inherit;font-size:.92rem;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:.4rem .85rem;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.small{font-size:.8rem;padding:.25rem .6rem}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--card)}
+.seg button{font:inherit;font-size:.88rem;border:0;background:transparent;color:var(--ink);padding:.38rem .75rem;cursor:pointer}
+.seg button + button{border-left:1.5px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.row{display:flex;flex-wrap:wrap;gap:.6rem 1.1rem;align-items:center}
+.sl{display:flex;align-items:center;gap:.5rem;font-size:.9rem}
+.sl input[type=range]{accent-color:var(--accent);width:130px}
+.sl select{font:inherit;font-size:.88rem;padding:.25rem .4rem;border-radius:6px;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+.v{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:600;min-width:2ch;display:inline-block}
+.scroll{overflow-x:auto;padding-bottom:.3rem}
+.readout{margin-top:.8rem;font-size:.95rem;min-height:3em}
+.chk{display:flex;gap:.5rem;align-items:center;font-size:.9rem;cursor:pointer}
+.chk input{accent-color:var(--accent);width:1rem;height:1rem}
+
+/* árvore de decisão */
+.path{list-style:none;padding:0;margin:0 0 .7rem;display:flex;flex-wrap:wrap;gap:.35rem}
+.path li{font-size:.76rem;font-family:var(--f-mono);background:var(--code);border-radius:99px;padding:.12rem .6rem;margin:0}
+.qq{font-weight:700;margin:.1rem 0 .65rem}
+.leaf{border-radius:10px;padding:.75rem 1rem}
+.leaf strong{display:block;font-family:var(--f-display);font-size:1.15rem;margin-bottom:.15rem}
+.leaf.good{background:var(--good-soft)} .leaf.good strong,.leaf.good .tag{color:var(--good)}
+.leaf.rand{background:var(--accent-soft)}
+.leaf.warn{background:var(--amber-soft)} .leaf.warn strong,.leaf.warn .tag{color:var(--amber)}
+.leaf.info{background:var(--code)} .leaf.info .tag{color:var(--muted)}
+.presets{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+
+/* funil e grade de blocos */
+.funnel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem;margin-bottom:1rem}
+.fstep{border:1px solid var(--line);border-radius:10px;padding:.6rem .75rem;background:var(--paper)}
+.fstep .k{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.fstep b{display:block;font-family:var(--f-display);font-size:1.55rem;font-variant-numeric:tabular-nums;line-height:1.2}
+.fstep span.d{display:block;font-size:.82rem;color:var(--muted);line-height:1.35}
+.fstep.final{border-color:var(--accent);background:var(--accent-soft)}
+@media (max-width:560px){.funnel{grid-template-columns:minmax(0,1fr)}}
+.bgrid{display:grid;grid-template-columns:4.4rem repeat(36,14px);gap:3px;align-items:center;width:max-content}
+.bgrid .rl{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);text-align:right;padding-right:.45rem}
+.bgrid .cl{font-family:var(--f-mono);font-size:.6rem;color:var(--muted);text-align:center;height:14px;line-height:14px}
+.bgrid .cell{width:14px;height:14px;border-radius:3px;background:var(--c);opacity:.22;cursor:pointer;transition:opacity .2s}
+.bgrid .cell.line{opacity:.62}
+.bgrid .cell.sel{opacity:1;outline:2px solid var(--ink);outline-offset:1px}
+
+/* grade de aleatorização */
+.rgrid{display:grid;gap:4px;width:max-content;align-items:center}
+.rgrid .h{font-family:var(--f-mono);font-size:.68rem;color:var(--muted);text-align:center;line-height:1.2}
+.rgrid .rl{font-family:var(--f-mono);font-size:.68rem;color:var(--muted);text-align:right;padding-right:.4rem}
+.rgrid .cell{height:2rem;border-radius:6px;display:grid;place-items:center;font-family:var(--f-mono);font-size:.76rem;font-weight:600;color:var(--t-ink)}
+.rgrid .foot{font-family:var(--f-mono);font-size:.64rem;text-align:center;line-height:1.25;align-self:start;padding-top:.2rem}
+.rgrid .foot.okc{color:var(--good)} .rgrid .foot.bad{color:var(--bad);font-weight:600}
+
+/* modelo */
+.model{font-family:var(--f-math);font-size:1.45rem;display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .35rem}
+.model .term{font:inherit;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:0 .5rem;cursor:pointer;line-height:1.6}
+.model .term[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.model .term.gone{text-decoration:line-through;opacity:.4}
+.termdesc{margin-top:.7rem;min-height:3.2em;font-size:.95rem}
+table.t{border-collapse:collapse;width:100%;font-size:.9rem}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:.42rem .55rem;text-align:left;vertical-align:top}
+table.t th{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+table.t td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+table.t td.f{font-family:var(--f-math);white-space:nowrap}
+table.t tr.hl td{background:var(--accent-soft)}
+
+/* barras SQ e eficiência */
+.ssbar{display:flex;height:36px;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:var(--paper)}
+.ssbar span{display:block;height:100%;min-width:2px;transition:flex-basis .5s}
+.c-trt{background:var(--accent)} .c-blk{background:var(--amber)} .c-res{background:var(--muted)}
+.c-mix{background:repeating-linear-gradient(45deg,var(--muted) 0 6px,var(--amber) 6px 12px)}
+.legend{display:grid;gap:.3rem;margin-top:.75rem;font-size:.9rem}
+.legend div{display:flex;gap:.55rem;align-items:center}
+.legend i{width:12px;height:12px;border-radius:3px;flex:none}
+.legend .num{margin-left:auto;font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.84rem;white-space:nowrap}
+.ebars{display:grid;grid-template-columns:4.6rem minmax(0,1fr);gap:.55rem .7rem;align-items:center;margin-top:1rem}
+.ebars .lbl{font-family:var(--f-mono);font-size:.76rem;color:var(--muted)}
+.etrack{position:relative;height:24px}
+.ebar{height:100%;border-radius:5px;transition:width .5s}
+.ebar.r{background:var(--accent)} .ebar.c{background:var(--amber)}
+.ebar.brk{background:repeating-linear-gradient(90deg,var(--amber) 0 calc(100% - 26px),transparent calc(100% - 26px) calc(100% - 20px),var(--amber) calc(100% - 20px))}
+.etrack .lab{position:absolute;right:.4rem;top:50%;transform:translateY(-50%);font-family:var(--f-mono);font-size:.74rem;font-weight:600;color:var(--t-ink)}
+
+/* Dunnett */
+svg.ci{display:block;width:100%;min-width:540px;height:auto}
+svg.ci text{fill:var(--ink);font-family:var(--f-mono);font-size:12px}
+svg.ci text.mut{fill:var(--muted);font-size:11px}
+svg.ci .ax{stroke:var(--muted);stroke-width:1;fill:none}
+svg.ci .zero{stroke:var(--muted);stroke-dasharray:4 4;fill:none}
+svg.ci .gl{stroke:var(--line);fill:none}
+svg.ci .hit{fill:transparent}
+svg.ci g.rw{cursor:pointer}
+svg.ci g.rw:hover .hit,svg.ci g.rw.sel .hit{fill:var(--accent-soft)}
+svg.ci g.rw:focus{outline:none}
+svg.ci g.rw:focus-visible .hit{stroke:var(--accent);stroke-width:2}
+svg.ci .ci-l{stroke-width:2;fill:none}
+svg.ci .better .ci-l{stroke:var(--good)} svg.ci .better circle{fill:var(--good)}
+svg.ci .worse .ci-l{stroke:var(--bad)} svg.ci .worse circle{fill:var(--bad)}
+svg.ci .none .ci-l{stroke:var(--amber)} svg.ci .none circle{fill:var(--amber)}
+.pill{display:inline-block;font-family:var(--f-mono);font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:.1rem .5rem;border-radius:99px;margin-right:.35rem}
+.pill.better{background:var(--good-soft);color:var(--good)} .pill.worse{background:var(--bad-soft);color:var(--bad)} .pill.none{background:var(--amber-soft);color:var(--amber)}
+
+/* checagem */
+.quiz{margin-top:2rem;border:1.5px dashed var(--line);border-radius:12px;padding:1rem 1.1rem}
+.quiz .qh{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.quiz p.q{font-weight:700;margin:.3rem 0 .75rem}
+.quiz .opts{display:grid;gap:.45rem}
+.quiz .opts button{text-align:left;font:inherit;font-size:.95rem;padding:.55rem .8rem;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);cursor:pointer}
+.quiz .opts button:hover:not(:disabled){border-color:var(--accent)}
+.quiz .opts button:disabled{cursor:default}
+.quiz .opts button.right{border-color:var(--good);background:var(--good-soft)}
+.quiz .opts button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.quiz .fb{margin-top:.75rem;font-size:.95rem}
+.linkish{font:inherit;font-size:.88rem;background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;text-underline-offset:.15em;cursor:pointer;margin-left:.3rem}
+
+/* paginação */
+.pager{max-width:760px;display:flex;justify-content:space-between;gap:.8rem;margin-top:2.2rem;flex-wrap:wrap}
+.pager a{display:flex;flex-direction:column;gap:.1rem;text-decoration:none;color:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:.6rem .9rem;flex:1 1 220px;min-width:0;background:var(--card)}
+.pager a small{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.pager a span{font-weight:700}
+.pager a.next{text-align:right}
+.pager a:hover{border-color:var(--accent)}
+.kbd{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);margin-top:.8rem}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">EEE933 · Aula 10 · Blocagem</p>
+    <h1>Roteiro RCBD</h1>
+    <p class="sub">O experimento completamente aleatorizado com blocos em 9 passos, do planejamento às comparações múltiplas. Conteúdo e números vêm de <code>Slides/10_Blocagem.pdf</code> e de <code>codigos/10-Blocagem/Blocking.R</code>, com o exemplo dos algoritmos para roteamento de veículos.</p>
+    <div class="meter"><span class="bar"><i id="meterbar"></i></span><span id="metertxt">0 de 9 checagens certas</span></div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" aria-label="Passos do roteiro">
+    <ol id="railol">
+      <li class="ph" aria-hidden="true">Planejar</li>
+      <li><a class="ri" href="#passo-1" data-id="passo-1"><span class="n">1</span><span class="t">Bloquear ou aleatorizar?</span></a></li>
+      <li><a class="ri" href="#passo-2" data-id="passo-2"><span class="n">2</span><span class="t">Blocos e observação</span></a></li>
+      <li><a class="ri" href="#passo-3" data-id="passo-3"><span class="n">3</span><span class="t">Quantos blocos</span></a></li>
+      <li><a class="ri" href="#passo-4" data-id="passo-4"><span class="n">4</span><span class="t">Layout e sorteio</span></a></li>
+      <li class="ph" aria-hidden="true">Analisar</li>
+      <li><a class="ri" href="#passo-5" data-id="passo-5"><span class="n">5</span><span class="t">Modelo e hipóteses</span></a></li>
+      <li><a class="ri" href="#passo-6" data-id="passo-6"><span class="n">6</span><span class="t">Ajuste e resíduos</span></a></li>
+      <li><a class="ri" href="#passo-7" data-id="passo-7"><span class="n">7</span><span class="t">Teste F</span></a></li>
+      <li><a class="ri" href="#passo-8" data-id="passo-8"><span class="n">8</span><span class="t">Eficiência da blocagem</span></a></li>
+      <li><a class="ri" href="#passo-9" data-id="passo-9"><span class="n">9</span><span class="t">Comparações múltiplas</span></a></li>
+      <li class="ph" aria-hidden="true">Revisar</li>
+      <li><a class="ri" href="#resumo" data-id="resumo"><span class="n">≡</span><span class="t">Resumo e variações</span></a></li>
+    </ol>
+  </nav>
+
+  <main id="main">
+
+<!-- ============================================================ PASSO 1 -->
+<section class="step" data-id="passo-1" aria-labelledby="h1-1">
+  <p class="eyebrow">Passo 1 de 9 · Planejar</p>
+  <h2 id="h1-1">Decida o que bloquear e o que aleatorizar</h2>
+  <p class="lead">Antes de qualquer conta, liste o que, além do fator de interesse, pode mexer na resposta. São os <strong>fatores indesejáveis</strong> (nuisance factors). O destino de cada um depende de você conhecê-lo e conseguir controlá-lo.</p>
+  <p class="quote">“Block what you can, randomize what you cannot.”</p>
+  <p class="who">George E. P. Box, citado no slide 5</p>
+
+  <div class="widget">
+    <div class="wh"><h3>Classifique um fator indesejável</h3><span class="tag">Interativo</span></div>
+    <div id="tree" aria-live="polite"></div>
+    <div class="presets"><span>Testar com:</span>
+      <button type="button" class="btn small" data-preset="inst">Grupo de instâncias do PRV</button>
+      <button type="button" class="btn small" data-preset="lote">Lote de matéria-prima</button>
+      <button type="button" class="btn small" data-preset="desc">Algo que ninguém mediu</button>
+    </div>
+  </div>
+
+  <h3>Os três tipos de fator indesejável</h3>
+  <ol class="plain">
+    <li><strong>Desconhecidos</strong> (e não controláveis): a aleatorização impede que enviesem as observações.</li>
+    <li><strong>Conhecidos, mas não controláveis.</strong></li>
+    <li><strong>Conhecidos e controláveis</strong>: bloqueie. Os efeitos deles saem do resíduo na modelagem.</li>
+  </ol>
+  <p>A blocagem é a generalização do <strong>pareamento</strong> (Aula 06) para qualquer número de níveis. Ela aumenta o poder do teste mesmo sem um fator indesejável conhecido, porque tira do resíduo a variabilidade entre repetições.</p>
+
+  <div class="note ex"><span class="tag">Exemplo da aula</span>
+    <p>Um pesquisador compara um algoritmo padrão de otimização com 6 versões modificadas num Problema de Roteamento de Veículos (PRV). São 180 instâncias em 36 grupos homogêneos, com 30 execuções por instância, e a resposta é o custo minimizado. As instâncias variam muito entre si, ele escolhe onde cada algoritmo roda e não tem interesse no efeito das instâncias. Por isso cada <strong>grupo de instâncias vira um bloco</strong>.</p>
+    <p>Metas: α = 0,05, poder π = 0,8 e efeito minimamente relevante δ* = 50.</p>
+  </div>
+  <div class="quiz"></div>
+  <p class="src">Fonte: 10_Blocagem.pdf, slides 4–11</p>
+</section>
+
+<!-- ============================================================ PASSO 2 -->
+<section class="step" data-id="passo-2" aria-labelledby="h1-2" hidden>
+  <p class="eyebrow">Passo 2 de 9 · Planejar</p>
+  <h2 id="h1-2">Defina os blocos e o que conta como uma observação</h2>
+  <p class="lead">O RCBD pede <strong>exatamente uma observação por tratamento em cada bloco</strong>. Se você mede várias vezes, resuma antes de modelar.</p>
+
+  <h3>Premissas do desenho</h3>
+  <ul>
+    <li>Uma observação por tratamento por bloco. Com várias observações por bloco, o desenho é outro: GRBD (generalized randomized block design).</li>
+    <li>Blocos independentes.</li>
+    <li>Aleatorização dentro de cada bloco feita de forma independente.</li>
+  </ul>
+  <div class="note warn"><span class="tag">Cuidado</span>
+    <p>Blocos que não são independentes geram <strong>pseudorreplicação</strong>: o teste usa graus de liberdade errados e a taxa de erro tipo I aumenta.</p>
+  </div>
+
+  <div class="widget">
+    <div class="wh"><h3>Do arquivo bruto à tabela do RCBD</h3><span class="tag">Interativo</span></div>
+    <div class="funnel">
+      <div class="fstep"><span class="k">algo.csv</span><b>37 800</b><span class="d">custos: 7 algoritmos × 180 instâncias × 30 execuções</span></div>
+      <div class="fstep"><span class="k">média por instância</span><b>1 260</b><span class="d">7 × 180, cada uma a média de 30 execuções</span></div>
+      <div class="fstep final"><span class="k">observações do RCBD</span><b>252</b><span class="d">7 × 36, cada uma a média das 5 instâncias do grupo</span></div>
+    </div>
+    <div class="row" style="margin-bottom:.7rem">
+      <label class="sl" for="selAlg">Algoritmo
+        <select id="selAlg"></select></label>
+      <label class="sl" for="selGrp">Bloco (grupo)
+        <select id="selGrp"></select></label>
+    </div>
+    <div class="scroll"><div class="bgrid" id="bgrid" aria-hidden="true"></div></div>
+    <div class="readout" id="bout" aria-live="polite"></div>
+    <label class="chk" for="pseudo"><input type="checkbox" id="pseudo"> E se eu usasse as 30 execuções de cada instância como réplicas?</label>
+    <div class="note warn" id="pseudoNote" hidden><span class="tag">Pseudorreplicação</span>
+      <p>As execuções no mesmo grupo de instâncias não são independentes entre si. Tratá-las como réplicas infla os graus de liberdade do resíduo e aumenta o erro tipo I (slide 12). Por isso a aula agrega tudo em uma média por algoritmo e bloco.</p>
+    </div>
+  </div>
+
+  <h3>No R</h3>
+<pre class="r"><span class="c"># Blocking.R, seção 1 (slide 15)</span>
+data &lt;- read.table("algo.csv", header = TRUE)
+
+<span class="c"># média de Result por algoritmo e grupo: 1 observação por célula</span>
+aggdata &lt;- with(data, aggregate(x   = Result,
+                                by  = list(Algorithm, Group),
+                                FUN = mean))
+names(aggdata) &lt;- c("Algorithm", "Instance_Group", "Y")
+for (i in 1:2) aggdata[, i] &lt;- as.factor(aggdata[, i])
+levels(aggdata$Algorithm) &lt;- c("Original",
+                               unlist(lapply("Mod", paste0, 1:6)))
+summary(aggdata)
+<span class="c">#  Algorithm  Instance_Group       Y
+#  Original:36   1      :  7   Min.   : 227.3
+#  Mod1    :36   2      :  7   Median : 756.8
+#  ...           (Other):210   Max.   :2743.6</span></pre>
+  <div class="quiz"></div>
+  <p class="src">Fonte: 10_Blocagem.pdf, slides 12, 14–15 · Blocking.R, seção 1</p>
+</section>
+
+<!-- ============================================================ PASSO 3 -->
+<section class="step" data-id="passo-3" aria-labelledby="h1-3" hidden>
+  <p class="eyebrow">Passo 3 de 9 · Planejar</p>
+  <h2 id="h1-3">Calcule quantos blocos você precisa</h2>
+  <p class="lead">Use as mesmas fórmulas do CRD (Aula 08). O <strong>n que sai da conta é o número de blocos</strong>, e cada bloco recebe uma observação de cada tratamento.</p>
+  <ul>
+    <li>O σ² da conta é a <strong>variância residual</strong>: o que sobra depois de tirar o efeito do tratamento e do bloco. Estime com um estudo piloto ou com estudos anteriores.</li>
+    <li>Se o objetivo final é comparar pares, planeje pelas comparações post-hoc: corrija o α para K comparações e use a fórmula do teste t de duas amostras.</li>
+    <li>Também existem curvas características de operação (OC), que dependem de δ, σ, b e a.</li>
+  </ul>
+  <div class="formula">α<sub>aj</sub> = α / K &nbsp;&nbsp;(Bonferroni) &nbsp;&nbsp;&nbsp; n ≈ 2 [ ( t<sub>α<sub>aj</sub>/2</sub> + t<sub>β</sub> ) / d* ]²
+    <small>t com a(n − 1) graus de liberdade · d* = efeito minimamente relevante normalizado (Aula 08, slide 36)</small></div>
+
+  <div class="widget">
+    <div class="wh"><h3>Quantas comparações você vai fazer?</h3><span class="tag">Interativo</span></div>
+    <div class="row">
+      <div class="seg" role="group" aria-label="Tipo de comparação">
+        <button type="button" data-k="dunnett" aria-pressed="true">Todos contra um</button>
+        <button type="button" data-k="tukey" aria-pressed="false">Todos contra todos</button>
+      </div>
+      <label class="sl" for="ka">Tratamentos a = <span class="v" id="kav">7</span>
+        <input type="range" id="ka" min="2" max="10" value="7"></label>
+    </div>
+    <p class="readout" id="kout" aria-live="polite"></p>
+    <p style="font-size:.88rem;color:var(--muted);margin:0">Quanto mais comparações, menor o α de cada uma e maior o número de blocos. Defina as comparações antes de coletar os dados.</p>
+  </div>
+
+  <div class="note ex"><span class="tag">Exemplo resolvido · Aula 08</span>
+    <p>a = 4, α = 0,05, σ = 7, δ* = 12 e poder 0,8. Cenário conservador: dois níveis com desvios simétricos e dois sem desvio, τ = (−δ*/2, δ*/2, 0, 0). O <code>power.anova.test</code> devolve n = 8,46.</p>
+    <p><strong>Leitura no RCBD:</strong> 9 blocos, cada um com os 4 tratamentos.</p>
+  </div>
+<pre class="r"><span class="c"># ANOVA.R (Aula 08, slide 40)</span>
+tau    &lt;- c(-delta / 2, delta / 2, rep(0, a - 2))
+vartau &lt;- var(tau)
+power.anova.test(groups = 4, between.var = vartau,
+                 within.var = sigma^2, sig.level = alpha,
+                 power = 1 - beta)$n
+<span class="c"># [1] 8.463358</span></pre>
+  <div class="note warn"><span class="tag">Sobre o exemplo dos algoritmos</span>
+    <p>Os slides dão as metas (α = 0,05, π = 0,8, δ* = 50), mas não mostram o n calculado para elas. O experimento já vem com 36 blocos.</p>
+  </div>
+  <div class="quiz"></div>
+  <p class="src">Fonte: 10_Blocagem.pdf, slides 33–34 · 08_ANOVA.pdf, slides 34–40 · ANOVA.R</p>
+</section>
+
+<!-- ============================================================ PASSO 4 -->
+<section class="step" data-id="passo-4" aria-labelledby="h1-4" hidden>
+  <p class="eyebrow">Passo 4 de 9 · Planejar</p>
+  <h2 id="h1-4">Monte o layout e sorteie a ordem dentro de cada bloco</h2>
+  <p class="lead">Cada bloco recebe <strong>todos</strong> os tratamentos. Dentro de cada bloco, sorteie a ordem de execução, para que fatores desconhecidos não se confundam com o tratamento.</p>
+
+  <div class="widget">
+    <div class="wh"><h3>RCBD contra CRD na mesma grade</h3><span class="tag">Interativo</span></div>
+    <div class="row" style="margin-bottom:.9rem">
+      <div class="seg" role="group" aria-label="Desenho">
+        <button type="button" data-d="rcbd" aria-pressed="true">RCBD</button>
+        <button type="button" data-d="crd" aria-pressed="false">CRD</button>
+      </div>
+      <label class="sl" for="ra">a = <span class="v" id="rav">4</span><input type="range" id="ra" min="2" max="7" value="4"></label>
+      <label class="sl" for="rb">b = <span class="v" id="rbv">6</span><input type="range" id="rb" min="3" max="10" value="6"></label>
+      <button type="button" class="btn" id="redraw">Sortear de novo</button>
+    </div>
+    <div class="scroll"><div class="rgrid" id="rgrid"></div></div>
+    <p class="readout" id="rout" aria-live="polite"></p>
+  </div>
+
+  <p>No CRD os tratamentos são sorteados entre todas as unidades, sem respeitar os grupos. Uns grupos ficam sem algum tratamento e outros recebem o mesmo duas vezes. A diferença entre grupos então vai para o resíduo e mascara o efeito que interessa.</p>
+  <div class="note"><span class="tag">Experimento computacional</span>
+    <p>O sorteio dentro do bloco é dispensável se você controla ou descarta efeitos de ordem, aquecimento e carga da máquina.</p>
+  </div>
+  <div class="quiz"></div>
+  <p class="src">Fonte: 10_Blocagem.pdf, slides 2–3, 10–11</p>
+</section>
+
+<!-- ============================================================ PASSO 5 -->
+<section class="step" data-id="passo-5" aria-labelledby="h1-5" hidden>
+  <p class="eyebrow">Passo 5 de 9 · Analisar</p>
+  <h2 id="h1-5">Escreva o modelo e as hipóteses</h2>
+  <p class="lead">O modelo ganha um termo para o bloco. As hipóteses continuam só sobre o fator de interesse.</p>
+
+  <div class="widget">
+    <div class="wh"><h3>Clique em cada termo</h3><span class="tag">Interativo</span></div>
+    <div class="model" id="model">
+      <button type="button" class="term" data-t="y">y<sub>ij</sub></button><span>=</span>
+      <button type="button" class="term" data-t="mu">μ</button><span>+</span>
+      <button type="button" class="term" data-t="tau">τ<sub>i</sub></button><span>+</span>
+      <button type="button" class="term" data-t="beta" id="tBeta">β<sub>j</sub></button><span>+</span>
+      <button type="button" class="term" data-t="eps">ε<sub>ij</sub></button>
+    </div>
+    <p class="termdesc" id="tdesc" aria-live="polite"></p>
+    <label class="chk" for="asCrd"><input type="checkbox" id="asCrd"> Ver como CRD (sem o termo do bloco)</label>
+  </div>
+
+  <div class="formula">i = 1, …, a (tratamentos) &nbsp;·&nbsp; j = 1, …, b (blocos) &nbsp;·&nbsp; ε<sub>ij</sub> ~ N(0, σ²) &nbsp;·&nbsp; Σ τ<sub>i</sub> = 0, &nbsp;Σ β<sub>j</sub> = 0</div>
+  <div class="formula">H<sub>0</sub>: τ<sub>i</sub> = 0, ∀ i = 1, …, a &nbsp;&nbsp;&nbsp; H<sub>1</sub>: ∃ τ<sub>i</sub> ≠ 0</div>
+
+  <h3>Partição da variabilidade</h3>
+  <div class="formula">SS<sub>T</sub> = <span title="SS níveis">b Σ<sub>i</sub> (ȳ<sub>i·</sub> − ȳ<sub>··</sub>)²</span> + <span title="SS blocos">a Σ<sub>j</sub> (ȳ<sub>·j</sub> − ȳ<sub>··</sub>)²</span> + Σ<sub>i</sub> Σ<sub>j</sub> (y<sub>ij</sub> − ȳ<sub>i·</sub> − ȳ<sub>·j</sub> + ȳ<sub>··</sub>)²
+    <small>= SS<sub>níveis</sub> + SS<sub>blocos</sub> + SS<sub>E</sub></small></div>
+  <div class="formula">E[MS<sub>níveis</sub>] = σ² + b Σ τ<sub>i</sub>² / (a − 1) &nbsp;&nbsp; E[MS<sub>blocos</sub>] = σ² + a Σ β<sub>j</sub>² / (b − 1) &nbsp;&nbsp; E[MS<sub>E</sub>] = σ²
+    <small>Sob H<sub>0</sub>, MS<sub>níveis</sub> e MS<sub>E</sub> estimam o mesmo σ². É isso que justifica a razão F do passo 7.</small></div>
+
+  <div class="widget">
+    <div class="wh"><h3>Graus de liberdade</h3><span class="tag">Interativo</span></div>
+    <div class="row" style="margin-bottom:.8rem">
+      <label class="sl" for="da">a = <span class="v" id="dav">7</span><input type="range" id="da" min="2" max="10" value="7"></label>
+      <label class="sl" for="db">b = <span class="v" id="dbv">36</span><input type="range" id="db" min="2" max="40" value="36"></label>
+    </div>
+    <div class="scroll"><table class="t" id="dft"></table></div>
+    <p class="readout" id="dfout"></p>
+  </div>
+  <div class="quiz"></div>
+  <p class="src">Fonte: 10_Blocagem.pdf, slides 18–22 e 30 · 08_ANOVA.pdf (gl do CRD)</p>
+</section>
+
+<!-- ============================================================ PASSO 6 -->
+<section class="step" data-id="passo-6" aria-labelledby="h1-6" hidden>
+  <p class="eyebrow">Passo 6 de 9 · Analisar</p>
+  <h2 id="h1-6">Ajuste o modelo e cheque os resíduos</h2>
+  <p class="lead">Comece por um gráfico de perfis, com uma linha por tratamento ao longo dos blocos. Depois ajuste <code>aov(Y ~ tratamento + bloco)</code> e olhe os resíduos antes de acreditar no F.</p>
+
+  <h3>Análise exploratória</h3>
+<pre class="r"><span class="c"># Blocking.R, seção 2 (slide 16)</span>
+library(ggplot2)
+p &lt;- ggplot(aggdata, aes(x = Instance_Group, y = Y,
+                         group = Algorithm, colour = Algorithm))
+p + geom_line(linetype = 2) + geom_point(size = 5)</pre>
+  <p>No gráfico do slide 16, as linhas dos 7 algoritmos sobem e descem juntas de um grupo para outro, e o grupo 13 tem custo bem acima dos demais. A diferença entre blocos é muito maior que a diferença entre algoritmos.</p>
+
+  <div class="widget">
+    <div class="wh"><h3>Dois modelos do exemplo</h3><span class="tag">Interativo</span></div>
+    <div class="seg" role="group" aria-label="Escala da resposta" style="margin-bottom:.9rem">
+      <button type="button" data-m="orig" aria-pressed="true">Escala original</button>
+      <button type="button" data-m="log" aria-pressed="false">log(Y)</button>
+    </div>
+    <div data-panel="orig">
+<pre class="r">model &lt;- aov(Y ~ Algorithm + Instance_Group, data = aggdata)
+summary(model)
+<span class="c">#                 Df   Sum Sq Mean Sq F value Pr(>F)
+# Algorithm        6   359949   59991   41.75 &lt;2e-16 ***
+# Instance_Group  35 60438639 1726818 1201.86 &lt;2e-16 ***
+# Residuals      210   301725    1437
+# R² = 0.9950618</span>
+par(mfrow = c(2, 2)); plot(model, pch = 20, las = 1)</pre>
+      <p><span class="pill worse">Diagnóstico ruim</span>No slide 24, a dispersão dos resíduos cresce com o valor ajustado (Scale-Location subindo) e o Q-Q tem pontas que fogem muito da reta, com resíduo padronizado perto de 10.</p>
+    </div>
+    <div data-panel="log" hidden>
+<pre class="r">model2 &lt;- aov(log(Y) ~ Algorithm + Instance_Group, data = aggdata)
+summary(model2)
+<span class="c">#                 Df Sum Sq Mean Sq F value Pr(>F)
+# Algorithm        6   0.60  0.1002   120.4 &lt;2e-16 ***
+# Instance_Group  35  89.92  2.5690  3089.0 &lt;2e-16 ***
+# Residuals      210   0.17  0.0008
+# R² = 0.9980742</span>
+par(mfrow = c(2, 2)); plot(model2, pch = 20, las = 1)
+library(car); qqPlot(model2$residuals, pch = 20, las = 1)</pre>
+      <p><span class="pill better">Diagnóstico melhor</span>No slide 26, os resíduos ficam mais homogêneos ao longo dos ajustados e o Q-Q fica bem mais perto da reta. O script diz que a transformação serve para reduzir a heterogeneidade da variância residual. Este é o modelo usado nos passos 7 a 9.</p>
+    </div>
+  </div>
+
+  <h3>O que checar nos resíduos</h3>
+  <table class="t">
+    <thead><tr><th>Premissa</th><th>Gráfico</th><th>Teste formal (Aula 08)</th></tr></thead>
+    <tbody>
+      <tr><td>Normalidade</td><td>Normal Q-Q, <code>qqPlot</code></td><td>Shapiro-Wilk</td></tr>
+      <tr><td>Homocedasticidade</td><td>Residuals vs Fitted, Scale-Location</td><td>Fligner-Killeen</td></tr>
+      <tr><td>Independência</td><td>Resíduos na ordem de coleta</td><td>Durbin-Watson</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:.9rem;color:var(--muted)">Na Aula 10 o diagnóstico é só gráfico. Os testes formais são os mesmos da ANOVA, aplicados aos resíduos do modelo.</p>
+  <div class="quiz"></div>
+  <p class="src">Fonte: 10_Blocagem.pdf, slides 16, 23–26 · Blocking.R, seções 2–3 · 08_ANOVA.pdf</p>
+</section>
+
+<!-- ============================================================ PASSO 7 -->
+<section class="step" data-id="passo-7" aria-labelledby="h1-7" hidden>
+  <p class="eyebrow">Passo 7 de 9 · Analisar</p>
+  <h2 id="h1-7">Decida com o teste F do tratamento</h2>
+  <p class="lead">A estatística compara a variação entre tratamentos com a variação residual, que já está limpa do efeito do bloco.</p>
+  <div class="formula">F<sub>0</sub> = MS<sub>níveis</sub> / MS<sub>E</sub> &nbsp;~&nbsp; F<sub>(a − 1), (a − 1)(b − 1)</sub> &nbsp;sob H<sub>0</sub>
+    <small>Rejeite H<sub>0</sub> se f<sub>0</sub> &gt; F<sub>α; (a − 1), (a − 1)(b − 1)</sub></small></div>
+
+  <div class="note ex"><span class="tag">Exemplo · modelo em log</span>
+    <p>F<sub>0</sub> = 0,1002 / 0,0008 → F = 120,4 com gl (6, 210) e p &lt; 2·10<sup>−16</sup>. Rejeita-se H<sub>0</sub>: pelo menos um algoritmo tem efeito diferente dos outros. O F não diz qual. Isso fica para o passo 9.</p>
+  </div>
+
+  <div class="widget">
+    <div class="wh"><h3>Para onde vai a variação dos blocos</h3><span class="tag">Interativo</span></div>
+    <div class="seg" role="group" aria-label="Análise" style="margin-bottom:.9rem">
+      <button type="button" data-s="rcbd" aria-pressed="true">Com bloco (RCBD)</button>
+      <button type="button" data-s="crd" aria-pressed="false">Ignorando o bloco (CRD)</button>
+    </div>
+    <div class="ssbar" id="ssbar" role="img" aria-label="Divisão da soma de quadrados total">
+      <span class="c-trt" id="sTrt"></span><span class="c-blk" id="sBlk"></span><span class="c-res" id="sRes"></span>
+    </div>
+    <div class="legend" id="sleg"></div>
+    <p class="readout" id="sout" aria-live="polite"></p>
+    <p style="font-size:.8rem;color:var(--muted);margin:0">Somas de quadrados do modelo em log (slide 25), larguras em escala. Total = 90,69.</p>
+  </div>
+
+  <div class="note"><span class="tag">E a linha dos blocos?</span>
+    <p>A tabela também mostra F = 3089 para <code>Instance_Group</code>. No RCBD as hipóteses são só sobre o fator experimental, então esse F não é o objeto do teste. O tamanho do MS de blocos reaparece na eficiência da blocagem (passo 8).</p>
+  </div>
+  <div class="quiz"></div>
+  <p class="src">Fonte: 10_Blocagem.pdf, slides 19, 22, 25, 29–30</p>
+</section>
+
+<!-- ============================================================ PASSO 8 -->
+<section class="step" data-id="passo-8" aria-labelledby="h1-8" hidden>
+  <p class="eyebrow">Passo 8 de 9 · Analisar</p>
+  <h2 id="h1-8">Meça quanto a blocagem ajudou</h2>
+  <p class="lead">A eficiência relativa E diz quantas vezes mais observações um CRD precisaria para ter o mesmo poder que o seu RCBD.</p>
+  <div class="formula">E = [ (b − 1) MS<sub>blocos</sub> + b (a − 1) MS<sub>E</sub> ] / [ (ab − 1) MS<sub>E</sub> ]
+    <small>No exemplo, a = 7 e b = 36: E = [ 35 · MS<sub>blocos</sub> + 216 · MS<sub>E</sub> ] / [ 251 · MS<sub>E</sub> ]. Se MS<sub>blocos</sub> = MS<sub>E</sub>, a conta dá exatamente 1.</small></div>
+
+  <div class="widget">
+    <div class="wh"><h3>Leia o valor de E</h3><span class="tag">Interativo</span></div>
+    <div class="seg" role="group" aria-label="Valor de E">
+      <button type="button" data-e="1" aria-pressed="false">E = 1</button>
+      <button type="button" data-e="1.3" aria-pressed="true">E = 1,3</button>
+      <button type="button" data-e="431.6" aria-pressed="false">E = 431,6</button>
+    </div>
+    <div class="ebars">
+      <span class="lbl">RCBD</span><div class="etrack"><div class="ebar r" id="eR"></div></div>
+      <span class="lbl">CRD</span><div class="etrack"><div class="ebar c" id="eC"></div><span class="lab" id="eLab"></span></div>
+    </div>
+    <p class="readout" id="eout" aria-live="polite"></p>
+  </div>
+
+<pre class="r"><span class="c"># Blocking.R, seção 4 (slide 31), com o modelo em log</span>
+mydf     &lt;- as.data.frame(summary(model2)[[1]])
+MSblocks &lt;- mydf["Instance_Group", "Mean Sq"]
+MSe      &lt;- mydf["Residuals", "Mean Sq"]
+a        &lt;- length(unique(aggdata$Algorithm))
+b        &lt;- length(unique(aggdata$Instance_Group))
+((b - 1) * MSblocks + b * (a - 1) * MSe) / ((a * b - 1) * MSe)
+<span class="c"># E = 431.6 (slide 31)</span></pre>
+  <p>Por que tão alto? No modelo em log, MS<sub>blocos</sub> = 2,569 e MS<sub>E</sub> ≈ 0,0008. Os grupos de instâncias diferem muito mais entre si do que os algoritmos dentro de um grupo.</p>
+  <div class="quiz"></div>
+  <p class="src">Fonte: 10_Blocagem.pdf, slides 29–31 · Blocking.R, seção 4</p>
+</section>
+
+<!-- ============================================================ PASSO 9 -->
+<section class="step" data-id="passo-9" aria-labelledby="h1-9" hidden>
+  <p class="eyebrow">Passo 9 de 9 · Analisar</p>
+  <h2 id="h1-9">Compare os tratamentos com o teste certo</h2>
+  <p class="lead">O F disse que existe diferença. As comparações dizem onde. Escolha o procedimento pela pergunta do experimento e use os gl do erro, (a − 1)(b − 1).</p>
+  <table class="t">
+    <thead><tr><th>Pergunta</th><th>Comparação</th><th>Procedimento</th><th class="num">K com a = 7</th></tr></thead>
+    <tbody>
+      <tr class="hl"><td>Alguma versão é melhor que o padrão?</td><td>Todos contra um</td><td>Dunnett</td><td class="num">6</td></tr>
+      <tr><td>Quais pares diferem entre si?</td><td>Todos contra todos</td><td>Tukey</td><td class="num">21</td></tr>
+    </tbody>
+  </table>
+  <p>O pesquisador quer saber se alguma das 6 modificações é sistematicamente melhor que o algoritmo padrão. A aula usa <strong>Dunnett</strong>, que é mais sensível para comparações todos contra um.</p>
+
+  <div class="widget">
+    <div class="wh"><h3>Intervalos de Dunnett do exemplo</h3><span class="tag">Clique numa linha</span></div>
+    <div class="scroll"><svg class="ci" id="ci" viewBox="0 0 640 300" role="group" aria-label="Intervalos de confiança simultâneos de 95% para Mod menos Original, escala log"></svg></div>
+    <p class="readout" id="ciout" aria-live="polite"></p>
+    <p style="font-size:.8rem;color:var(--muted);margin:0">Esboço do gráfico do slide 38, com posições lidas da figura (aproximadas). Nível de confiança conjunto de 95%. O custo é minimizado, então diferença negativa significa modificação melhor.</p>
+  </div>
+
+<pre class="r"><span class="c"># Blocking.R, seção 5.1 (slide 38)</span>
+library(multcomp)
+duntest   &lt;- glht(model2, linfct = mcp(Algorithm = "Dunnett"))
+summary(duntest)
+duntestCI &lt;- confint(duntest)
+par(mar = c(5, 8, 4, 2), las = 1)
+plot(duntestCI, xlab = "Mean difference (log scale)")</pre>
+  <div class="note ex"><span class="tag">Conclusão do exemplo</span>
+    <p>Só <strong>Mod1</strong> tem o intervalo inteiro abaixo de zero, ou seja, custo menor que o original. Mod5 não difere do original. Mod2, Mod3, Mod4 e Mod6 têm custo maior.</p>
+  </div>
+  <div class="quiz"></div>
+  <p class="src">Fonte: 10_Blocagem.pdf, slides 36–38 · Blocking.R, seção 5 · 08_ANOVA.pdf (Tukey e Dunnett)</p>
+</section>
+
+<!-- ============================================================ RESUMO -->
+<section class="step" data-id="resumo" aria-labelledby="h1-r" hidden>
+  <p class="eyebrow">Revisar</p>
+  <h2 id="h1-r">Resumo do roteiro e variações</h2>
+  <p class="lead">Os 9 passos numa tabela só, para revisar antes da prova.</p>
+  <div class="scroll">
+  <table class="t">
+    <thead><tr><th>#</th><th>Passo</th><th>Decisão-chave</th><th>No R</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td>Bloquear ou aleatorizar</td><td>Conhecido, controlável e sem interesse → bloco</td><td>—</td></tr>
+      <tr><td class="num">2</td><td>Blocos e observação</td><td>1 observação por tratamento por bloco; blocos independentes</td><td><code>aggregate(...)</code></td></tr>
+      <tr><td class="num">3</td><td>Quantos blocos</td><td>n do CRD = nº de blocos; σ residual; α ajustado pelas comparações</td><td><code>power.anova.test(...)</code></td></tr>
+      <tr><td class="num">4</td><td>Layout e sorteio</td><td>Todo bloco recebe todos os tratamentos; ordem sorteada dentro do bloco</td><td>—</td></tr>
+      <tr><td class="num">5</td><td>Modelo e hipóteses</td><td>y<sub>ij</sub> = μ + τ<sub>i</sub> + β<sub>j</sub> + ε<sub>ij</sub>; H<sub>0</sub>: τ<sub>i</sub> = 0</td><td>—</td></tr>
+      <tr><td class="num">6</td><td>Ajuste e resíduos</td><td>Perfis por bloco; diagnóstico; transformar se preciso</td><td><code>aov(Y ~ Trat + Bloco)</code>, <code>plot(model)</code></td></tr>
+      <tr><td class="num">7</td><td>Teste F</td><td>F<sub>0</sub> = MS<sub>níveis</sub>/MS<sub>E</sub>, gl (a − 1, (a − 1)(b − 1))</td><td><code>summary(model)</code></td></tr>
+      <tr><td class="num">8</td><td>Eficiência</td><td>E = CRD precisaria de E vezes as observações</td><td><code>summary(model)[[1]]</code></td></tr>
+      <tr><td class="num">9</td><td>Comparações</td><td>Dunnett (todos × um) ou Tukey (todos × todos), gl do erro</td><td><code>glht(model, mcp(Trat = "Dunnett"))</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Quando o caso foge do RCBD básico</h3>
+  <table class="t">
+    <thead><tr><th>Situação</th><th>O que usar</th><th>Fonte</th></tr></thead>
+    <tbody>
+      <tr><td>Só 2 tratamentos</td><td>O RCBD vira o teste t pareado: a diferença na mesma unidade cancela β<sub>j</sub></td><td>Aula 06; slide 5</td></tr>
+      <tr><td>Várias observações por tratamento em cada bloco</td><td>GRBD (generalized randomized block design)</td><td>Slide 12</td></tr>
+      <tr><td>Dois fatores indesejáveis</td><td>Quadrado latino; três ou mais, hipercubo latino</td><td>Slide 27</td></tr>
+      <tr><td>Blocos incompletos (observações faltando)</td><td>Planejamento com blocos incompletos (Montgomery, cap. 4–5)</td><td>Slide 39</td></tr>
+      <tr><td>Premissas violadas mesmo após transformar</td><td>Teste de Friedman, alternativa não paramétrica para o RCBD</td><td>Aula 09</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><span class="tag">Mensagem do slide 39</span>
+    <p>Blocar aumenta a sensibilidade do teste e reduz o tamanho amostral necessário, com pouco custo extra em relação ao CRD. Deve ser o planejamento escolhido sempre que possível.</p>
+  </div>
+  <p class="src">Fonte: 10_Blocagem.pdf, slides 5, 12, 27, 39 · 9_NaoNormais.pdf (Friedman)</p>
+</section>
+
+    <nav class="pager" aria-label="Navegação entre passos">
+      <a id="prev" class="prev" href="#passo-1" hidden><small>← Anterior</small><span></span></a>
+      <a id="next" class="next" href="#passo-2"><small>Próximo →</small><span></span></a>
+    </nav>
+    <p class="kbd">Dica: as setas ← e → do teclado também trocam de passo.</p>
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(s, r){ return (r || document).querySelector(s); };
+  var $$ = function(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var fmt = function(x, d){ return x.toLocaleString('pt-BR', {minimumFractionDigits: d, maximumFractionDigits: d}); };
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var ORDER = ['passo-1','passo-2','passo-3','passo-4','passo-5','passo-6','passo-7','passo-8','passo-9','resumo'];
+  var NAMES = {
+    'passo-1':'Bloquear ou aleatorizar?', 'passo-2':'Blocos e observação', 'passo-3':'Quantos blocos',
+    'passo-4':'Layout e sorteio', 'passo-5':'Modelo e hipóteses', 'passo-6':'Ajuste e resíduos',
+    'passo-7':'Teste F', 'passo-8':'Eficiência da blocagem', 'passo-9':'Comparações múltiplas', 'resumo':'Resumo e variações'
+  };
+
+  /* ---------- estado por visitante (conveniência) ---------- */
+  var store = {quiz: {}};
+  try { var raw = localStorage.getItem('rcbd-roteiro'); if (raw) { store = JSON.parse(raw) || {quiz:{}}; store.quiz = store.quiz || {}; } } catch (e) { store = {quiz: {}}; }
+  function save(){ try { localStorage.setItem('rcbd-roteiro', JSON.stringify(store)); } catch (e) {} }
+
+  /* ---------- navegação ---------- */
+  function show(id, scroll){
+    if (ORDER.indexOf(id) < 0) id = 'passo-1';
+    $$('.step').forEach(function(s){ s.hidden = s.getAttribute('data-id') !== id; });
+    $$('.ri').forEach(function(a){
+      if (a.getAttribute('data-id') === id) a.setAttribute('aria-current', 'step'); else a.removeAttribute('aria-current');
+    });
+    var i = ORDER.indexOf(id), prev = $('#prev'), next = $('#next');
+    if (i > 0) { prev.hidden = false; prev.href = '#' + ORDER[i-1]; $('span', prev).textContent = NAMES[ORDER[i-1]]; } else { prev.hidden = true; }
+    if (i < ORDER.length - 1) { next.hidden = false; next.href = '#' + ORDER[i+1]; $('span', next).textContent = NAMES[ORDER[i+1]]; } else { next.hidden = true; }
+    var cur = $('.ri[data-id="' + id + '"]'), ol = $('#railol');
+    if (cur && ol.scrollWidth > ol.clientWidth) { ol.scrollLeft = cur.offsetLeft - ol.clientWidth / 2 + cur.offsetWidth / 2; }
+    if (scroll) {
+      var top = $('.shell').getBoundingClientRect().top;
+      if (top < 0) $('.shell').scrollIntoView({behavior: reduceMotion ? 'auto' : 'smooth', block: 'start'});
+    }
+  }
+  window.addEventListener('hashchange', function(){ show(location.hash.slice(1), true); });
+  document.addEventListener('keydown', function(e){
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    var t = e.target;
+    if (t && t.closest && t.closest('input,select,textarea,[contenteditable],svg')) return;
+    var cur = ORDER.indexOf(location.hash.slice(1)); if (cur < 0) cur = 0;
+    if (e.key === 'ArrowRight' && cur < ORDER.length - 1) { location.hash = ORDER[cur + 1]; }
+    else if (e.key === 'ArrowLeft' && cur > 0) { location.hash = ORDER[cur - 1]; }
+  });
+
+  /* ---------- checagens rápidas ---------- */
+  var QUIZ = {
+    'passo-1': {q:'Ao comparar reações químicas, você sabe que o lote de matéria-prima muda o resultado, pode escolher qual lote vai em cada reação e não quer estudar o lote. O que fazer?',
+      o:['Aleatorizar e deixar o lote no resíduo','Bloquear pelo lote','Incluir o lote como segundo fator de interesse','Usar um teste não paramétrico'], c:1,
+      e:'Conhecido, controlável e sem interesse: vira bloco. Se você quisesse o efeito do lote, ele seria um fator experimental adicional (slide 7).'},
+    'passo-2': {q:'No exemplo, cada algoritmo roda 30 vezes em cada uma das 5 instâncias de cada grupo. Quantas observações por algoritmo entram no modelo?',
+      o:['36','150','180','5 400'], c:0,
+      e:'Uma observação por tratamento por bloco: a média das 30 execuções nas 5 instâncias do grupo. São 36 grupos, logo 36 observações por algoritmo. Usar as 5 400 execuções como réplicas seria pseudorreplicação.'},
+    'passo-3': {q:'Você calculou n = 12 com a fórmula do CRD para planejar um RCBD. O que esse 12 significa?',
+      o:['12 tratamentos','12 observações no total','12 blocos, cada um com uma observação de cada tratamento','12 execuções por instância'], c:2,
+      e:'No RCBD, o n das fórmulas do CRD é o número de blocos (slide 33). E o σ usado na conta é o residual, já sem o efeito do bloco.'},
+    'passo-4': {q:'Num experimento computacional, quando dá para dispensar o sorteio da ordem dentro de cada bloco?',
+      o:['Nunca','Quando há mais de 30 blocos','Quando a resposta tem distribuição normal','Quando efeitos de ordem, aquecimento e carga da máquina estão controlados ou descartados'], c:3,
+      e:'É o que diz o slide 11 para experimentos computacionais.'},
+    'passo-5': {q:'Com a = 7 algoritmos e b = 36 blocos, quantos graus de liberdade tem o resíduo do RCBD?',
+      o:['245','210','251','35'], c:1,
+      e:'(a − 1)(b − 1) = 6 × 35 = 210, como na tabela do slide 23. 245 seria o resíduo de um CRD com 36 réplicas, a(n − 1); 251 é o total, ab − 1; 35 são os gl dos blocos.'},
+    'passo-6': {q:'No exemplo, os resíduos do modelo na escala original tinham variância crescendo com o valor ajustado. O que a aula faz?',
+      o:['Remove o bloco do modelo','Ajusta de novo com log(Y) e refaz o diagnóstico','Aumenta para 60 blocos','Ignora, porque o R² é 0,995'], c:1,
+      e:'O model2 usa log(Y) ~ Algorithm + Instance_Group para reduzir a heterogeneidade da variância residual (slides 25–26, Blocking.R seção 3.2).'},
+    'passo-7': {q:'Na tabela do modelo em log, Instance_Group tem F = 3089. Como usar esse número?',
+      o:['Ele prova que os algoritmos diferem','Ele indica pseudorreplicação','Ele não é o objeto do teste; o tamanho do MS de blocos entra na eficiência da blocagem','Ele indica que o modelo está errado'], c:2,
+      e:'No RCBD as hipóteses são só sobre o fator experimental (slide 19). A variação entre blocos aparece no cálculo da eficiência E (slide 31).'},
+    'passo-8': {q:'A eficiência relativa da blocagem deu E = 1,3. O que isso quer dizer?',
+      o:['O bloco explica 30% da variância','Um CRD precisaria de 30% mais observações para ter o mesmo poder','O F do tratamento aumentou 30%','O RCBD precisa de 30% mais blocos'], c:1,
+      e:'É o exemplo do próprio slide 31.'},
+    'passo-9': {q:'No gráfico de Dunnett do exemplo, o intervalo de Mod5 − Original contém o zero. Qual a conclusão?',
+      o:['Mod5 é melhor que o original','Mod5 é pior que o original','Não há evidência de diferença entre Mod5 e o original','O teste de Dunnett não vale para Mod5'], c:2,
+      e:'Um intervalo simultâneo que contém o zero não permite afirmar diferença. Só Mod1 tem o intervalo inteiro abaixo de zero.'}
+  };
+  function renderQuiz(id){
+    var box = $('.step[data-id="' + id + '"] .quiz'); if (!box) return;
+    var qz = QUIZ[id];
+    box.innerHTML = '<div class="qh">Checagem rápida</div><p class="q"></p><div class="opts"></div><div class="fb" aria-live="polite"></div>';
+    $('.q', box).textContent = qz.q;
+    var opts = $('.opts', box), fb = $('.fb', box);
+    qz.o.forEach(function(t, k){
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = t;
+      b.addEventListener('click', function(){ answer(k); });
+      opts.appendChild(b);
+    });
+    function answer(k){
+      $$('button', opts).forEach(function(b, j){
+        b.disabled = true;
+        if (j === qz.c) b.classList.add('right'); else if (j === k) b.classList.add('wrong');
+      });
+      var ok = k === qz.c;
+      fb.innerHTML = '<strong>' + (ok ? 'Certo.' : 'Não é essa.') + '</strong> <span></span><button type="button" class="linkish">Responder de novo</button>';
+      $('span', fb).textContent = qz.e;
+      $('.linkish', fb).addEventListener('click', function(){ renderQuiz(id); var f = $('.opts button', box); if (f) f.focus(); });
+      store.quiz[id] = ok; save(); paintProgress();
+    }
+  }
+  function paintProgress(){
+    var n = 0;
+    Object.keys(QUIZ).forEach(function(id){
+      var a = $('.ri[data-id="' + id + '"]');
+      a.classList.remove('ok', 'miss');
+      if (store.quiz[id] === true) { a.classList.add('ok'); n++; }
+      else if (store.quiz[id] === false) a.classList.add('miss');
+    });
+    $('#meterbar').style.width = (n / 9 * 100) + '%';
+    $('#metertxt').textContent = n + ' de 9 checagens certas';
+  }
+  Object.keys(QUIZ).forEach(renderQuiz);
+  paintProgress();
+
+  /* ---------- passo 1: árvore de decisão ---------- */
+  (function(){
+    var TREE = {
+      start: {s:'Conhecido', q:'Você sabe que esse fator existe e pode afetar a resposta?', y:'ctrl', n:'L1'},
+      ctrl: {s:'Controlável', q:'Você consegue escolher em qual nível desse fator cada observação acontece?', y:'interest', n:'L2'},
+      interest: {s:'Interesse no efeito', q:'Você quer estimar o efeito desse fator?', y:'L4', n:'L3'},
+      L1: {leaf:true, kind:'rand', tag:'Tipo 1 · desconhecido', h:'Aleatorize', t:'A aleatorização impede que fatores desconhecidos enviesem as observações. É o que o CRD já faz, e no RCBD ela acontece dentro de cada bloco.'},
+      L2: {leaf:true, kind:'warn', tag:'Tipo 2 · conhecido, não controlável', h:'Não dá para montar blocos', t:'Sem controle sobre quem cai em cada nível, não há como garantir que cada bloco receba todos os tratamentos. Aleatorize o que puder.'},
+      L3: {leaf:true, kind:'good', tag:'Tipo 3 · conhecido e controlável', h:'Bloqueie: RCBD', t:'Cada nível desse fator vira um bloco que recebe todos os tratamentos. O efeito dele sai do resíduo na modelagem.'},
+      L4: {leaf:true, kind:'info', tag:'Deixa de ser indesejável', h:'Vira fator experimental', t:'Se o efeito interessa, ele entra como fator experimental adicional (planejamento fatorial, Aula 11).'}
+    };
+    var PRESETS = {inst:['y','y','n'], lote:['y','y','n'], desc:['n']};
+    var root = $('#tree'), path = [], node = 'start';
+    function render(focus){
+      var n = TREE[node], h = '';
+      if (path.length) h += '<ol class="path">' + path.map(function(p){ return '<li>' + p + '</li>'; }).join('') + '</ol>';
+      if (n.leaf) {
+        h += '<div class="leaf ' + n.kind + '"><span class="tag">' + n.tag + '</span><strong>' + n.h + '</strong>' + n.t + '</div>' +
+             '<div class="row" style="margin-top:.75rem"><button type="button" class="btn" data-act="reset">Recomeçar</button></div>';
+      } else {
+        h += '<p class="qq">' + n.q + '</p><div class="row"><button type="button" class="btn primary" data-act="y">Sim</button><button type="button" class="btn" data-act="n">Não</button></div>';
+      }
+      root.innerHTML = h;
+      if (focus) { var b = $('button', root); if (b) b.focus({preventScroll: true}); }
+    }
+    function step(a){ path.push(TREE[node].s + ': ' + (a === 'y' ? 'sim' : 'não')); node = TREE[node][a]; }
+    root.addEventListener('click', function(e){
+      var b = e.target.closest('button[data-act]'); if (!b) return;
+      var a = b.getAttribute('data-act');
+      if (a === 'reset') { path = []; node = 'start'; } else step(a);
+      render(true);
+    });
+    $$('[data-preset]').forEach(function(b){
+      b.addEventListener('click', function(){
+        path = []; node = 'start';
+        PRESETS[b.getAttribute('data-preset')].forEach(step);
+        render(false);
+      });
+    });
+    render(false);
+  })();
+
+  /* ---------- passo 2: grade algoritmo × bloco ---------- */
+  (function(){
+    var ALGS = ['Original','Mod1','Mod2','Mod3','Mod4','Mod5','Mod6'];
+    var LBL = {1:1, 6:6, 12:12, 18:18, 24:24, 30:30, 36:36};
+    var g = $('#bgrid'), sa = $('#selAlg'), sg = $('#selGrp'), out = $('#bout');
+    var h = '<span></span>';
+    for (var j = 1; j <= 36; j++) h += '<span class="cl">' + (LBL[j] ? j : '') + '</span>';
+    ALGS.forEach(function(a, i){
+      h += '<span class="rl">' + a + '</span>';
+      for (var j = 1; j <= 36; j++) h += '<span class="cell" style="--c:var(--t' + (i + 1) + ')" data-i="' + i + '" data-j="' + j + '"></span>';
+    });
+    g.innerHTML = h;
+    ALGS.forEach(function(a, i){ var o = document.createElement('option'); o.value = i; o.textContent = a; sa.appendChild(o); });
+    for (var k = 1; k <= 36; k++) { var o = document.createElement('option'); o.value = k; o.textContent = k; sg.appendChild(o); }
+    function select(i, j){
+      sa.value = i; sg.value = j;
+      $$('.cell', g).forEach(function(c){
+        var ci = +c.getAttribute('data-i'), cj = +c.getAttribute('data-j');
+        c.classList.toggle('sel', ci === i && cj === j);
+        c.classList.toggle('line', (ci === i) !== (cj === j));
+      });
+      out.innerHTML = '<strong>' + ALGS[i] + ' × bloco ' + j + '</strong>: uma única observação y<sub>ij</sub>, a média de 150 custos (30 execuções × 5 instâncias). A coluna destacada é o bloco ' + j + ', com os 7 algoritmos. A linha destacada é ' + ALGS[i] + ', presente nos 36 blocos.';
+    }
+    g.addEventListener('click', function(e){ var c = e.target.closest('.cell'); if (c) select(+c.getAttribute('data-i'), +c.getAttribute('data-j')); });
+    sa.addEventListener('change', function(){ select(+sa.value, +sg.value); });
+    sg.addEventListener('change', function(){ select(+sa.value, +sg.value); });
+    select(3, 13);
+    $('#pseudo').addEventListener('change', function(e){ $('#pseudoNote').hidden = !e.target.checked; });
+  })();
+
+  /* ---------- segmentados genéricos ---------- */
+  function seg(groupSel, attr, cb){
+    var btns = $$(groupSel + ' button[' + attr + ']');
+    btns.forEach(function(b){
+      b.addEventListener('click', function(){
+        btns.forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        cb(b.getAttribute(attr));
+      });
+    });
+  }
+
+  /* ---------- passo 3: K e alfa ajustado ---------- */
+  (function(){
+    var mode = 'dunnett', sl = $('#ka');
+    function upd(){
+      var a = +sl.value, K = mode === 'dunnett' ? a - 1 : a * (a - 1) / 2;
+      $('#kav').textContent = a;
+      $('#kout').innerHTML = 'K = ' + (mode === 'dunnett' ? 'a − 1' : 'a(a − 1)/2') + ' = <strong>' + K + '</strong> ' + (K === 1 ? 'comparação' : 'comparações') +
+        ' → α<sub>aj</sub> = 0,05 / ' + K + ' = <strong>' + fmt(0.05 / K, 4) + '</strong>';
+    }
+    seg('[data-id="passo-3"] .seg', 'data-k', function(v){ mode = v; upd(); });
+    sl.addEventListener('input', upd);
+    upd();
+  })();
+
+  /* ---------- passo 4: grade de aleatorização ---------- */
+  (function(){
+    var NM = ['Orig','M1','M2','M3','M4','M5','M6'];
+    var mode = 'rcbd', cols = [];
+    var ra = $('#ra'), rb = $('#rb');
+    function shuffle(arr){ for (var i = arr.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = arr[i]; arr[i] = arr[j]; arr[j] = t; } return arr; }
+    function range(n){ var r = []; for (var i = 0; i < n; i++) r.push(i); return r; }
+    function draw(){
+      var a = +ra.value, b = +rb.value;
+      $('#rav').textContent = a; $('#rbv').textContent = b;
+      if (mode === 'rcbd') {
+        cols = range(b).map(function(){ return shuffle(range(a)); });
+      } else {
+        var pool = shuffle(range(a * b).map(function(k){ return k % a; }));
+        cols = range(b).map(function(j){ return pool.slice(j * a, j * a + a); });
+      }
+      render(a, b);
+    }
+    function render(a, b){
+      var g = $('#rgrid');
+      g.style.gridTemplateColumns = '4.2rem repeat(' + b + ', 3.4rem)';
+      var h = '<span></span>' + cols.map(function(_, j){ return '<span class="h">' + (mode === 'rcbd' ? 'Bloco' : 'Grupo') + '<br>' + (j + 1) + '</span>'; }).join('');
+      for (var r = 0; r < a; r++) {
+        h += '<span class="rl">' + (mode === 'rcbd' ? 'ordem ' + (r + 1) : 'unid. ' + (r + 1)) + '</span>';
+        cols.forEach(function(c){ var t = c[r]; h += '<span class="cell" style="background:var(--t' + (t + 1) + ')">' + NM[t] + '</span>'; });
+      }
+      h += '<span></span>';
+      var bad = 0;
+      cols.forEach(function(c){
+        var miss = range(a).filter(function(t){ return c.indexOf(t) < 0; });
+        if (miss.length) bad++;
+        h += '<span class="foot ' + (miss.length ? 'bad' : 'okc') + '">' + (miss.length ? 'falta<br>' + miss.map(function(t){ return NM[t]; }).join(' ') : '✓ completo') + '</span>';
+      });
+      g.innerHTML = h;
+      var out = $('#rout');
+      if (mode === 'rcbd') out.innerHTML = 'Os ' + b + ' blocos têm os ' + a + ' tratamentos, cada um uma vez. A cada sorteio só muda a <strong>ordem dentro de cada bloco</strong>.';
+      else if (bad) out.innerHTML = '<strong>' + bad + ' de ' + b + ' grupos</strong> ficaram sem algum tratamento. Comparar tratamentos que caíram em grupos diferentes mistura o efeito do tratamento com o do grupo.';
+      else out.innerHTML = 'Desta vez, por acaso, todos os grupos receberam todos os tratamentos. O CRD não garante isso. Sorteie de novo.';
+    }
+    seg('[data-id="passo-4"] .seg', 'data-d', function(v){ mode = v; draw(); });
+    ra.addEventListener('input', draw); rb.addEventListener('input', draw);
+    $('#redraw').addEventListener('click', draw);
+    draw();
+  })();
+
+  /* ---------- passo 5: termos do modelo e gl ---------- */
+  (function(){
+    var DESC = {
+      y: '<strong>y<sub>ij</sub></strong>: observação do tratamento i no bloco j. No exemplo, o custo médio do algoritmo i no grupo de instâncias j.',
+      mu: '<strong>μ</strong>: média global.',
+      tau: '<strong>τ<sub>i</sub></strong>: efeito do tratamento i, o que você quer testar. Por construção, Σ τ<sub>i</sub> = 0.',
+      beta: '<strong>β<sub>j</sub></strong>: efeito do bloco j. Não é testado; está no modelo para sair do resíduo. Por construção, Σ β<sub>j</sub> = 0.',
+      eps: '<strong>ε<sub>ij</sub></strong> ~ N(0, σ²): resíduo. No RCBD ele não carrega a diferença entre blocos.',
+      betaCrd: '<strong>β<sub>j</sub></strong> não existe no CRD. A variação entre blocos continua nos dados, só que agora sem um termo para ela.',
+      epsCrd: '<strong>ε<sub>ij</sub></strong> no CRD absorve a variação entre blocos. O MS<sub>E</sub> aumenta e é preciso um MS<sub>níveis</sub> maior para chegar à mesma conclusão (slide 30).'
+    };
+    var cur = 'tau', crd = false, terms = $$('#model .term');
+    function paint(){
+      terms.forEach(function(t){ t.setAttribute('aria-pressed', t.getAttribute('data-t') === cur ? 'true' : 'false'); });
+      $('#tBeta').classList.toggle('gone', crd);
+      var key = cur;
+      if (crd && cur === 'beta') key = 'betaCrd';
+      if (crd && cur === 'eps') key = 'epsCrd';
+      $('#tdesc').innerHTML = DESC[key];
+    }
+    terms.forEach(function(t){ t.addEventListener('click', function(){ cur = t.getAttribute('data-t'); paint(); }); });
+    $('#asCrd').addEventListener('change', function(e){ crd = e.target.checked; if (crd) cur = 'eps'; paint(); });
+    paint();
+
+    var da = $('#da'), db = $('#db');
+    function df(){
+      var a = +da.value, b = +db.value;
+      $('#dav').textContent = a; $('#dbv').textContent = b;
+      $('#dft').innerHTML =
+        '<thead><tr><th>Fonte</th><th>RCBD</th><th class="num">gl</th><th>CRD (n = b réplicas)</th><th class="num">gl</th></tr></thead><tbody>' +
+        '<tr><td>Tratamentos</td><td class="f">a − 1</td><td class="num">' + (a - 1) + '</td><td class="f">a − 1</td><td class="num">' + (a - 1) + '</td></tr>' +
+        '<tr><td>Blocos</td><td class="f">b − 1</td><td class="num">' + (b - 1) + '</td><td>—</td><td class="num">—</td></tr>' +
+        '<tr class="hl"><td>Resíduo</td><td class="f">(a − 1)(b − 1)</td><td class="num">' + ((a - 1) * (b - 1)) + '</td><td class="f">a(b − 1)</td><td class="num">' + (a * (b - 1)) + '</td></tr>' +
+        '<tr><td>Total</td><td class="f">ab − 1</td><td class="num">' + (a * b - 1) + '</td><td class="f">ab − 1</td><td class="num">' + (a * b - 1) + '</td></tr></tbody>';
+      $('#dfout').innerHTML = 'O RCBD gasta <strong>b − 1 = ' + (b - 1) + '</strong> gl do resíduo para estimar os blocos. É o preço da blocagem; a eficiência E do passo 8 mostra se valeu a pena.' +
+        (a === 7 && b === 36 ? ' Com a = 7 e b = 36 você reproduz os gl da tabela do slide 23: 6, 35 e 210.' : '');
+    }
+    da.addEventListener('input', df); db.addEventListener('input', df);
+    df();
+  })();
+
+  /* ---------- passo 6: abas ---------- */
+  seg('[data-id="passo-6"] .seg', 'data-m', function(v){
+    $$('[data-id="passo-6"] [data-panel]').forEach(function(p){ p.hidden = p.getAttribute('data-panel') !== v; });
+  });
+
+  /* ---------- passo 7: barra das somas de quadrados ---------- */
+  (function(){
+    var T = 0.60, B = 89.92, R = 0.17, TOT = T + B + R;
+    var pct = function(x){ return fmt(x / TOT * 100, 2) + '%'; };
+    function paint(mode){
+      var trt = $('#sTrt'), blk = $('#sBlk'), res = $('#sRes');
+      trt.style.flex = '0 0 ' + (T / TOT * 100) + '%';
+      if (mode === 'rcbd') {
+        blk.hidden = false; blk.style.flex = '0 0 ' + (B / TOT * 100) + '%';
+        res.className = 'c-res'; res.style.flex = '0 0 ' + (R / TOT * 100) + '%';
+        $('#sleg').innerHTML =
+          '<div><i class="c-trt"></i>Algoritmo (tratamento)<span class="num">0,60 · ' + pct(T) + '</span></div>' +
+          '<div><i class="c-blk"></i>Instance_Group (bloco)<span class="num">89,92 · ' + pct(B) + '</span></div>' +
+          '<div><i class="c-res"></i>Resíduo<span class="num">0,17 · ' + pct(R) + '</span></div>';
+        $('#sout').innerHTML = 'Com o bloco no modelo, quase toda a variação vai para a linha dos blocos e o resíduo fica com 0,17. O F do tratamento compara MS<sub>níveis</sub> com esse resíduo pequeno.';
+      } else {
+        blk.hidden = true;
+        res.className = 'c-mix'; res.style.flex = '0 0 ' + ((B + R) / TOT * 100) + '%';
+        $('#sleg').innerHTML =
+          '<div><i class="c-trt"></i>Algoritmo (tratamento)<span class="num">0,60 · ' + pct(T) + '</span></div>' +
+          '<div><i class="c-mix"></i>Resíduo = blocos + resíduo do RCBD<span class="num">89,92 + 0,17 · ' + pct(B + R) + '</span></div>';
+        $('#sout').innerHTML = 'Mesma SQ do tratamento, mas agora o resíduo carrega a variação entre grupos de instâncias. O MS<sub>E</sub> cresce e o efeito dos algoritmos fica mascarado (slides 10 e 30).';
+      }
+    }
+    seg('[data-id="passo-7"] .seg', 'data-s', paint);
+    paint('rcbd');
+  })();
+
+  /* ---------- passo 8: eficiência ---------- */
+  (function(){
+    var TXT = {
+      '1': 'E = 1: o CRD precisaria do mesmo número de observações. Acontece quando MS<sub>blocos</sub> = MS<sub>E</sub>, ou seja, os blocos não variam mais que o erro e a blocagem não trouxe ganho.',
+      '1.3': 'E = 1,3: um CRD precisaria de <strong>30% mais observações</strong> para ter o mesmo poder (exemplo do slide 31).',
+      '431.6': 'E = 431,6: um CRD precisaria de cerca de <strong>432 vezes</strong> mais observações para ter o mesmo poder. É o valor do exemplo dos algoritmos, modelo em log.'
+    };
+    function paint(v){
+      var E = parseFloat(v);
+      $('#eR').style.width = '50%';
+      var c = $('#eC'), lab = $('#eLab');
+      if (E <= 2) { c.classList.remove('brk'); c.style.width = (E / 2 * 100) + '%'; lab.textContent = ''; }
+      else { c.classList.add('brk'); c.style.width = '100%'; lab.textContent = '× ' + fmt(E, 1) + ' (fora de escala)'; }
+      $('#eout').innerHTML = TXT[v];
+    }
+    seg('[data-id="passo-8"] .seg', 'data-e', paint);
+    paint('1.3');
+  })();
+
+  /* ---------- passo 9: intervalos de Dunnett ---------- */
+  (function(){
+    var D = [
+      {n:'Mod1', lo:-0.050, m:-0.032, hi:-0.015},
+      {n:'Mod2', lo: 0.024, m: 0.042, hi: 0.059},
+      {n:'Mod3', lo: 0.030, m: 0.047, hi: 0.065},
+      {n:'Mod4', lo: 0.027, m: 0.044, hi: 0.062},
+      {n:'Mod5', lo:-0.003, m: 0.014, hi: 0.032},
+      {n:'Mod6', lo: 0.119, m: 0.136, hi: 0.154}
+    ];
+    var NS = 'http://www.w3.org/2000/svg', svg = $('#ci');
+    var L = 140, R = 620, TOP = 14, RH = 40, X0 = -0.06, X1 = 0.17;
+    var x = function(v){ return L + (v - X0) / (X1 - X0) * (R - L); };
+    var yAxis = TOP + D.length * RH + 6;
+    function el(tag, attrs, parent){ var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); (parent || svg).appendChild(e); return e; }
+    [-0.05, 0, 0.05, 0.10, 0.15].forEach(function(t){
+      el('line', {x1: x(t), x2: x(t), y1: yAxis, y2: yAxis + 5, 'class': 'ax'});
+      var tx = el('text', {x: x(t), y: yAxis + 19, 'text-anchor': 'middle', 'class': 'mut'});
+      tx.textContent = t === 0 ? '0' : (t < 0 ? '−' : '') + fmt(Math.abs(t), 2);
+    });
+    el('line', {x1: L, x2: R, y1: yAxis, y2: yAxis, 'class': 'ax'});
+    var lab = el('text', {x: (L + R) / 2, y: yAxis + 38, 'text-anchor': 'middle', 'class': 'mut'});
+    lab.textContent = 'Diferença de médias, escala log (Mod − Original)';
+    var rows = [];
+    D.forEach(function(d, i){
+      var cy = TOP + i * RH + RH / 2;
+      var verdict = d.hi < 0 ? 'better' : (d.lo > 0 ? 'worse' : 'none');
+      var g = el('g', {'class': 'rw ' + verdict, tabindex: '0', role: 'button', 'aria-label': d.n + ' menos Original'});
+      el('rect', {x: 0, y: cy - RH / 2 + 2, width: 640, height: RH - 4, rx: 6, 'class': 'hit'}, g);
+      el('line', {x1: L, x2: R, y1: cy, y2: cy, 'class': 'gl'}, g);
+      var t = el('text', {x: L - 10, y: cy + 4, 'text-anchor': 'end'}, g); t.textContent = d.n + ' − Original';
+      el('line', {x1: x(d.lo), x2: x(d.hi), y1: cy, y2: cy, 'class': 'ci-l'}, g);
+      el('line', {x1: x(d.lo), x2: x(d.lo), y1: cy - 7, y2: cy + 7, 'class': 'ci-l'}, g);
+      el('line', {x1: x(d.hi), x2: x(d.hi), y1: cy - 7, y2: cy + 7, 'class': 'ci-l'}, g);
+      el('circle', {cx: x(d.m), cy: cy, r: 4.5}, g);
+      g.addEventListener('click', function(){ pick(i); });
+      g.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(i); } });
+      rows.push({g: g, d: d, v: verdict});
+    });
+    el('line', {x1: x(0), x2: x(0), y1: TOP, y2: yAxis, 'class': 'zero'});
+    svg.setAttribute('viewBox', '0 0 640 ' + (yAxis + 46));
+    var MSG = {
+      better: ['Melhor', 'Intervalo inteiro abaixo de zero: custo médio menor que o Original. Como o custo é minimizado, {n} é melhor.'],
+      worse: ['Pior', 'Intervalo inteiro acima de zero: custo médio maior que o Original, então {n} é pior.'],
+      none: ['Sem diferença', 'O intervalo contém o zero: não há evidência de diferença entre {n} e o Original.']
+    };
+    function pick(i){
+      rows.forEach(function(r, k){ r.g.classList.toggle('sel', k === i); });
+      var r = rows[i], m = MSG[r.v];
+      $('#ciout').innerHTML = '<span class="pill ' + r.v + '">' + m[0] + '</span><strong>' + r.d.n + ' − Original</strong>: ' + m[1].replace('{n}', r.d.n) +
+        ' Centro ≈ ' + fmt(r.d.m, 3) + ', intervalo ≈ [' + fmt(r.d.lo, 3) + '; ' + fmt(r.d.hi, 3) + '].';
+    }
+    pick(0);
+  })();
+
+  show(location.hash.slice(1), false);
+})();
+</script>
+
+</body>
+</html>

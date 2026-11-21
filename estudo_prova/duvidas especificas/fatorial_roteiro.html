@@ -1,0 +1,788 @@
+<title>Roteiro Fatorial</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&family=STIX+Two+Text:ital@0;1&display=swap">
+<style>
+:root{
+  /* Layout: o mesmo caderno de laboratório do Roteiro RCBD e do Fatorial com Mais de 2 Fatores. Trilho com os 8 blocos à esquerda (vira faixa rolável no celular); blocos em rolagem contínua numa coluna de ~72ch. */
+  --paper:#f4f6fa; --card:#ffffff; --ink:#172033; --muted:#586379; --line:#d7dde9;
+  --accent:#2445c4; --accent-ink:#ffffff; --accent-soft:#e6ebfa;
+  --amber:#a35200; --amber-soft:#fcefdc; --good:#1b7246; --good-soft:#e1f2e8; --bad:#ad2a20; --bad-soft:#fae5e2;
+  --code:#ebeef5; --grid:rgba(36,69,196,.075); --hl:#fff3c4; --hl-ink:#5c4400;
+  --t1:#2445c4; --t2:#b04e0a; --t3:#1b7246;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --f-math:"STIX Two Text","Cambria Math","Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0e131d; --card:#151c29; --ink:#e4e9f2; --muted:#9aa5b9; --line:#29334a;
+    --accent:#8fa6ff; --accent-ink:#0e131d; --accent-soft:#1b2646;
+    --amber:#f0a24a; --amber-soft:#2c2213; --good:#5fd39a; --good-soft:#11281d; --bad:#ff8b7f; --bad-soft:#331a1a;
+    --code:#1a2232; --grid:rgba(143,166,255,.06); --hl:#3a3112; --hl-ink:#f3d98a;
+    --t1:#8fa6ff; --t2:#f5a061; --t3:#5fd39a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0e131d; --card:#151c29; --ink:#e4e9f2; --muted:#9aa5b9; --line:#29334a;
+  --accent:#8fa6ff; --accent-ink:#0e131d; --accent-soft:#1b2646;
+  --amber:#f0a24a; --amber-soft:#2c2213; --good:#5fd39a; --good-soft:#11281d; --bad:#ff8b7f; --bad-soft:#331a1a;
+  --code:#1a2232; --grid:rgba(143,166,255,.06); --hl:#3a3112; --hl-ink:#f3d98a;
+  --t1:#8fa6ff; --t2:#f5a061; --t3:#5fd39a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:1.0625rem;line-height:1.62}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+a{color:var(--accent);text-underline-offset:.15em}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+sub{font-size:.68em;line-height:0}
+
+/* topo */
+.top{border-bottom:1px solid var(--line);background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px}
+.top .in{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:2.1rem 1.5rem}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 .4rem}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(2.1rem,5vw,3rem);line-height:1.04;margin:0 0 .55rem;letter-spacing:-.015em;text-wrap:balance}
+.sub{max-width:70ch;margin:0;color:var(--muted)}
+.meter{display:flex;align-items:center;gap:.75rem;margin-top:1rem;font-family:var(--f-mono);font-size:.76rem;color:var(--muted);flex-wrap:wrap}
+.meter .bar{flex:0 1 200px;width:200px;height:6px;background:var(--line);border-radius:99px;overflow:hidden}
+.meter .bar i{display:block;height:100%;width:0;background:var(--good);transition:width .4s}
+
+/* casca */
+.shell{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:1.6rem 4rem;display:grid;grid-template-columns:220px minmax(0,1fr);gap:2.6rem;align-items:start}
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 1rem)}
+.rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.12rem}
+.ri{display:flex;align-items:center;gap:.6rem;padding:.4rem .5rem;border-radius:8px;color:var(--ink);text-decoration:none;font-size:.94rem;line-height:1.25}
+.ri:hover{background:var(--accent-soft)}
+.ri .n{flex:none;width:1.65rem;height:1.65rem;border-radius:50%;display:grid;place-items:center;font-family:var(--f-mono);font-size:.74rem;font-weight:600;border:1.5px solid var(--line);color:var(--muted);background:var(--card)}
+.ri[aria-current="true"]{background:var(--accent-soft);font-weight:700}
+.ri[aria-current="true"] .n{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+@media (max-width:880px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:1rem;padding-top:.6rem}
+  .rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);padding-block:.5rem;border-bottom:1px solid var(--line);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px))}
+  .rail ol{flex-direction:row;overflow-x:auto;gap:.3rem;scrollbar-width:none}
+  .rail ol::-webkit-scrollbar{display:none}
+  .ri{flex:none;padding:.28rem}
+  .ri .t{display:none}
+  .ri[aria-current="true"] .t{display:inline;white-space:nowrap;padding-right:.45rem}
+}
+
+/* blocos */
+main{min-width:0}
+.blk{max-width:760px;margin-bottom:3.4rem;scroll-margin-top:calc(env(safe-area-inset-top,0px) + 4.2rem)}
+.kick{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0}
+.blk h2{font-family:var(--f-display);font-weight:700;font-size:clamp(1.55rem,3.4vw,2.05rem);line-height:1.1;margin:.15rem 0 .8rem;text-wrap:balance;letter-spacing:-.01em}
+.blk h3{font-family:var(--f-display);font-weight:600;font-size:1.1rem;margin:1.7rem 0 .5rem;text-wrap:balance}
+.lead{font-size:1.12rem;margin:0 0 1rem}
+.blk p{margin:.6rem 0}
+.blk ul{padding-left:1.25rem;margin:.6rem 0}
+.blk li{margin:.28rem 0}
+.widget{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1rem 1.1rem 1.15rem;margin:1.3rem 0;min-width:0}
+.wh{display:flex;justify-content:space-between;align-items:baseline;gap:.4rem 1rem;flex-wrap:wrap;margin-bottom:.75rem}
+.wh h3{margin:0;font-size:1.02rem}
+.tag{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.note{background:var(--accent-soft);border-radius:10px;padding:.75rem 1rem;margin:1rem 0}
+.note > .tag{display:block;margin-bottom:.15rem}
+.note.warn{background:var(--amber-soft)} .note.warn > .tag{color:var(--amber)}
+.note.ok{background:var(--good-soft)} .note.ok > .tag{color:var(--good)}
+.note p{margin:.3rem 0}
+.formula{font-family:var(--f-math);font-size:1.15rem;background:var(--code);border-radius:8px;padding:.7rem 1rem;margin:.8rem 0;overflow-x:auto;line-height:1.7}
+.formula small{display:block;font-family:var(--f-body);font-size:.82rem;color:var(--muted);margin-top:.2rem;line-height:1.45}
+pre.r{font-family:var(--f-mono);font-size:.78rem;line-height:1.55;background:var(--code);border-radius:8px;padding:.8rem 1rem;overflow-x:auto;margin:.8rem 0;white-space:pre;tab-size:2}
+pre.r .c{color:var(--muted)}
+.src{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);margin-top:1.4rem;padding-top:.7rem;border-top:1px dashed var(--line)}
+.hint{font-size:.84rem;color:var(--muted);margin:.6rem 0 0}
+.v{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:600}
+.scroll{overflow-x:auto;padding-bottom:.2rem}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem;margin:1rem 0}
+@media (max-width:560px){.two{grid-template-columns:minmax(0,1fr)}}
+.def{border:1px solid var(--line);border-radius:10px;padding:.7rem .9rem;background:var(--card);min-width:0}
+.def b{display:block;font-family:var(--f-display);font-size:1.02rem;margin-bottom:.15rem}
+.def p{margin:0;font-size:.96rem}
+.def ul{margin:.2rem 0 0;padding-left:1.1rem;font-size:.95rem}
+
+/* controles */
+.btn{font:inherit;font-size:.9rem;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:.38rem .85rem;cursor:pointer}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--card)}
+.seg button{font:inherit;font-size:.86rem;border:0;background:transparent;color:var(--ink);padding:.36rem .7rem;cursor:pointer}
+.seg button + button{border-left:1.5px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.seg.mono button{font-family:var(--f-mono);font-size:.8rem;padding:.36rem .6rem}
+.row{display:flex;flex-wrap:wrap;gap:.6rem 1.1rem;align-items:center}
+.lbl{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);letter-spacing:.06em}
+.pill{display:inline-block;font-family:var(--f-mono);font-size:.72rem;font-weight:600;padding:.08rem .5rem;border-radius:99px;white-space:nowrap}
+.pill.sig{background:var(--bad-soft);color:var(--bad)}
+.pill.ns{background:var(--good-soft);color:var(--good)}
+
+/* tabelas */
+table.t{border-collapse:collapse;width:100%;font-size:.92rem;font-variant-numeric:tabular-nums}
+table.t th,table.t td{padding:.38rem .55rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.t thead th{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:1.5px solid var(--ink)}
+table.t td.n,table.t th.n{text-align:right;font-family:var(--f-mono);font-size:.84rem;white-space:nowrap}
+table.t tr.sum td{color:var(--muted)}
+table.t tr.hlrow td,table.t tr.hlrow th{background:var(--hl);color:var(--hl-ink)}
+table.t td.hl{background:var(--hl);color:var(--hl-ink);font-weight:700}
+table.t .math{font-family:var(--f-math);font-size:1rem}
+
+/* monte o fatorial */
+.fgrid{display:grid;gap:.35rem;margin:.9rem 0 .5rem;max-width:480px}
+.fgrid .gh{font-family:var(--f-mono);font-size:.74rem;color:var(--muted);display:grid;place-items:center;padding:.2rem .4rem}
+.fgrid .cell{border:1.5px solid var(--accent);background:var(--accent-soft);border-radius:7px;padding:.35rem .3rem;text-align:center;font-family:var(--f-mono);font-size:.8rem;font-weight:600;line-height:1.2}
+.fgrid .cell small{display:block;font-weight:400;color:var(--muted);font-size:.68rem}
+.fout{font-size:.95rem;margin:.6rem 0}
+.preset-cap{font-size:.88rem;color:var(--muted);margin:.5rem 0 0;min-height:2.6em}
+
+/* gráfico */
+.plot svg{display:block;width:100%;max-width:560px;height:auto}
+.plot .grid{stroke:var(--line);stroke-width:1}
+.plot .ax{stroke:var(--muted);stroke-width:1.2}
+.plot .tick{fill:var(--muted);font-family:var(--f-mono);font-size:12px}
+.plot .xl{fill:var(--ink);font-size:13px}
+.plot .axt{fill:var(--muted);font-family:var(--f-body);font-size:13px}
+.plot .ln{fill:none;stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.plot .lab{font-family:var(--f-body);font-size:14px;font-weight:700}
+.plot .s0{stroke:var(--t1)} .plot circle.s0,.plot text.s0{fill:var(--t1)}
+.plot .s1{stroke:var(--t2)} .plot circle.s1,.plot text.s1{fill:var(--t2)}
+.plot .s2{stroke:var(--t3)} .plot circle.s2,.plot text.s2{fill:var(--t3)}
+.plot circle{stroke:var(--card);stroke-width:2}
+.readout{margin-top:.7rem;font-size:.96rem}
+.means{margin-top:.6rem;max-width:460px}
+
+/* fluxo */
+.flow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 .9rem;margin:1.2rem 0}
+.flow .start{grid-column:1 / -1;justify-self:center;text-align:center;background:var(--card);border:1.5px solid var(--ink);border-radius:10px;padding:.55rem 1rem;max-width:420px}
+.flow .start small{display:block;color:var(--muted);font-size:.84rem}
+.flow .conn{grid-column:1 / -1;height:22px;margin:0 25%;border:2px solid var(--line);border-bottom:0;border-radius:6px 6px 0 0;position:relative}
+.flow .conn::before{content:"";position:absolute;left:50%;top:-12px;height:12px;border-left:2px solid var(--line)}
+.flow .br{border:1px solid var(--line);border-radius:10px;padding:.7rem .85rem;background:var(--card);min-width:0}
+.flow .br p{margin:.4rem 0;font-size:.94rem}
+.flow .br .sm{font-size:.86rem;color:var(--muted)}
+.flow .br a{font-size:.88rem;font-weight:700}
+@media (max-width:520px){.flow{grid-template-columns:minmax(0,1fr);gap:.6rem}.flow .conn{display:none}}
+
+/* passo a passo */
+.aux td.n{font-size:.9rem}
+.stepbox{border-left:3px solid var(--accent);padding:.2rem 0 .2rem .9rem;margin:1rem 0 .4rem;min-height:9.5rem}
+.stepbox .st{font-family:var(--f-mono);font-size:.7rem;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.stepbox h4{font-family:var(--f-display);font-size:1.05rem;margin:.1rem 0 .2rem}
+.stepbox .formula{font-size:1.05rem}
+.stepbox p{font-size:.94rem;margin:.3rem 0}
+.dots{display:flex;gap:.3rem;flex-wrap:wrap}
+.dots button{width:1.5rem;height:1.5rem;border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--muted);font-family:var(--f-mono);font-size:.68rem;cursor:pointer;padding:0}
+.dots button[aria-current="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
+/* desdobramento */
+table.dd{border-collapse:separate;border-spacing:.35rem;font-variant-numeric:tabular-nums;margin:.4rem 0}
+table.dd th{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);font-weight:600;padding:.2rem .5rem}
+table.dd td{border:1.5px solid var(--line);border-radius:8px;padding:.45rem .8rem;text-align:center;background:var(--card);min-width:7.5rem;transition:background .2s,border-color .2s}
+table.dd td .m{font-family:var(--f-mono);font-size:.95rem;font-weight:600}
+table.dd td .lo{font-family:var(--f-mono);font-size:.86rem;color:var(--t2);font-weight:700;margin-left:.35rem}
+table.dd td .up{font-family:var(--f-mono);font-size:.86rem;color:var(--t1);font-weight:700}
+table.dd td.on{border-color:var(--accent);background:var(--accent-soft)}
+table.dd.rowmode td.on .lo,table.dd.colmode td.on .up{background:var(--hl);color:var(--hl-ink);border-radius:4px;padding:0 .15rem}
+.ddcap{font-size:.84rem;color:var(--muted);margin:.2rem 0 .8rem}
+.ddcap .lo{color:var(--t2);font-weight:700;font-family:var(--f-mono)}
+.ddcap .up{color:var(--t1);font-weight:700;font-family:var(--f-mono)}
+.ddout .rk{font-family:var(--f-display);font-weight:700;font-size:1.02rem;margin:.6rem 0 .2rem}
+.ddout ul{list-style:none;padding:0;margin:.4rem 0}
+.ddout li{font-size:.94rem;margin:.2rem 0}
+.concl{font-weight:700}
+
+/* quiz */
+.q{border:1px solid var(--line);border-radius:12px;padding:.85rem 1rem .9rem;margin:.9rem 0;background:var(--card)}
+.q legend{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 .3rem}
+.q .qt{margin:.1rem 0 .6rem;font-weight:700}
+.q code{font-family:var(--f-mono);font-size:.84em;background:var(--code);padding:.05rem .3rem;border-radius:4px;font-weight:400}
+.opts{display:grid;gap:.4rem}
+.opt{font:inherit;font-size:.94rem;text-align:left;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:.45rem .7rem;cursor:pointer;line-height:1.35}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.q .ex{margin:.6rem 0 0;font-size:.92rem;color:var(--muted)}
+.q .ex b{color:var(--ink)}
+
+/* checklist */
+.ck{list-style:none;padding:0;margin:.5rem 0}
+.ck li{display:flex;gap:.6rem;align-items:flex-start;margin:.35rem 0}
+.ck input{accent-color:var(--good);width:1.05rem;height:1.05rem;margin-top:.28rem;flex:none}
+.ck label{font-size:.96rem;cursor:pointer}
+.ck label code,.blk p code,.blk li code,table.t code{font-family:var(--f-mono);font-size:.84em;background:var(--code);padding:.05rem .3rem;border-radius:4px}
+.cola{columns:2 300px;column-gap:1.6rem;margin:.6rem 0;padding-left:1.1rem}
+.cola li{break-inside:avoid;font-size:.95rem}
+footer.src{max-width:760px}
+</style>
+
+<header class="top"><div class="in">
+  <p class="eyebrow">EEE933 · Aula 11 · Experimento fatorial</p>
+  <h1>Roteiro Fatorial</h1>
+  <p class="sub">O essencial de fatorial com 2 fatores para a prova, em 8 blocos curtos. Os números vêm dos slides (motores), da Aula 7 (poedeiras, sem interação) e da Aula 8 (bovinos, com interação) do Prof. Jeferson Ribeiro.</p>
+  <div class="meter" aria-live="polite">Teste rápido <span class="bar"><i id="meterBar"></i></span> <span id="meterTxt">0 de 8 certas</span></div>
+</div></header>
+
+<div class="shell">
+  <nav class="rail" aria-label="Blocos">
+    <ol>
+      <li><a class="ri" href="#ideia"><span class="n">1</span><span class="t">A ideia</span></a></li>
+      <li><a class="ri" href="#grafico"><span class="n">2</span><span class="t">Interação no gráfico</span></a></li>
+      <li><a class="ri" href="#modelo"><span class="n">3</span><span class="t">Modelo e ANOVA</span></a></li>
+      <li><a class="ri" href="#sem"><span class="n">4</span><span class="t">Sem interação</span></a></li>
+      <li><a class="ri" href="#com"><span class="n">5</span><span class="t">Com interação</span></a></li>
+      <li><a class="ri" href="#r"><span class="n">6</span><span class="t">No R (slides)</span></a></li>
+      <li><a class="ri" href="#teste"><span class="n">7</span><span class="t">Teste rápido</span></a></li>
+      <li><a class="ri" href="#prova"><span class="n">8</span><span class="t">Para a dissertativa</span></a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <!-- 1 -->
+    <section class="blk" id="ideia">
+      <p class="kick">1 · Entender</p>
+      <h2>A ideia em um minuto</h2>
+      <p class="lead">Num experimento fatorial, <b>todas as combinações de todos os níveis</b> dos fatores são avaliadas. Com 2 níveis de A e 3 de B, são 2 × 3 = 6 tratamentos.</p>
+      <div class="two">
+        <div class="def"><b>Efeito principal</b><p>A mudança média na resposta quando um fator muda de nível.</p></div>
+        <div class="def"><b>Interação</b><p>Existe quando a resposta a mudanças de um fator depende do nível do outro fator.</p></div>
+      </div>
+      <p><b>Por que não testar um fator de cada vez?</b> Fixar o espaçamento, achar a melhor cultivar e só depois variar o espaçamento só encontra a melhor combinação por sorte, porque o melhor nível de um fator pode depender do outro. O fatorial estuda os dois ao mesmo tempo.</p>
+      <div class="two">
+        <div class="def"><b>Vantagens</b><ul><li>Economia de tempo e recursos</li><li>Permite estudar a interação</li><li>Conclusões mais amplas</li><li>Mais gl no resíduo, mais precisão</li></ul></div>
+        <div class="def"><b>Desvantagem</b><ul><li>Exige mais unidades experimentais que um ensaio simples</li></ul></div>
+      </div>
+      <div class="note"><span class="tag">Cai em prova</span><p>Fatorial é um <b>esquema</b> de organizar os tratamentos, não um delineamento. Ele pode ser instalado em DIC (os três exemplos daqui) ou em blocos: no RCBD, cada bloco recebe uma observação de cada combinação.</p></div>
+
+      <div class="widget">
+        <div class="wh"><h3>Monte o fatorial</h3><span class="tag">Interativo</span></div>
+        <div class="row">
+          <span class="lbl">EXEMPLOS</span>
+          <div class="seg" id="presets">
+            <button type="button" data-p="poed" aria-pressed="true">Poedeiras</button>
+            <button type="button" data-p="bov" aria-pressed="false">Bovinos</button>
+            <button type="button" data-p="mot" aria-pressed="false">Motores</button>
+          </div>
+        </div>
+        <div class="row" style="margin-top:.6rem">
+          <span class="lbl">a</span><div class="seg mono" id="selA"></div>
+          <span class="lbl">b</span><div class="seg mono" id="selB"></div>
+          <span class="lbl">n</span><div class="seg mono" id="selN"></div>
+        </div>
+        <p class="preset-cap" id="presetCap"></p>
+        <div class="fgrid" id="fatGrid" aria-label="Combinações de níveis"></div>
+        <p class="fout" id="fatOut"></p>
+        <div class="scroll"><table class="t" id="glTable">
+          <thead><tr><th>Fonte</th><th>gl (fórmula)</th><th class="n">gl</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+        <div class="note warn" id="n1warn" hidden><span class="tag">n = 1</span><p>Sem repetição, o resíduo fica com 0 gl e não há como estimar σ². É preciso <b>n ≥ 2</b> para separar SS<sub>AB</sub> de SS<sub>E</sub>. O exemplo das lentes (2³, um lote por combinação) contorna isso retirando as interações de ordem alta.</p></div>
+      </div>
+      <p class="src">Fonte: 11_ExpFatorial.pdf, slides 2, 5, 12–13, 46 · Aula 7, 0:44–4:55 e 8:32–9:57</p>
+    </section>
+
+    <!-- 2 -->
+    <section class="blk" id="grafico">
+      <p class="kick">2 · Entender</p>
+      <h2>Interação no gráfico</h2>
+      <p class="lead">No gráfico de interação, o eixo x tem os níveis de um fator e cada linha é um nível do outro. Cada ponto é a média de uma combinação.</p>
+      <div class="widget">
+        <div class="wh"><h3 id="plotTitle">Poedeiras</h3><span class="tag">Interativo</span></div>
+        <div class="row">
+          <div class="seg" id="plotEx">
+            <button type="button" data-e="poed" aria-pressed="true">Poedeiras (Aula 7)</button>
+            <button type="button" data-e="bov" aria-pressed="false">Bovinos (Aula 8)</button>
+          </div>
+          <button type="button" class="btn" id="plotSwap">Trocar o fator do eixo x</button>
+        </div>
+        <div class="plot" id="plot" style="margin-top:.8rem"></div>
+        <p class="readout" id="plotRead"></p>
+        <div class="scroll means"><table class="t" id="plotMeans"></table></div>
+      </div>
+      <div class="note"><span class="tag">Regra de leitura</span><p>Linhas <b>paralelas</b>: o efeito de um fator é o mesmo em todos os níveis do outro, então não há interação. Linhas que <b>se afastam ou se cruzam</b>: há interação. O gráfico só sugere; quem decide é o F da interação na ANOVA. Ele serve para interpretar e para explicar o resultado a quem não estudou estatística.</p></div>
+      <p class="src">Fonte: 11_ExpFatorial.pdf, slides 2–3 · Aula 7, 5:49–8:08 · médias = totais da aula ÷ repetições</p>
+    </section>
+
+    <!-- 3 -->
+    <section class="blk" id="modelo">
+      <p class="kick">3 · Formalizar</p>
+      <h2>Modelo e tabela da ANOVA</h2>
+      <p class="lead">Fatorial balanceado, efeitos fixos, <i>a</i> níveis de A, <i>b</i> níveis de B, <i>n</i> repetições por combinação, coleta completamente aleatorizada.</p>
+      <div class="formula">y<sub>ijk</sub> = μ + τ<sub>i</sub> + β<sub>j</sub> + (τβ)<sub>ij</sub> + ε<sub>ijk</sub>
+        <small>μ média global · τ<sub>i</sub> efeito do nível i de A · β<sub>j</sub> efeito do nível j de B · (τβ)<sub>ij</sub> interação · ε<sub>ijk</sub> ~ N(0, σ²) i.i.d. Os efeitos são desvios da média global e somam zero.</small></div>
+      <div class="scroll"><table class="t">
+        <thead><tr><th>Fonte</th><th>H<sub>0</sub></th><th>gl</th><th>QM</th><th>F<sub>0</sub></th></tr></thead>
+        <tbody>
+          <tr><td>A</td><td class="math">τ<sub>i</sub> = 0 ∀i</td><td class="math">a − 1</td><td class="math">SS<sub>A</sub> / (a − 1)</td><td class="math">MS<sub>A</sub> / MS<sub>E</sub></td></tr>
+          <tr><td>B</td><td class="math">β<sub>j</sub> = 0 ∀j</td><td class="math">b − 1</td><td class="math">SS<sub>B</sub> / (b − 1)</td><td class="math">MS<sub>B</sub> / MS<sub>E</sub></td></tr>
+          <tr><td>A × B</td><td class="math">(τβ)<sub>ij</sub> = 0 ∀i,j</td><td class="math">(a − 1)(b − 1)</td><td class="math">SS<sub>AB</sub> / [(a − 1)(b − 1)]</td><td class="math">MS<sub>AB</sub> / MS<sub>E</sub></td></tr>
+          <tr><td>Resíduo</td><td></td><td class="math">ab(n − 1)</td><td class="math">SS<sub>E</sub> / [ab(n − 1)]</td><td></td></tr>
+          <tr class="sum"><td>Total</td><td></td><td class="math">abn − 1</td><td></td><td></td></tr>
+        </tbody>
+      </table></div>
+      <div class="formula">SS<sub>T</sub> = SS<sub>A</sub> + SS<sub>B</sub> + SS<sub>AB</sub> + SS<sub>E</sub>
+        <small>Na conta à mão (Aula 7): cada SQ = Σ(total²) ÷ (nº de parcelas em cada total) − C, com C = (total geral)² ÷ N. A SQ da interação sai por diferença: SQ<sub>Trat</sub> − SQ<sub>A</sub> − SQ<sub>B</sub>.</small></div>
+      <p><b>Por que F funciona:</b> E[MS<sub>A</sub>] = σ² + bnΣτ<sub>i</sub>²/(a − 1) e E[MS<sub>E</sub>] = σ². Sob H<sub>0</sub> a razão fica perto de 1 e segue uma F(gl do efeito, gl do resíduo). F grande demais rejeita H<sub>0</sub>. Isso exige ε i.i.d. N(0, σ²): verifique nos resíduos.</p>
+
+      <h3>Leia a ANOVA nesta ordem</h3>
+      <div class="flow">
+        <div class="start">ANOVA com A, B e A × B<small>olhe primeiro o F da interação</small></div>
+        <div class="conn" aria-hidden="true"></div>
+        <div class="br"><span class="pill ns">A × B não significativa</span>
+          <p>Os fatores agem de forma independente. Analise cada fator pelas médias dos seus níveis.</p>
+          <p class="sm">2 níveis: o F já decide. 3 ou mais: Tukey.</p>
+          <a href="#sem">Exemplo: poedeiras ↓</a></div>
+        <div class="br"><span class="pill sig">A × B significativa</span>
+          <p>O efeito de um fator depende do outro. Não interprete os efeitos principais isolados.</p>
+          <p class="sm">Desdobre (B dentro de cada A e A dentro de cada B) ou compare as médias das combinações.</p>
+          <a href="#com">Exemplo: bovinos ↓</a></div>
+      </div>
+      <p class="src">Fonte: 11_ExpFatorial.pdf, slides 9–15 e 20 · Aula 7, 18:23–31:34 · Aula 8, 11:58–13:11</p>
+    </section>
+
+    <!-- 4 -->
+    <section class="blk" id="sem">
+      <p class="kick">4 · Analisar</p>
+      <h2>Sem interação: as poedeiras</h2>
+      <p class="lead">Ração com ou sem cálcio (A) × ambiente com ou sem luz artificial à noite (B). 24 poedeiras, 6 por combinação, DIC, α = 1%. Resposta: ovos por ave.</p>
+      <p>Perguntas da Aula 7: os dois fatores atuam de forma independente? Qual ração e qual ambiente recomendar?</p>
+
+      <div class="widget">
+        <div class="wh"><h3>A ANOVA à mão, passo a passo</h3><span class="tag">Interativo</span></div>
+        <p class="lbl" style="margin:0 0 .3rem">QUADRO AUXILIAR · totais de ovos (nº de aves somadas)</p>
+        <div class="scroll"><table class="t aux">
+          <thead><tr><th></th><th class="n">Com luz</th><th class="n">Sem luz</th><th class="n">Total</th></tr></thead>
+          <tbody>
+            <tr><th>Com cálcio</th><td class="n" id="q-cl">306 (6)</td><td class="n" id="q-cs">290 (6)</td><td class="n" id="r-c">596 (12)</td></tr>
+            <tr><th>Sem cálcio</th><td class="n" id="q-sl">264 (6)</td><td class="n" id="q-ss">241 (6)</td><td class="n" id="r-s">505 (12)</td></tr>
+            <tr><th>Total</th><td class="n" id="c-l">570 (12)</td><td class="n" id="c-s">531 (12)</td><td class="n" id="g">1101 (24)</td></tr>
+          </tbody>
+        </table></div>
+
+        <div class="stepbox" aria-live="polite">
+          <span class="st" id="stN">Passo 1 de 9</span>
+          <h4 id="stT"></h4>
+          <div class="formula" id="stF"></div>
+          <p id="stNote"></p>
+        </div>
+        <div class="row">
+          <button type="button" class="btn" id="stPrev">← Voltar</button>
+          <button type="button" class="btn pri" id="stNext">Próximo passo →</button>
+          <div class="dots" id="stDots" aria-label="Ir para o passo"></div>
+        </div>
+
+        <p class="lbl" style="margin:1.2rem 0 .3rem">TABELA DA ANOVA · α = 1%</p>
+        <div class="scroll"><table class="t" id="anovaPoed">
+          <thead><tr><th>Fonte</th><th class="n">gl</th><th class="n">SQ</th><th class="n">QM</th><th class="n">F</th><th class="n">F tab</th><th></th></tr></thead>
+          <tbody>
+            <tr id="a-ca"><td>Cálcio (A)</td><td class="n">1</td><td class="n">345,04</td><td class="n">345,04</td><td class="n">86,04</td><td class="n">8,10</td><td><span class="pill sig">**</span></td></tr>
+            <tr id="a-luz"><td>Luz (B)</td><td class="n">1</td><td class="n">63,37</td><td class="n">63,37</td><td class="n">15,80</td><td class="n">8,10</td><td><span class="pill sig">**</span></td></tr>
+            <tr id="a-int"><td>Cálcio × Luz</td><td class="n">1</td><td class="n">2,04</td><td class="n">2,04</td><td class="n">0,51</td><td class="n">8,10</td><td><span class="pill ns">ns</span></td></tr>
+            <tr id="a-trat" class="sum"><td>(Tratamentos)</td><td class="n">3</td><td class="n">410,45</td><td class="n">136,82</td><td class="n">34,12</td><td class="n">4,94</td><td><span class="pill sig">**</span></td></tr>
+            <tr id="a-res"><td>Resíduo</td><td class="n">20</td><td class="n">80,17</td><td class="n">4,01</td><td></td><td></td><td></td></tr>
+            <tr id="a-tot"><td>Total</td><td class="n">23</td><td class="n">490,62</td><td></td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table></div>
+        <p class="hint">** significativo a 1% · ns não significativo. A linha Tratamentos é a visão de DIC: ela soma A + B + A × B (gl 1 + 1 + 1 = 3). O <code>summary(aov(...))</code> do R não mostra essa linha.</p>
+      </div>
+
+      <div class="note ok"><span class="tag">Conclusão da Aula 7</span>
+        <p>Interação não significativa (0,51 &lt; 8,10): cálcio e luz atuam de forma independente e podem ser analisados separadamente.</p>
+        <p>Ração recomendada: <b>com cálcio</b> (596 contra 505 ovos). Ambiente recomendado: <b>com luz à noite</b> (570 contra 531).</p></div>
+      <div class="note warn"><span class="tag">Pegadinhas</span>
+        <p>O enunciado diz “use Tukey se necessário”. Não é necessário: com <b>2 níveis</b>, o F da ANOVA já diz que as médias diferem, e a maior é a melhor. Tukey só a partir de 3 médias.</p>
+        <p>No vídeo (36:09), o F da interação aparece como 0,13. A conta certa é 2,04 / 4,01 = <b>0,51</b>. A conclusão não muda.</p></div>
+      <p class="src">Fonte: Aula 7 (<a href="https://www.youtube.com/watch?v=DQ8-l83TCQg&amp;t=612s" target="_blank" rel="noopener">10:12</a>–43:22), quadro auxiliar em 13:19, SQ em 24:03, F em 33:12</p>
+    </section>
+
+    <!-- 5 -->
+    <section class="blk" id="com">
+      <p class="kick">5 · Analisar</p>
+      <h2>Com interação: os bovinos</h2>
+      <p class="lead">3 suplementos minerais (A1, A2, A3) × 2 suplementos vegetais (B1, B2), 4 bovinos por combinação, DIC, α = 5%. Resposta: ganho de peso.</p>
+      <p>Os fatores são <b>tipos</b>, não doses, por isso são qualitativos e a análise é a ANOVA com comparação de médias. Se fossem doses (quantitativos), o caminho seria regressão.</p>
+      <div class="scroll"><table class="t">
+        <thead><tr><th>Fonte</th><th class="n">gl</th><th class="n">QM</th><th class="n">F</th><th class="n">F tab 5%</th><th></th></tr></thead>
+        <tbody>
+          <tr class="sum"><td>(Tratamentos)</td><td class="n">5</td><td class="n">30,93</td><td class="n">16,54</td><td class="n">2,77</td><td><span class="pill sig">*</span></td></tr>
+          <tr class="hlrow"><td>Mineral × Vegetal</td><td class="n">2</td><td class="n">31,19</td><td class="n">16,78</td><td class="n">3,55</td><td><span class="pill sig">*</span></td></tr>
+          <tr><td>Resíduo</td><td class="n">18</td><td class="n">1,87</td><td></td><td></td><td></td></tr>
+        </tbody>
+      </table></div>
+      <p class="hint">Linhas narradas na Aula 8 (SQ do resíduo = 33,59). A interação é significativa: o mineral não atua de forma independente do vegetal.</p>
+      <p>Agora não dá para olhar A e B sozinhos. A média de A2, por exemplo, junta o melhor resultado com B1 (35,63) e o pior com B2 (29,33); a média marginal esconde isso. A saída é o <b>desdobramento</b>: estudar um fator dentro de cada nível do outro, reaproveitando o QM do resíduo (1,87, 18 gl) da ANOVA completa.</p>
+
+      <div class="widget">
+        <div class="wh"><h3>Desdobramento da interação</h3><span class="tag">Interativo</span></div>
+        <div class="row">
+          <span class="lbl">B DENTRO DE</span>
+          <div class="seg mono" id="ddRow">
+            <button type="button" data-k="A1" aria-pressed="false">A1</button>
+            <button type="button" data-k="A2" aria-pressed="true">A2</button>
+            <button type="button" data-k="A3" aria-pressed="false">A3</button>
+          </div>
+          <span class="lbl">A DENTRO DE</span>
+          <div class="seg mono" id="ddCol">
+            <button type="button" data-k="B1" aria-pressed="false">B1</button>
+            <button type="button" data-k="B2" aria-pressed="false">B2</button>
+          </div>
+        </div>
+        <div class="scroll" style="margin-top:.7rem"><table class="dd" id="ddTable"></table></div>
+        <p class="ddcap">Médias de ganho de peso (4 animais). Letra <span class="lo">minúscula</span> compara na linha: vegetais dentro do mineral, teste F. Letra <span class="up">MAIÚSCULA</span> compara na coluna: minerais dentro do vegetal, Tukey 5%. Mesma letra = não diferem.</p>
+        <div class="ddout" id="ddOut" aria-live="polite"></div>
+      </div>
+
+      <div class="note ok"><span class="tag">Conclusão da Aula 8</span>
+        <p>Com interação, a resposta depende do outro fator.</p>
+        <p><b>Vegetal recomendado:</b> com A1, B1 ou B2; com A2, <b>B1</b>; com A3, B1 ou B2.</p>
+        <p><b>Mineral recomendado:</b> com B1, A1 ou A2; com B2, <b>A1</b>.</p></div>
+      <p class="src">Fonte: Aula 8 (<a href="https://www.youtube.com/watch?v=581HURFTHkE&amp;t=88s" target="_blank" rel="noopener">1:28</a>–40:10): interação em 10:23, B dentro de A em 13:26, A dentro de B em 26:11, Tukey em 30:42, tabela única em 38:06</p>
+    </section>
+
+    <!-- 6 -->
+    <section class="blk" id="r">
+      <p class="kick">6 · No computador</p>
+      <h2>No R, como nos slides: os motores</h2>
+      <p class="lead">Corrente elétrica (A) de motores de ventilação de uma granja: fabricante (A, B, C) × estado (original, rebobinado), 20 motores por combinação. α = 0,05, β = 0,2 e δ* = 0,1 A.</p>
+<pre class="r"><span class="c"># Fatorial completo: State*Manufacturer = State + Manufacturer + State:Manufacturer</span>
+model &lt;- aov(Current.Amperes ~ State*Manufacturer, data = data)
+summary(model)                                   <span class="c"># slide 17</span>
+<span class="c">#                     Df Sum Sq Mean Sq F value   Pr(&gt;F)
+# State                1 12.956  12.956 2798.41  &lt; 2e-16 ***
+# Manufacturer         2  0.118   0.059   12.71 1.04e-05 ***
+# State:Manufacturer   2  0.114   0.057   12.27 1.49e-05 ***
+# Residuals          114  0.528   0.005                   (R² = 0.96)</span>
+
+<span class="c"># Premissas nos resíduos (slide 18)</span>
+shapiro.test(model$residuals)                    <span class="c"># p = 0.2392</span>
+fligner.test(Current.Amperes ~ interaction(State, Manufacturer),
+             data = data)                        <span class="c"># p = 0.0705</span>
+
+<span class="c"># Comparações (slides 22-25)</span>
+replications(Current.Amperes ~ State*Manufacturer, data = data)  <span class="c"># 60, 40, 20</span>
+interfac &lt;- with(data, interaction(State, Manufacturer))         <span class="c"># meta-fator: 6 combinações</span>
+interfac &lt;- relevel(interfac, ref = "Original.B")                <span class="c"># referência escolhida antes</span>
+model2   &lt;- aov(Current.Amperes ~ interfac, data = data)
+summary(glht(model2, linfct = mcp(interfac = "Dunnett")))</pre>
+      <ul>
+        <li><b>Interação primeiro:</b> p = 1,49 · 10⁻⁵, significativa. Mas significativa não quer dizer grande: a SQ da interação é 0,114, contra 12,956 do estado. O boxplot já sugeria um efeito pequeno.</li>
+        <li><b>Premissas:</b> Shapiro nos resíduos, Fligner com grupos = combinações (<code>interaction()</code>). A independência vem do planejamento (aleatorização), não de um teste.</li>
+        <li><b>Comparações:</b> t<sub>0</sub> = Δȳ / √(2·MS<sub>E</sub> / n′), com n′ = 60 por estado, 40 por fabricante e 20 por combinação. O α precisa de correção para comparações múltiplas (Tukey, Dunnett).</li>
+        <li><b>Aviso esperado:</b> com interação no modelo, <code>glht(model, mcp(Manufacturer = "Tukey"))</code> avisa <code>covariate interactions found</code>. O contraste padrão compara fabricantes só no nível de referência do estado (Original), não nas médias marginais.</li>
+        <li><b>Com interação</b>, os slides comparam as médias das combinações num modelo de uma via com o meta-fator. Dunnett quando há uma referência conhecida (Original.B); Tukey para todos contra todos. É o mesmo papel do desdobramento da Aula 8.</li>
+        <li><b>Conclusão no idioma do problema</b> (slide 26): rebobinados consomem mais corrente. Opções: trocar aos poucos por motores novos do fabricante B, descartar em vez de rebobinar, ou avaliar outro tipo de rebobinamento.</li>
+      </ul>
+      <div class="note"><span class="tag">E com 3 fatores ou mais?</span>
+        <p>Generaliza direto: N = abc…n, entram as interações de 2ª e 3ª ordem. Com n = 1 (lentes, 2³) não há gl no resíduo: retire as interações de ordem alta (princípio da esparsidade) com ajuda do gráfico de Daniel, que só vale para 2<sup>k</sup>. Detalhes no roteiro <a href="https://claude.ai/artifact/3CFy5wnbA2Brz3ZVhA2pQ2" target="_blank" rel="noopener">Fatorial com Mais de 2 Fatores</a>.</p></div>
+      <p class="src">Fonte: 11_ExpFatorial.pdf, slides 5–7, 17–26, 28–46 · codigos/11-Planejamento_Fatorial/ExpFatorial.R, seções 3–6</p>
+    </section>
+
+    <!-- 7 -->
+    <section class="blk" id="teste">
+      <p class="kick">7 · Revisar</p>
+      <h2>Teste rápido</h2>
+      <p class="lead">Oito questões no formato da parte de múltipla escolha. A explicação aparece quando você responde.</p>
+      <div id="quiz"></div>
+      <div class="row"><button type="button" class="btn" id="quizReset">Zerar respostas</button></div>
+    </section>
+
+    <!-- 8 -->
+    <section class="blk" id="prova">
+      <p class="kick">8 · Revisar</p>
+      <h2>Para a dissertativa</h2>
+      <p class="lead">A prova pede para explicar um planejamento e fazer uma análise, passo a passo. Marque o que você já sabe explicar sem olhar.</p>
+      <div class="two">
+        <div class="def"><b>Planejamento</b>
+          <ul class="ck" id="ckPlan">
+            <li><input type="checkbox" id="p1"><label for="p1">Definir a pergunta, a variável resposta e a unidade experimental.</label></li>
+            <li><input type="checkbox" id="p2"><label for="p2">Escolher os fatores e os níveis. Tipos → ANOVA; doses → regressão.</label></li>
+            <li><input type="checkbox" id="p3"><label for="p3">Cruzar todos os níveis: a × b tratamentos.</label></li>
+            <li><input type="checkbox" id="p4"><label for="p4">Fixar α, β (poder) e o efeito mínimo δ*; calcular n ≥ 2 por combinação.</label></li>
+            <li><input type="checkbox" id="p5"><label for="p5">Aleatorizar a alocação e a ordem (DIC), ou bloquear uma fonte de ruído conhecida.</label></li>
+            <li><input type="checkbox" id="p6"><label for="p6">Escrever o modelo e as três hipóteses: A, B e A × B.</label></li>
+          </ul></div>
+        <div class="def"><b>Análise</b>
+          <ul class="ck" id="ckAna">
+            <li><input type="checkbox" id="a1"><label for="a1">Exploratória: boxplot por combinação e gráfico de interação.</label></li>
+            <li><input type="checkbox" id="a2"><label for="a2">Ajustar <code>aov(y ~ A*B)</code> e montar a tabela da ANOVA.</label></li>
+            <li><input type="checkbox" id="a3"><label for="a3">Validar premissas nos resíduos: normalidade, variância por combinação, independência pelo planejamento.</label></li>
+            <li><input type="checkbox" id="a4"><label for="a4">Ler a interação primeiro.</label></li>
+            <li><input type="checkbox" id="a5"><label for="a5">Sem interação: níveis de cada fator (F com 2, Tukey com 3+). Com interação: desdobrar ou comparar combinações.</label></li>
+            <li><input type="checkbox" id="a6"><label for="a6">Concluir no idioma do problema: recomendação, tamanho do efeito, limitações.</label></li>
+          </ul></div>
+      </div>
+      <h3>Cola de bolso</h3>
+      <ul class="cola">
+        <li>gl: A = a − 1 · B = b − 1 · A×B = (a − 1)(b − 1) · Resíduo = ab(n − 1) · Total = abn − 1</li>
+        <li>Tratamentos = ab; SQ<sub>Trat</sub> = SQ<sub>A</sub> + SQ<sub>B</sub> + SQ<sub>AB</sub></li>
+        <li>F = QM do efeito / QM do resíduo, sempre com o resíduo embaixo</li>
+        <li>Na conta à mão, divida cada total² pelo nº de parcelas que ele soma</li>
+        <li>Interação significativa: não interprete efeitos principais isolados</li>
+        <li>2 médias: o F basta. Tukey só com 3 ou mais</li>
+        <li>Tabela de dupla entrada: minúsculas na linha, maiúsculas na coluna</li>
+        <li>n ≥ 2 para ter resíduo; n = 1 exige retirar interações de ordem alta</li>
+        <li>Fligner com <code>interaction(A, B)</code>; independência garantida pela aleatorização</li>
+        <li>Fatorial é esquema, não delineamento (DIC ou DBC)</li>
+      </ul>
+    </section>
+
+    <footer class="src">
+      Fontes: Slides/11_ExpFatorial.pdf (M. Bessani) · codigos/11-Planejamento_Fatorial/ExpFatorial.R ·
+      <a href="https://www.youtube.com/watch?v=DQ8-l83TCQg" target="_blank" rel="noopener">Aula 7, fatoriais sem interação</a> e
+      <a href="https://www.youtube.com/watch?v=581HURFTHkE" target="_blank" rel="noopener">Aula 8, com interação</a> (Prof. Jeferson Ribeiro, IF Goiano).
+    </footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+  const fmt=(x,d=2)=>x.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+  const press=(group,btn)=>{group.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b===btn?'true':'false'));};
+
+  /* ---------- 1. Monte o fatorial ---------- */
+  const PRE={
+    poed:{a:2,b:2,n:6,cap:'Cálcio (com, sem) × luz à noite (com, sem), 6 poedeiras por combinação. Dá os 20 gl de resíduo da Aula 7.'},
+    bov:{a:3,b:2,n:4,cap:'Mineral (A1, A2, A3) × vegetal (B1, B2), 4 bovinos por combinação. Dá os 18 gl de resíduo da Aula 8.'},
+    mot:{a:3,b:2,n:20,cap:'Fabricante (A, B, C) × estado (original, rebobinado), 20 motores por combinação. Dá os 114 gl de resíduo do slide 17.'}
+  };
+  const fs={a:2,b:2,n:6};
+  function mkSeg(el,vals,key){
+    el.innerHTML=vals.map(v=>`<button type="button" data-v="${v}" aria-pressed="false">${v}</button>`).join('');
+    el.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;fs[key]=+b.dataset.v;press($('#presets'),null);$('#presetCap').textContent='Combinação livre.';renderFat();});
+  }
+  mkSeg($('#selA'),[2,3,4],'a'); mkSeg($('#selB'),[2,3,4],'b'); mkSeg($('#selN'),[1,2,3,4,6,20],'n');
+  $('#presets').addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b)return; const p=PRE[b.dataset.p];
+    fs.a=p.a; fs.b=p.b; fs.n=p.n; press($('#presets'),b); $('#presetCap').textContent=p.cap; renderFat();
+  });
+  function renderFat(){
+    const {a,b,n}=fs;
+    [['#selA',a],['#selB',b],['#selN',n]].forEach(([s,v])=>$(s).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.v===v?'true':'false')));
+    const g=$('#fatGrid'); g.style.gridTemplateColumns=`auto repeat(${b},minmax(0,1fr))`;
+    let h='<span></span>'; for(let j=1;j<=b;j++) h+=`<span class="gh">B${j}</span>`;
+    for(let i=1;i<=a;i++){ h+=`<span class="gh">A${i}</span>`; for(let j=1;j<=b;j++) h+=`<span class="cell">A${i}B${j}<small>n = ${n}</small></span>`; }
+    g.innerHTML=h;
+    $('#fatOut').innerHTML=`<span class="v">${a} × ${b} = ${a*b}</span> tratamentos · <span class="v">N = ${a} · ${b} · ${n} = ${a*b*n}</span> unidades experimentais`;
+    const rows=[
+      ['A',`a − 1 = ${a} − 1`,a-1],
+      ['B',`b − 1 = ${b} − 1`,b-1],
+      ['A × B',`(a − 1)(b − 1) = ${a-1} · ${b-1}`,(a-1)*(b-1)],
+      ['Resíduo',`ab(n − 1) = ${a*b} · ${n-1}`,a*b*(n-1)],
+      ['Total',`abn − 1 = ${a*b*n} − 1`,a*b*n-1]
+    ];
+    $('#glTable tbody').innerHTML=rows.map((r,i)=>`<tr${i===4?' class="sum"':''}${i===3&&n===1?' class="hlrow"':''}><td>${r[0]}</td><td>${r[1]}</td><td class="n">${r[2]}</td></tr>`).join('');
+    $('#n1warn').hidden=n!==1;
+  }
+  $('#presetCap').textContent=PRE.poed.cap; renderFat();
+
+  /* ---------- 2. Gráfico de interação ---------- */
+  const EX={
+    poed:{title:'Poedeiras · ovos por ave, média de 6',
+      views:[
+        {x:['Com luz','Sem luz'],xl:'Luz artificial à noite',series:[{n:'Com cálcio',v:[306/6,290/6]},{n:'Sem cálcio',v:[264/6,241/6]}]},
+        {x:['Com cálcio','Sem cálcio'],xl:'Cálcio na ração',series:[{n:'Com luz',v:[306/6,264/6]},{n:'Sem luz',v:[290/6,241/6]}]}
+      ],
+      read:[
+        'Com cálcio, tirar a luz custa 2,67 ovos (51,00 → 48,33). Sem cálcio, custa 3,83 (44,00 → 40,17). O efeito da luz é quase o mesmo nos dois níveis de cálcio, então as linhas ficam quase paralelas. A ANOVA confirma: F da interação = 0,51, <span class="pill ns">não significativo</span> a 1%. As linhas estão bem afastadas porque o cálcio tem efeito principal forte.',
+        'Com luz, tirar o cálcio custa 7,00 ovos (51,00 → 44,00). Sem luz, custa 8,17 (48,33 → 40,17). Trocar o eixo não muda a conclusão: linhas quase paralelas, <span class="pill ns">sem interação</span>.'
+      ]},
+    bov:{title:'Bovinos · ganho de peso, média de 4',
+      views:[
+        {x:['A1','A2','A3'],xl:'Suplemento mineral',series:[{n:'B1',v:[35.40,35.63,30.30]},{n:'B2',v:[34.82,29.33,31.58]}]},
+        {x:['B1','B2'],xl:'Suplemento vegetal',series:[{n:'A1',v:[35.40,34.82]},{n:'A2',v:[35.63,29.33]},{n:'A3',v:[30.30,31.58]}]}
+      ],
+      read:[
+        'Com A1, os dois vegetais quase empatam (35,40 e 34,82). Com A2, B1 ganha 6,30 a mais que B2. Com A3, B2 fica um pouco acima. As linhas se cruzam: o melhor vegetal depende do mineral. F da interação = 16,78, <span class="pill sig">significativo</span> a 5%.',
+        'Com B1, A1 e A2 ficam no topo e A3 cai. Com B2, A1 lidera e A2 despenca para 29,33. A ordem dos minerais muda de um vegetal para o outro: <span class="pill sig">interação</span>.'
+      ]}
+  };
+  const ps={ex:'poed',view:0};
+  function drawPlot(){
+    const ex=EX[ps.ex], v=ex.views[ps.view];
+    const W=520,H=290,ml=46,mr=108,mt=14,mb=50, pw=W-ml-mr, ph=H-mt-mb;
+    const all=v.series.flatMap(s=>s.v); let lo=Math.min(...all), hi=Math.max(...all);
+    const span=hi-lo||1, raw=span/4, mag=Math.pow(10,Math.floor(Math.log10(raw))), nr=raw/mag;
+    const step=(nr<1.5?1:nr<3?2:nr<7?5:10)*mag;
+    lo=Math.floor((lo-span*.08)/step)*step; hi=Math.ceil((hi+span*.08)/step)*step;
+    const Y=val=>mt+ph-(val-lo)/(hi-lo)*ph, k=v.x.length, X=i=>ml+pw*(i+.5)/k;
+    let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfico de interação: ${ex.title}">`;
+    for(let t=lo;t<=hi+1e-9;t+=step){const y=Y(t).toFixed(1);s+=`<line class="grid" x1="${ml}" x2="${ml+pw}" y1="${y}" y2="${y}"/><text class="tick" x="${ml-8}" y="${(+y+4).toFixed(1)}" text-anchor="end">${fmt(t,0)}</text>`;}
+    s+=`<line class="ax" x1="${ml}" x2="${ml+pw}" y1="${mt+ph}" y2="${mt+ph}"/>`;
+    v.x.forEach((lab,i)=>{s+=`<text class="tick xl" x="${X(i).toFixed(1)}" y="${mt+ph+20}" text-anchor="middle">${lab}</text>`;});
+    s+=`<text class="axt" x="${(ml+pw/2).toFixed(1)}" y="${H-8}" text-anchor="middle">${v.xl}</text>`;
+    s+=`<text class="axt" transform="translate(13 ${(mt+ph/2).toFixed(1)}) rotate(-90)" text-anchor="middle">média</text>`;
+    const labs=[];
+    v.series.forEach((se,si)=>{
+      const pts=se.v.map((val,i)=>[X(i),Y(val)]);
+      s+=`<polyline class="ln s${si}" points="${pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}"/>`;
+      pts.forEach((p,i)=>{s+=`<circle class="s${si}" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="5.5"><title>${se.n} · ${v.x[i]}: ${fmt(se.v[i])}</title></circle>`;});
+      labs.push({x:pts[k-1][0],y:pts[k-1][1],n:se.n,si});
+    });
+    labs.sort((p,q)=>p.y-q.y);
+    for(let i=1;i<labs.length;i++) if(labs[i].y-labs[i-1].y<17) labs[i].y=labs[i-1].y+17;
+    labs.forEach(l=>{s+=`<text class="lab s${l.si}" x="${(l.x+14).toFixed(1)}" y="${(l.y+5).toFixed(1)}">${l.n}</text>`;});
+    s+='</svg>';
+    $('#plot').innerHTML=s; $('#plotRead').innerHTML=ex.read[ps.view]; $('#plotTitle').textContent=ex.title;
+    $('#plotMeans').innerHTML=`<thead><tr><th>Médias</th>${v.x.map(x=>`<th class="n">${x}</th>`).join('')}</tr></thead><tbody>`+
+      v.series.map(se=>`<tr><th>${se.n}</th>${se.v.map(val=>`<td class="n">${fmt(val)}</td>`).join('')}</tr>`).join('')+'</tbody>';
+  }
+  $('#plotEx').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;ps.ex=b.dataset.e;ps.view=0;press($('#plotEx'),b);drawPlot();});
+  $('#plotSwap').addEventListener('click',()=>{ps.view=1-ps.view;drawPlot();});
+  drawPlot();
+
+  /* ---------- 4. ANOVA passo a passo ---------- */
+  const STEPS=[
+    {t:'Correção (C)',f:'C = (total geral)² / N = 1101² / 24 = 50 508,38',hl:['g'],row:null,
+      n:'O total geral ao quadrado, dividido pelo número de parcelas. C entra em todas as SQ.'},
+    {t:'SQ total',f:'SQ<sub>Total</sub> = Σy² − C = 50 999 − 50 508,38 = 490,62',hl:[],row:'a-tot',
+      n:'Eleve as 24 observações ao quadrado, some e desconte C. Igual ao DIC.'},
+    {t:'SQ dos tratamentos',f:'SQ<sub>Trat</sub> = (306² + 290² + 264² + 241²) / 6 − C = 410,45',hl:['q-cl','q-cs','q-sl','q-ss'],row:'a-trat',
+      n:'Os 4 totais de combinação, cada um somando 6 aves, por isso o ÷ 6. São os 2 × 2 = 4 tratamentos.'},
+    {t:'SQ do fator A (cálcio)',f:'SQ<sub>Ca</sub> = (596² + 505²) / 12 − C = 345,04',hl:['r-c','r-s'],row:'a-ca',
+      n:'Totais de linha. Cada um soma 12 aves, por isso o ÷ 12.'},
+    {t:'SQ do fator B (luz)',f:'SQ<sub>Luz</sub> = (570² + 531²) / 12 − C = 63,37',hl:['c-l','c-s'],row:'a-luz',
+      n:'Totais de coluna, também de 12 aves cada.'},
+    {t:'SQ da interação, por diferença',f:'SQ<sub>Ca×Luz</sub> = 410,45 − 345,04 − 63,37 = 2,04',hl:[],row:'a-int',
+      n:'A variação entre os 4 tratamentos se divide em A, B e A × B. O que A e B não explicam é interação.'},
+    {t:'SQ do resíduo',f:'SQ<sub>Res</sub> = SQ<sub>Total</sub> − SQ<sub>Trat</sub> = 490,62 − 410,45 = 80,17',hl:[],row:'a-res',
+      n:'Variação dentro das combinações. gl = 23 − 3 = 20, ou ab(n − 1) = 4 · 5 = 20.'},
+    {t:'Quadrados médios',f:'QM = SQ / gl  →  QM<sub>Res</sub> = 80,17 / 20 = 4,01',hl:[],row:'a-res',
+      n:'Com 1 gl, QM = SQ em cálcio, luz e interação. QM<sub>Trat</sub> = 410,45 / 3 = 136,82.'},
+    {t:'F e decisão: interação primeiro',f:'F<sub>Ca×Luz</sub> = 2,04 / 4,01 = 0,51  &lt;  F<sub>1; 20; 1%</sub> = 8,10',hl:[],row:'a-int',
+      n:'Interação não significativa, então os fatores são lidos separadamente: F<sub>Ca</sub> = 345,04 / 4,01 = 86,04 e F<sub>Luz</sub> = 63,37 / 4,01 = 15,80, ambos acima de 8,10.'}
+  ];
+  let si=0;
+  const dots=$('#stDots');
+  dots.innerHTML=STEPS.map((_,i)=>`<button type="button" data-i="${i}" aria-label="Passo ${i+1}">${i+1}</button>`).join('');
+  dots.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;si=+b.dataset.i;renderStep();});
+  function renderStep(){
+    const s=STEPS[si];
+    $('#stN').textContent=`Passo ${si+1} de ${STEPS.length}`; $('#stT').textContent=s.t; $('#stF').innerHTML=s.f; $('#stNote').innerHTML=s.n;
+    $$('.aux td').forEach(td=>td.classList.toggle('hl',s.hl.includes(td.id)));
+    $$('#anovaPoed tbody tr').forEach(tr=>tr.classList.toggle('hlrow',tr.id===s.row));
+    $('#stPrev').disabled=si===0; $('#stNext').disabled=si===STEPS.length-1;
+    dots.querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-current',i===si?'true':'false'));
+  }
+  $('#stPrev').addEventListener('click',()=>{if(si>0){si--;renderStep();}});
+  $('#stNext').addEventListener('click',()=>{if(si<STEPS.length-1){si++;renderStep();}});
+  renderStep();
+
+  /* ---------- 5. Desdobramento ---------- */
+  const A=['A1','A2','A3'], B=['B1','B2'];
+  const MEANS=[[35.40,34.82],[35.63,29.33],[30.30,31.58]];
+  const LO=[['a','a'],['a','b'],['a','a']], UP=[['A','A'],['A','B'],['B','B']];
+  const T={
+    A1:{k:'Vegetal (B) dentro do mineral A1',sq:'(141,6² + 139,3²) / 4 − 280,9² / 8 = 0,66',gl:1,qm:'0,66',F:'0,35',ft:'4,41',sig:false,
+      c:'B1 = B2 (letras a, a): com o mineral A1, tanto faz o vegetal.'},
+    A2:{k:'Vegetal (B) dentro do mineral A2',sq:'(142,5² + 117,3²) / 4 − 259,8² / 8 = 79,38',gl:1,qm:'79,38',F:'42,45',ft:'4,41',sig:true,
+      c:'B1 (35,63, a) > B2 (29,33, b). Com 2 médias o F já basta: a maior é a melhor, sem Tukey.'},
+    A3:{k:'Vegetal (B) dentro do mineral A3',sq:'(121,2² + 126,3²) / 4 − 247,5² / 8 = 3,25',gl:1,qm:'3,25',F:'1,74',ft:'4,41',sig:false,
+      c:'B1 = B2 (letras a, a): com o mineral A3, tanto faz o vegetal.'},
+    B1:{k:'Mineral (A) dentro do vegetal B1',sq:'(141,6² + 142,5² + 121,2²) / 4 − 405,3² / 12 = 72,55',gl:2,qm:'72,55 / 2 = 36,28',qv:'36,28',F:'19,40',ft:'3,55',sig:true,
+      ord:'A2 35,63 · A1 35,40 · A3 30,30',tk:[['A2 − A1','0,23',false],['A2 − A3','5,33',true],['A1 − A3','5,10',true]],
+      c:'A2 = A1 (letra A), e os dois superam A3 (letra B).'},
+    B2:{k:'Mineral (A) dentro do vegetal B2',sq:'(139,3² + 117,3² + 126,3²) / 4 − 382,9² / 12 = 61,17',gl:2,qm:'61,17 / 2 = 30,59',qv:'30,59',F:'16,36',ft:'3,55',sig:true,
+      ord:'A1 34,82 · A3 31,58 · A2 29,33',tk:[['A1 − A3','3,24',true],['A1 − A2','5,49',true],['A3 − A2','2,25',false]],
+      c:'A1 sozinho no topo (letra A); A3 = A2 (letra B).'}
+  };
+  function ddRender(key){
+    const isRow=key[0]==='A', idx=isRow?A.indexOf(key):B.indexOf(key);
+    let h=`<thead><tr><th></th>${B.map(b=>`<th>${b}</th>`).join('')}</tr></thead><tbody>`;
+    A.forEach((a,i)=>{
+      h+=`<tr><th>${a}</th>`+B.map((b,j)=>{
+        const on=isRow?i===idx:j===idx;
+        return `<td class="${on?'on':''}"><span class="m">${fmt(MEANS[i][j])}</span><span class="lo">${LO[i][j]}</span><span class="up">${UP[i][j]}</span></td>`;
+      }).join('')+'</tr>';
+    });
+    const tb=$('#ddTable'); tb.innerHTML=h+'</tbody>'; tb.className='dd '+(isRow?'rowmode':'colmode');
+    const t=T[key], qv=t.qv||t.qm;
+    let o=`<p class="rk">${t.k}</p><div class="formula">SQ = ${t.sq}<small>gl = ${t.gl} (${isRow?'2 vegetais − 1':'3 minerais − 1'}) · QM = ${t.qm}</small></div>`;
+    o+=`<p>F = ${qv} / 1,87 = <span class="v">${t.F}</span> ${t.sig?'&gt;':'&lt;'} F<sub>${t.gl}; 18; 5%</sub> = ${t.ft} → <span class="pill ${t.sig?'sig':'ns'}">${t.sig?'significativo':'não significativo'}</span></p>`;
+    if(t.tk){
+      o+=`<p>Com 3 médias, entra o Tukey: Δ = q · √(QM<sub>Res</sub> / r) = 3,61 · √(1,87 / 4) = <span class="v">2,47</span>, com q tabelado para 3 tratamentos e 18 gl. Em ordem decrescente: ${t.ord}.</p><ul>`+
+        t.tk.map(([c,d,s])=>`<li><span class="v">${c} = ${d}</span> ${s?'&gt; 2,47 → <b>diferem</b>':'&lt; 2,47 → iguais'}</li>`).join('')+'</ul>';
+    }
+    o+=`<p class="concl">${t.c}</p>`;
+    $('#ddOut').innerHTML=o;
+    $$('#ddRow button,#ddCol button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===key?'true':'false'));
+  }
+  $('#ddRow').addEventListener('click',e=>{const b=e.target.closest('button');if(b)ddRender(b.dataset.k);});
+  $('#ddCol').addEventListener('click',e=>{const b=e.target.closest('button');if(b)ddRender(b.dataset.k);});
+  ddRender('A2');
+
+  /* ---------- 7. Quiz ---------- */
+  const Q=[
+    {q:'Fatorial 3 × 2 com 4 repetições, em DIC (os bovinos da Aula 8). Quantos gl tem o resíduo?',
+      o:['5','18','20','23'],a:1,e:'ab(n − 1) = 3 · 2 · 3 = 18. O 5 é o gl de tratamentos (ab − 1) e o 23 é o total (abn − 1).'},
+    {q:'O F da interação A × B deu significativo. Qual o próximo passo?',
+      o:['Interpretar os efeitos principais de A e B normalmente','Desdobrar: B dentro de cada nível de A e A dentro de cada nível de B','Tirar a interação do modelo e refazer a ANOVA','Concluir que nenhum fator importa'],a:1,
+      e:'Com interação, o efeito de um fator depende do nível do outro. A Aula 8 estuda um fator dentro de cada nível do outro; os slides comparam as médias das combinações.'},
+    {q:'Sem interação, o fator cálcio (2 níveis) deu F significativo. É preciso aplicar Tukey?',
+      o:['Sim, sempre que o F for significativo','Não: com 2 médias o F já diz que diferem, e a maior é a melhor','Sim, mas só a 1%','Não, porque o fator não teve efeito'],a:1,
+      e:'É a pegadinha da Aula 7. Tukey só faz sentido a partir de 3 médias.'},
+    {q:'Sobre o experimento fatorial, é correto dizer que:',
+      o:['É um delineamento alternativo ao DIC e ao DBC','É um esquema de organizar os tratamentos, que pode ser instalado em DIC ou DBC','Exige exatamente dois fatores','Só funciona com fatores quantitativos'],a:1,
+      e:'Aula 7: fatorial não é delineamento. Os slides citam fatorial em blocos: cada bloco recebe uma observação de cada combinação.'},
+    {q:'Por que o fatorial precisa de n ≥ 2 repetições por combinação?',
+      o:['Para ter gl no resíduo e separar SS<sub>AB</sub> de SS<sub>E</sub>','Porque o teste de Shapiro exige','Para o modelo ficar balanceado','Porque com n = 1 não existe efeito principal'],a:0,
+      e:'Com n = 1, ab(n − 1) = 0: não sobra gl para estimar σ² (slide 12). As lentes contornam isso retirando interações de ordem alta.'},
+    {q:'No gráfico de interação, as linhas saem quase paralelas e bem afastadas. Isso sugere:',
+      o:['Interação forte','Sem interação, e provável efeito principal do fator das linhas','Que nenhum fator tem efeito','Que as variâncias são diferentes'],a:1,
+      e:'Paralelas: o mesmo efeito em todos os níveis do outro fator. Afastadas: um nível fica sempre acima, como o cálcio nas poedeiras. A decisão formal é o F.'},
+    {q:'Poedeiras: SQ<sub>Trat</sub> = 410,45, SQ<sub>Cálcio</sub> = 345,04 e SQ<sub>Luz</sub> = 63,37. Quanto vale a SQ da interação?',
+      o:['2,04','818,86','4,01','80,17'],a:0,
+      e:'Por diferença: 410,45 − 345,04 − 63,37 = 2,04. O 4,01 é o QM do resíduo e o 80,17 é a SQ do resíduo.'},
+    {q:'Num modelo com interação, <code>glht(model, linfct = mcp(Manufacturer = "Tukey"))</code> avisa <code>covariate interactions found</code>. O que isso indica?',
+      o:['Erro: o modelo não foi ajustado','Os contrastes padrão podem ser inadequados: comparam fabricantes no nível de referência do outro fator','Os dados estão desbalanceados','A normalidade foi violada'],a:1,
+      e:'O aviso é esperado (slide 23). Para comparar combinações, crie o meta-fator com <code>interaction()</code> e aplique Tukey ou Dunnett nele.'}
+  ];
+  const ans=new Array(Q.length).fill(null);
+  const qz=$('#quiz');
+  function renderQuiz(){
+    qz.innerHTML=Q.map((x,i)=>`<fieldset class="q" data-i="${i}"><legend>Questão ${i+1}</legend><p class="qt">${x.q}</p><div class="opts">`+
+      x.o.map((o,j)=>`<button type="button" class="opt" data-j="${j}">${String.fromCharCode(97+j)}) ${o}</button>`).join('')+
+      `</div><p class="ex" hidden></p></fieldset>`).join('');
+    ans.forEach((v,i)=>{if(v!==null)mark(i,v);}); meter();
+  }
+  function mark(i,j){
+    const fsq=qz.querySelector(`fieldset[data-i="${i}"]`), x=Q[i];
+    fsq.querySelectorAll('.opt').forEach((b,k)=>{b.disabled=true; if(k===x.a)b.classList.add('right'); else if(k===j)b.classList.add('wrong');});
+    const ex=fsq.querySelector('.ex'); ex.hidden=false; ex.innerHTML=`<b>${j===x.a?'Certo.':'Resposta: '+String.fromCharCode(97+x.a)+'.'}</b> ${x.e}`;
+  }
+  function meter(){
+    const ok=ans.filter((v,i)=>v===Q[i].a).length;
+    $('#meterTxt').textContent=`${ok} de ${Q.length} certas`; $('#meterBar').style.width=(ok/Q.length*100)+'%';
+  }
+  qz.addEventListener('click',e=>{
+    const b=e.target.closest('.opt'); if(!b||b.disabled)return;
+    const i=+b.closest('fieldset').dataset.i, j=+b.dataset.j; ans[i]=j; mark(i,j); meter();
+  });
+  $('#quizReset').addEventListener('click',()=>{ans.fill(null);renderQuiz();});
+  renderQuiz();
+
+  /* ---------- 8. Checklist (conveniência local) ---------- */
+  const KEY='roteiroFatorial.ck';
+  let saved={}; try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){saved={};}
+  $$('.ck input').forEach(cb=>{
+    cb.checked=!!saved[cb.id];
+    cb.addEventListener('change',()=>{saved[cb.id]=cb.checked; try{localStorage.setItem(KEY,JSON.stringify(saved));}catch(e){}});
+  });
+
+  /* ---------- trilho ---------- */
+  const links=$$('.ri'), secs=links.map(a=>document.getElementById(a.getAttribute('href').slice(1)));
+  function spy(){
+    const lim=window.innerHeight*.3; let cur=0;
+    secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<lim)cur=i;});
+    if(window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-4)cur=secs.length-1;
+    links.forEach((a,i)=>a.setAttribute('aria-current',i===cur?'true':'false'));
+    const act=links[cur]; if(act&&window.matchMedia('(max-width:880px)').matches){const ol=act.closest('ol');const r=act.getBoundingClientRect(),R=ol.getBoundingClientRect();if(r.left<R.left||r.right>R.right)ol.scrollLeft+=r.left-R.left-16;}
+  }
+  window.addEventListener('scroll',spy,{passive:true}); window.addEventListener('resize',spy); spy();
+})();
+</script>
