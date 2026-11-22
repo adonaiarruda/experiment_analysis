@@ -1,0 +1,4 @@
+# Dados da NEC Energia: ficam só na máquina, não vão para o git.
+*
+!.gitignore
+!LEIAME.md
