@@ -23,10 +23,10 @@
 # O observado vem da mesma série (exutório), sem conversão de escala.
 # Resposta: e = ln(Q_obs / Q_prev)  (e < 0 → a metodologia superestimou).
 #
-# Entrada : Trabalho Final/dados/serie_mlt_diaria/*.csv
-# Saídas  : Trabalho Final/dados/derivados/backcast_mensal.csv
-#           Trabalho Final/dados/derivados/backcast_anual.csv
-#           Trabalho Final/dados/derivados/estatisticas_posicao_periodo_todo.csv
+# Entrada : Trabalho Final/dados/raw/serie_mlt_diaria/*.csv
+# Saídas  : Trabalho Final/dados/raw/derivados/backcast_mensal.csv
+#           Trabalho Final/dados/raw/derivados/backcast_anual.csv
+#           Trabalho Final/dados/raw/derivados/estatisticas_posicao_periodo_todo.csv
 #             (só para validar a lógica de posições contra a planilha da empresa)
 # Os arquivos de dados/ não vão para o git.
 #
@@ -53,8 +53,8 @@ achar_dir_tf <- function() {
   normalizePath(".")
 }
 DIR_TF    <- achar_dir_tf()
-DIR_SERIE <- file.path(DIR_TF, "dados", "serie_mlt_diaria")
-DIR_SAIDA <- file.path(DIR_TF, "dados", "derivados")
+DIR_SERIE <- file.path(DIR_TF, "dados", "raw", "serie_mlt_diaria")
+DIR_SAIDA <- file.path(DIR_TF, "dados", "raw", "derivados")
 dir.create(DIR_SAIDA, showWarnings = FALSE, recursive = TRUE)
 
 # ---- Leitura das 19 séries (dois formatos) ------------------------------------

@@ -1,65 +1,112 @@
-# Dados do trabalho final
+# Dados do trabalho final — guia rápido
 
-Cópia local da pasta do Google Drive compartilhada pelo líder de dados do grupo
-(baixada em 22/11/2026). Os arquivos **não vão para o git** (ver `.gitignore`):
-são dados da empresa. Para recriar a pasta, baixe de novo do Drive e renomeie conforme a tabela.
+Dados da NEC Energia. No git estão só este guia e as **duas bases compiladas** abaixo; os
+arquivos originais em `raw/` ficam só na máquina (ver `.gitignore`).
 
-| Arquivo local | Nome no Drive |
-|---|---|
-| `serie_mlt_diaria/<usina>.csv` | Série diária MLT (Lucas Horta) / `Série Hidrológica - <usina> (<área> km²).csv` |
-| `Cadastro_usinas_vazao_turbinavel.xlsx` | Cadastro das usinas - vazões mín. e máx. turbináveis.xlsx |
-| `ENOS_Correlacao_com_vazao.xlsx` | ENOS - Correlação com vazão.xlsx |
-| `ENOS_Monitoramento_Nino34.xlsx` | ENOS - Monitoramento Niño 3.4.xlsx |
-| `ENOS_Vazao_diaria_x_fases.xlsx` | ENOS - Vazão diária x fases.xlsx |
-| `Estacoes_Disponibilidade_hidrica.xlsx` | Estações - Disponibilidade hídrica.xlsx |
-| `Estacoes_Estatisticas_por_posicao.xlsx` | Estações - Estatísticas por posição.xlsx |
-| `MLT_Disponibilidade_hidrica.xlsx` | MLT - Disponibilidade hídrica.xlsx |
-| `MLT_Estatisticas_por_posicao.xlsx` | MLT - Estatísticas por posição (média, P05, P95, sigma log).xlsx |
-| `Resumo_dados_por_usina.xlsx` | Resumo dos dados por usina.xlsx |
+## O que usar
 
-A pasta acima é a "05 - Bases Hidrológicas" da pasta-mãe **"Base Dados"** do João (que tem um
-`00 - LEIA-ME.md` próprio). Os arquivos das outras subpastas estão em `base_dados/`:
-
-| Arquivo local | Origem em "Base Dados" | O que tem |
+| Arquivo | O que é | Linha = |
 |---|---|---|
-| `base_dados/03_plano_2027/Indicadores_Operacionais_Plano_2027.xlsm` | 03 - Plano de Geração 2027 | aba `Dados`: Plano/Forecast/Realizado por usina × mês (MWmed, EVT, indisponibilidades). Realizado 2023–mai/2026 |
-| `base_dados/03_plano_2027/Plano_2027_Resumo_Geracao_EVT_Disponibilidade.xlsx` | idem | plano 2027 mensal por usina |
-| `base_dados/03_plano_2027/Geracao_Energia_Budget_2027-36.xlsx` | idem | budget 2027–36 |
-| `base_dados/01_historico/plano_2024/*` | 01 - Histórico / Plano 2024 | vazão planejada 2024 (m³/s) e projeções v0–v3 × realizado jan–jul/2024 |
-| `base_dados/01_historico/plano_2026/*` | 01 - Histórico / Plano 2026 | metas 2026; aba `Vazão_Histórica_Classificada` = vazão diária das estações ranqueada |
-| `base_dados/02_lognormal/Calculo_Lognormal_planilha_original.xlsx` | 02 - Metodologia Log-normal | planilha original do cálculo |
-| `base_dados/06_scripts/*.py` | 06 - Scripts Python | ETLs e simulação (só leitura; não executar sem revisar) |
+| `base_vazao_mensal.csv` | vazão medida de 17 usinas (1930–2026) | usina × mês |
+| `fase_enos_anual.csv` | fase do ENOS (El Niño / La Niña / Neutro) | ano hidrológico |
 
-Não baixados: `Planejamento 2027 - Memorial de Cálculo.xlsx` (18 MB, acima do limite do conector),
-PDF consolidado do plano 2027, pptx de 2023 e o e-mail do Budget. A pasta "04 - Comparativo
-Log-normal x MLT", citada no LEIA-ME do João, não foi compartilhada.
+As duas se ligam pela coluna `ano_hidro`. **Ano hidrológico** T = agosto de T a julho de T+1.
+Todo o resto está em `raw/` e só é preciso para regenerar estes dois arquivos.
 
-## Derivados (gerados por `Trabalho Final/codigo/01_backcast.R`)
+## `base_vazao_mensal.csv`
 
-- `derivados/backcast_anual.csv`: usina × ano hidrológico (ago–jul) × metodologia
-  (`media_4anos`, `mlt`, `lognormal`), com q_prev, q_obs, e = ln(q_obs/q_prev), |e|,
-  `pct_original` (fração de dias medidos no ano) e `grupo_ref` (estação de referência).
-- `derivados/backcast_mensal.csv`: o mesmo por mês.
-- `derivados/estatisticas_posicao_periodo_todo.csv`: estatísticas por posição com o período
-  todo, usadas para conferir a lógica contra `MLT_Estatisticas_por_posicao.xlsx`
-  (bateu 100% nas 18 usinas com par).
+| Coluna | Significado |
+|---|---|
+| `usina`, `mes_ano`, `ano`, `mes`, `ano_hidro` | identificação |
+| `q_soma_m3s_dia` | **vazão do mês = soma das vazões diárias** (m³/s·dia) |
+| `volume_hm3` | o mesmo em volume: soma × 86 400 / 10⁶ |
+| `q_media_m3s` | média dos dias medidos |
+| `dias_mes`, `dias_medidos` | dias do mês e dias com medição |
+| `completo` | todos os dias do mês medidos |
+| `valido` | pelo menos 20 dias medidos |
+| `fonte` | `mlt`, `estacao` ou `estacao_ajustada` (ver abaixo) |
 
-`serie_mlt_diaria/Ituere.csv` = Ituerê.
+Regras:
 
-## Formatos das séries diárias
+- Só entra vazão **medida**. Dia preenchido ou sintético não entra.
+- **Dia sem medição conta como 0** na soma: mês incompleto fica com soma menor.
+- **Mês sem nenhum dia medido = NA** (vazio). Meses parciais no começo e no fim de cada série foram tirados.
+- Cada usina usa **uma fonte principal**, a de mais anos completos:
+  - `mlt`: séries diárias longas (Lucas Horta), medidas numa estação de referência e
+    transferidas para a usina pela razão de áreas;
+  - `estacao`: estação da empresa junto à usina (2013–2024).
+- A outra fonte só completa dias faltantes se as duas baterem (razão mediana a ±6% de 1).
+  Isso acontece em Areal, Brito, Glória, Mello e NPQ II.
+- A usina só fica na base com **pelo menos 8 anos hidrológicos completos**.
+- A escala muda de uma usina para outra (Prazeres é medida a 437 km², ~7× a usina). Isso não
+  afeta o erro ln(Q_obs/Q_prev), que é calculado dentro da mesma série.
 
-- 15 arquivos: cabeçalho com `#` (exutório, área, ERV, FARE), separador `,`,
-  colunas `Data, Vazao_Exutorio_m3s, Vazao_ERV_m3s, Tipo`. Vão até jul/2026.
-- 4 arquivos (Costa Rica, Glória, Nova Ponte Queimada II, Pacífico Mascarenhas): sem
-  cabeçalho `#`, separador `;`, colunas `Data; Vazao_Exutorio_m3s; Vazao_VRS_m3s; Origem_VRS;
-  Tipo_Registro`. Vão até 31/12/2025.
-- `Tipo` / `Tipo_Registro`: `Original` (medido), `Preenchido`, `Sintético`.
+| Usinas | Fonte | Período | Anos completos |
+|---|---|---|---|
+| Areal, Henrique Portugal, NPQ II, Nova Maurício, Pacífico Mascarenhas, Furquim | MLT | 1930/40 – 2025/26 | 80–88 |
+| Glória, Brito, Costa Rica | MLT | 1964/84 – 2025/26 | 35–60 |
+| Mello | estação + MLT | 2014 – 2026 | 11 |
+| Fumaça, Ituerê, Funil, Salto, Paes Leme, Caboclo, Prazeres | estação | 2014/16 – 2024 | 8–10 |
 
-## Cuidados antes de usar
+**Fora da base:** BRC, Congonhal I/II, Pirambeira e Ribeirão (1 a 2 anos completos).
+**Paes Leme** usa a estação própria porque na MLT ela é cópia de Henrique Portugal.
 
-- Funil, Salto e Fumaça são a mesma série multiplicada por uma constante; Paes Leme é
-  Henrique Portugal × constante. Como o erro é ln(Q_obs/Q_prev), essas usinas dão o mesmo erro.
-- BRC, Caboclo, Fumaça, Funil, Prazeres e Salto (ERV 56220900), Mello e Congonhal só têm
-  2021–2025 medidos; Ituerê, 2016–2025. O resto da série é preenchido.
-- `*_Estatisticas_por_posicao.xlsx` usam o período inteiro: não servem como backcast.
-- CPTEC (`ENOS_Monitoramento_Nino34.xlsx` › `CPTEC_INPE_Episodios`) só vai até 2017–18.
+## `fase_enos_anual.csv`
+
+| Coluna | Significado |
+|---|---|
+| `ano_hidro`, `periodo` | ano hidrológico (ex.: `1997-1998`) |
+| `oni_ond`, `oni_ndj`, `oni_djf` | ONI (°C) dos 3 trimestres do pico do verão |
+| `oni_medio` | média dos três (indica a intensidade) |
+| `tri_el_nino`, `tri_la_nina` | quantos dos 3 trimestres estão dentro de um episódio |
+| `fase` | `El Niño`, `La Niña` ou `Neutro` |
+
+Regra da NOAA:
+
+1. **Episódio** de El Niño: pelo menos **5 trimestres seguidos** com ONI ≥ +0,5 °C.
+   Episódio de La Niña: pelo menos 5 trimestres seguidos com ONI ≤ −0,5 °C.
+2. O ano hidrológico recebe a fase do episódio que cobre **pelo menos 2** dos trimestres
+   OND, NDJ e DJF. Se nenhum episódio cobre, o ano é **Neutro**.
+
+Resultado: 1950/51 a 2025/26, com 27 anos El Niño, 25 La Niña e 24 Neutro. **Anos antes de
+1950 não têm fase**, porque o ONI começa em 1950.
+
+## Como regenerar
+
+Na raiz do repositório:
+
+```bash
+python3 "Trabalho Final/codigo/00_extrair_estacoes.py"
+```
+
+```bash
+Rscript "Trabalho Final/codigo/02_base_unica.R"
+```
+
+```bash
+python3 "Trabalho Final/codigo/03_fase_enos.py"
+```
+
+`00` lê a vazão diária das estações do xlsx. `02` monta a base de vazão. `03` monta a fase
+do ENOS. O `01_backcast.R` (previsões antigas, por série diária) é separado.
+
+## O que está em `raw/`
+
+| Caminho | O que é |
+|---|---|
+| `serie_mlt_diaria/<usina>.csv` | séries diárias MLT (19 usinas); `Tipo` = Original / Preenchido / Sintético |
+| `ENOS_Monitoramento_Nino34.xlsx` | ONI e Niño 3.4 de várias fontes (aba `NOAA_CPC_ONI` é a usada) |
+| `Estacoes_*.xlsx`, `MLT_*.xlsx`, `Resumo_dados_por_usina.xlsx` | resumos mensais e estatísticas por posição |
+| `Cadastro_usinas_vazao_turbinavel.xlsx` | vazão máxima turbinável por usina |
+| `ENOS_Correlacao_com_vazao.xlsx`, `ENOS_Vazao_diaria_x_fases.xlsx` | análises prontas da empresa |
+| `base_dados/01_historico/` | planos 2024 e 2026 (o de 2026 tem a vazão diária das estações) |
+| `base_dados/02_lognormal/` | planilha original da log-normal |
+| `base_dados/03_plano_2027/` | plano 2027 e previsto × realizado por usina × mês |
+| `base_dados/06_scripts/` | scripts Python da empresa (só leitura) |
+| `derivados/` | arquivos intermediários dos scripts (base diária, diagnósticos, backcast) |
+
+Origem: pasta **"Base Dados"** do Google Drive do João, baixada em 22/11/2026 e com nomes
+sem acento. Os arquivos soltos em `raw/` e `serie_mlt_diaria/` vêm da subpasta
+"05 - Bases Hidrológicas". Ficaram de fora: o Memorial de Cálculo 2027 (18 MB), a pasta
+"04 - Comparativo" (não compartilhada) e os arquivos de vazão realizada 2025–26 citados nos
+scripts da empresa.
