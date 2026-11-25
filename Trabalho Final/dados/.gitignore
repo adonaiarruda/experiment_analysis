@@ -1,4 +1,8 @@
-# Dados da NEC Energia: ficam só na máquina, não vão para o git.
+# Dados da NEC Energia.
+# Só as duas bases compiladas do trabalho vão para o git (decisão do grupo, 25/11/2026);
+# os originais em raw/ ficam só na máquina.
 *
 !.gitignore
 !LEIAME.md
+!base_vazao_mensal.csv
+!fase_enos_anual.csv
