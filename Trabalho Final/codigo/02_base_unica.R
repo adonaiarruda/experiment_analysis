@@ -11,22 +11,24 @@
 # Só entra dia MEDIDO (Original / Consistido / Ajustada, q > 0). Dia preenchido
 # ou sintético vira NA na base final (continua em base_vazao_fontes.csv).
 #
-# Regras (decididas com o grupo em 22/11/2026):
-#   1. Uma fonte principal por usina: a que tem mais anos hidrológicos completos.
-#      A outra família só completa os dias sem medição na principal se as duas
-#      baterem na sobreposição (razão mediana estação/MLT a ±TOL_EMENDA de 1).
-#      Estação e MLT medem em pontos/áreas diferentes: emendar fontes que não
-#      batem criaria um degrau na série.
+# Regras (decididas com o grupo; revistas em 26/11/2026):
+#   1. ESTAÇÃO TEM PRIORIDADE: em cada dia vale a estação; sem estação, a vazão
+#      ajustada pela empresa; sem nenhuma das duas, a MLT. A MLT entra SEM ajuste
+#      de escala (decisão do grupo), então a série pode ter um degrau onde muda
+#      de fonte: ver razao_est_mlt em base_usinas.csv.
 #   2. Usina fica na base se tiver >= MIN_ANOS anos hidrológicos completos
 #      (ago/T–jul/T+1, os 12 meses com >= MIN_DIAS_MES dias medidos).
-#   3. Paes Leme usa a estação própria: na MLT ela é Henrique Portugal × 2,9.
+#   3. Paes Leme é completada com a MLT, que é Henrique Portugal × 2,9: antes de
+#      2015 as duas usinas são a mesma série (decisão do grupo).
 #   4. Prazeres "ajustada" (aba Vazão_Exceções) é descartada: não bate com a
 #      estação 56220900 nem com a MLT.
+#   5. Horizonte: só entra a partir do ano hidrológico ANO_HIDRO_INICIO (ago/1975).
 #
 # Entradas: dados/raw/serie_mlt_diaria/*.csv
 #           dados/raw/derivados/estacoes_vazao_diaria.csv  (de 00_extrair_estacoes.py)
 # Saídas  : dados/base_vazao_mensal.csv           ← BASE ÚNICA MENSAL
-#           dados/raw/derivados/base_vazao_diaria.csv
+#           dados/base_vazao_diaria.csv           ← mesma base, um dia por linha
+#           dados/raw/derivados/base_vazao_diaria_sem_filtro.csv  (antes dos filtros de mês)
 #           dados/raw/derivados/base_usinas.csv            ← escolha e cobertura por usina
 #           dados/raw/derivados/base_vazao_fontes.csv      (todas as fontes, sem filtro)
 #           dados/raw/derivados/comparacao_estacao_mlt.csv
@@ -41,8 +43,9 @@ suppressPackageStartupMessages(library(data.table))
 # ---- Parâmetros ---------------------------------------------------------------
 MIN_DIAS_MES <- 20L    # mesmo critério do 01_backcast.R
 MIN_ANOS     <- 8L     # anos hidrológicos completos para a usina ficar
-TOL_EMENDA   <- 0.06   # |razão mediana − 1| máxima para emendar estação e MLT
-FORCAR_FONTE <- c("Paes Leme" = "estacao")
+PRIORIDADE   <- c("estacao", "estacao_ajustada", "mlt")   # em cada dia, a 1ª que tiver medição
+ANO_HIDRO_INICIO <- 1975L   # horizonte: base começa em ago/1975 (10 anos de histórico +
+                            # 40 anos testados 1985–2024 com >= 10 anos de cada fase do ENOS)
 DESCARTAR    <- data.table(usina = "Prazeres", fonte = "estacao_ajustada")
 
 # ---- Caminhos -----------------------------------------------------------------
@@ -139,32 +142,19 @@ cob <- anos_completos(med, c("usina", "fonte"))
 setnames(cob, "ah", "ano_hidro")
 fwrite(cob, file.path(DIR_DER, "cobertura_usina_ano.csv"))
 
-# ---- Passo 4: fonte principal e complemento por usina -------------------------
-cand <- cob[completo == TRUE, .(n_anos = .N), by = .(usina, fonte)][!DESCARTAR, on = .(usina, fonte)]
-cand[, pref := fifelse(fonte == "mlt", 1L, 2L)]          # empate → MLT (série mais longa)
-setorder(cand, usina, -n_anos, pref)
-esc <- cand[, .(principal = fonte[1]), by = usina]
-esc[usina %in% names(FORCAR_FONTE), principal := FORCAR_FONTE[usina]]
-esc <- merge(data.table(usina = sort(unique(fontes$usina))), esc, by = "usina", all.x = TRUE)
+# ---- Passo 4+5: série final, dia a dia, por prioridade de fonte ---------------
+# Em cada dia fica a fonte de maior prioridade que tiver medição.
+cand <- med[!DESCARTAR, on = .(usina, fonte)]
+cand[, ordem := match(fonte, PRIORIDADE)]
+setorder(cand, usina, data, ordem)
+serie <- unique(cand, by = c("usina", "data"))[, .(usina, data, q, fonte, codigo)]
+serie <- serie[ano_hidro(data) >= ANO_HIDRO_INICIO]          # horizonte de tempo
 
-# complemento = a outra família, se bater na sobreposição
-compat <- comp[!DESCARTAR, on = .(usina, fonte)]
-esc <- merge(esc, compat[, .(usina, fonte_est = fonte, razao_med, cor_log)], by = "usina", all.x = TRUE)
-esc[, complemento := fcase(
-  is.na(principal) | is.na(razao_med),                   NA_character_,
-  abs(razao_med - 1) > TOL_EMENDA,                       NA_character_,
-  principal == "mlt",                                    fonte_est,
-  default =                                              "mlt")]
-esc[usina %in% names(FORCAR_FONTE), complemento := NA_character_]
-
-# ---- Passo 5: série final (principal; complemento só nos dias sem principal) --
-pega <- function(col, ordem) {
-  x <- esc[!is.na(get(col)), .(usina, fonte = get(col))]
-  med[x, on = .(usina, fonte), nomatch = 0L, .(usina, data, q, fonte, codigo, ordem = ordem)]
-}
-serie <- rbind(pega("principal", 1L), pega("complemento", 2L))
-setorder(serie, usina, data, ordem)
-serie <- unique(serie, by = c("usina", "data"))[, ordem := NULL]
+esc <- data.table(usina = sort(unique(fontes$usina)))
+esc <- merge(esc, comp[!DESCARTAR, on = .(usina, fonte)][, .(usina, razao_med, cor_log)],
+             by = "usina", all.x = TRUE)
+dias_fonte <- dcast(serie[, .N, by = .(usina, fonte)], usina ~ fonte, value.var = "N", fill = 0L)
+esc <- merge(esc, dias_fonte, by = "usina", all.x = TRUE)
 
 # anos completos da série final e corte
 serie[, `:=`(ah = ano_hidro(data), mes = month(data))]
@@ -174,7 +164,8 @@ resumo <- cob_final[completo == TRUE, .(anos_completos = .N,
 esc <- merge(esc, resumo, by = "usina", all.x = TRUE)
 esc[is.na(anos_completos), anos_completos := 0L]
 esc[, incluida := anos_completos >= MIN_ANOS]
-esc[, dias_complemento := serie[esc, on = "usina", sum(fonte == complemento, na.rm = TRUE), by = .EACHI]$V1]
+for (f in PRIORIDADE) if (!f %in% names(esc)) esc[, (f) := 0L]
+for (f in PRIORIDADE) set(esc, which(is.na(esc[[f]])), f, 0L)
 
 # calendário completo (dia sem medição = NA) só para as usinas incluídas
 base <- serie[usina %in% esc[incluida == TRUE, usina]]
@@ -183,16 +174,17 @@ base <- merge(cal, base[, .(usina, data, q, fonte, codigo)], by = c("usina", "da
 base[, ano_hidro := ano_hidro(data)]
 setcolorder(base, c("usina", "data", "ano_hidro", "q", "fonte", "codigo"))
 setnames(base, "q", "q_m3s")
-fwrite(base, file.path(DIR_DER, "base_vazao_diaria.csv"))
+fwrite(base, file.path(DIR_DER, "base_vazao_diaria_sem_filtro.csv"))   # antes dos filtros de mês
 
 # ---- Passo 5b: base mensal (soma das vazões diárias do mês) -------------------
 # q_soma_m3s_dia = Σ vazão diária (m³/s·dia); volume_hm3 = q_soma · 86400 / 1e6.
 # Regras (decididas com o grupo em 25/11/2026):
 #   - dia sem medição conta como 0 na soma (mês incompleto fica com soma menor);
-#   - mês SEM nenhum dia medido fica NA (0 seria um mês seco falso e ln(0) = −∞);
 #   - o 1º e o último mês de cada usina saem se forem parciais: ali a série só
-#     começa/termina no meio do mês, não é dia faltando.
-# dias_medidos, dias_mes, completo (todos os dias) e valido (>= MIN_DIAS_MES) vêm junto.
+#     começa/termina no meio do mês, não é dia faltando;
+#   - (26/11/2026) só ficam meses VÁLIDOS, com >= MIN_DIAS_MES dias medidos.
+#     Isso também tira os meses sem nenhum dia medido.
+# dias_medidos, dias_mes e completo (todos os dias medidos) vêm junto.
 base_mensal <- base[, .(dias_medidos   = sum(!is.na(q_m3s)),
                         q_soma_m3s_dia = sum(q_m3s, na.rm = TRUE),
                         fonte          = paste(sort(unique(na.omit(fonte))), collapse = "+")),
@@ -214,7 +206,24 @@ base_mensal[, ponta := seq_len(.N) %in% c(1L, .N), by = usina]
 n_pontas <- base_mensal[ponta & !completo, .N]
 base_mensal <- base_mensal[!(ponta & !completo)][, ponta := NULL]
 cat(sprintf("Base mensal: %d meses parciais nas pontas das séries removidos\n", n_pontas))
+n_invalidos <- base_mensal[valido == FALSE, .N]
+base_mensal <- base_mensal[valido == TRUE][, valido := NULL]
+cat(sprintf("Base mensal: %d meses com menos de %d dias medidos removidos; ficam %d\n",
+            n_invalidos, MIN_DIAS_MES, nrow(base_mensal)))
 fwrite(base_mensal, file.path(DIR_TF, "dados", "base_vazao_mensal.csv"))
+
+# ---- Passo 5c: base diária final (mesmos meses da base mensal) ----------------
+# Um dia por linha, só nos meses que ficaram na base mensal. Dia sem medição fica
+# com q_m3s = NA e medido = FALSE (na soma mensal ele conta como 0).
+base_diaria <- base[, `:=`(ano = year(data), mes = month(data))][
+  base_mensal[, .(usina, ano, mes)], on = .(usina, ano, mes), nomatch = 0L]
+base_diaria[, `:=`(mes_ano = sprintf("%d-%02d", ano, mes), medido = !is.na(q_m3s))]
+setcolorder(base_diaria, c("usina", "data", "ano", "mes", "mes_ano", "ano_hidro",
+                           "q_m3s", "medido", "fonte", "codigo"))
+setorder(base_diaria, usina, data)
+fwrite(base_diaria, file.path(DIR_TF, "dados", "base_vazao_diaria.csv"))
+cat(sprintf("Base diária: %d dias (%d medidos) em %d usina-meses\n",
+            nrow(base_diaria), base_diaria[medido == TRUE, .N], nrow(base_mensal)))
 
 # ---- Checagem: alguma usina incluída é cópia escalada de outra? ---------------
 inc <- esc[incluida == TRUE, usina]
@@ -229,9 +238,9 @@ dup <- pares[, {
 esc[, copia_de := NA_character_]
 for (i in which(dup$dispersao < 1.01)) esc[usina == dup$b[i], copia_de := dup$a[i]]
 
-fwrite(esc[, .(usina, incluida, principal, complemento, razao_est_mlt = round(razao_med, 3),
-               cor_log_est_mlt = round(cor_log, 3), dias_complemento, anos_completos,
-               primeiro_ano, ultimo_ano, copia_de)],
+fwrite(esc[, .(usina, incluida, dias_estacao = estacao, dias_estacao_ajustada = estacao_ajustada,
+               dias_mlt = mlt, razao_est_mlt = round(razao_med, 3), cor_log_est_mlt = round(cor_log, 3),
+               anos_completos, primeiro_ano, ultimo_ano, copia_de)],
        file.path(DIR_DER, "base_usinas.csv"))
 
 # ---- Relatório no console -----------------------------------------------------
@@ -245,8 +254,8 @@ anos_txt <- cob_final[completo == TRUE, .(anos = faixas(ah)), by = usina]
 rel <- merge(esc, anos_txt, by = "usina", all.x = TRUE)
 setorder(rel, -incluida, -anos_completos)
 cat("\n== Base única: escolha por usina ==\n")
-print(rel[, .(usina, incluida, principal, complemento, razao = round(razao_med, 3),
-              dias_compl = dias_complemento, n_anos = anos_completos, anos, copia_de)],
+print(rel[, .(usina, incluida, d_est = estacao, d_ajust = estacao_ajustada, d_mlt = mlt,
+              razao = round(razao_med, 3), n_anos = anos_completos, anos, copia_de)],
       nrows = 100, class = FALSE)
 cat(sprintf("\nUsinas na base: %d | linhas: %d | dias medidos: %d (%.1f%%)\n",
             uniqueN(base$usina), nrow(base), base[!is.na(q_m3s), .N], 100 * base[, mean(!is.na(q_m3s))]))

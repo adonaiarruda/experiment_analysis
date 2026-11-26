@@ -1,8 +1,7 @@
 # Dados da NEC Energia.
-# Só as duas bases compiladas do trabalho vão para o git (decisão do grupo, 25/11/2026);
-# os originais em raw/ ficam só na máquina.
+# Vão para o git só as tabelas consolidadas da raiz (decisão do grupo); os dados brutos
+# em raw/ ficam só na máquina e estão no Google Drive (ver LEIAME.md).
 *
 !.gitignore
 !LEIAME.md
-!base_vazao_mensal.csv
-!fase_enos_anual.csv
+!/*.csv
